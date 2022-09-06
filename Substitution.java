@@ -56,6 +56,11 @@ public class Substitution {
         return resultingSubs;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        return super.toString();
+    }
 
     private record Sub(Variable from, Term to) {
     }

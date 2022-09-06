@@ -6,6 +6,7 @@ public class HypAnswer {
     private final Substitution substitution;
     private final List<Atom> premise = new ArrayList<>();
     public HypAnswer(Substitution substitution, List<Atom> edbAtoms){
+        System.out.println(edbAtoms);
         this.substitution = substitution;
         premise.addAll(edbAtoms);
 
@@ -17,5 +18,10 @@ public class HypAnswer {
 
     public List<Atom> premise(){
         return premise;
+    }
+
+    @Override
+    public String toString() {
+        return "HELLO";
     }
 }

@@ -17,20 +17,21 @@ public class SLDResolution {
         if (isFinished(goal, program)) {
             answers.add(new HypAnswer(sub, goal));
         } else {
-            Atom selectedAtom = select(goal);
-            if (program.isIDB(selectedAtom.predicate())) {
-                for (Clause c : program.clauses()) {
-                    Substitution unifier = findMGU(c.head(), selectedAtom);
-                    if(unifier != null){
-                        List<Atom> new_goal = new ArrayList<>();
-                        for(Atom atom: goal){
-                            if(atom != selectedAtom){
-                                new_goal.add(atom.applySub(unifier));
-                            }
-                            atom.applySub(unifier);
+            Atom selectedAtom = select(goal, program);
+            assert program.isIDB(selectedAtom.predicate());
+            for (Clause c : program.clauses()) {
+                Substitution unifier = findMGU(c.head(), selectedAtom);
+                if(unifier != null){
+                    List<Atom> new_goal = new ArrayList<>();
+                    for(Atom atom: goal){
+                        if(atom != selectedAtom){
+                            new_goal.add(atom.applySub(unifier));
                         }
-                        sldInOrderTraversal(answers, new_goal, program, Substitution.composition(sub, unifier));
                     }
+                    for(Atom atom: c.body()){
+                        new_goal.add(atom.applySub(unifier));
+                    }
+                    sldInOrderTraversal(answers, new_goal, program, Substitution.composition(sub, unifier));
                 }
             }
         }
@@ -41,7 +42,7 @@ public class SLDResolution {
             return null;
         }
         Substitution sub = new Substitution();
-        for(int i = 0; i<sub.subs().size(); i++){
+        for(int i = 0; i<head.args().length; i++){
             if(head.args()[i] != selectedAtom.args()[i]){
                 Substitution unifier = unify(head.args()[i], selectedAtom.args()[i]);
                 if(unifier == null){
@@ -68,7 +69,13 @@ public class SLDResolution {
         }
     }
 
-    private static Atom select(List<Atom> goal) {
+    private static Atom select(List<Atom> goal, Program program) {
+        for(int i = goal.size()-1; i>0; i--){
+            if(program.isIDB(goal.get(i).predicate())){
+                return goal.get(i);
+            }
+        }
+        assert program.isIDB(goal.get(0).predicate());
         return goal.get(goal.size()-1);
     }
 

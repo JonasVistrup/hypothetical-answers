@@ -1,4 +1,11 @@
 public class Constant implements Term {
+
+
+        public String name;
+        public Constant(String name){
+                this.name = name;
+        }
+
         /**
         *
         * @param substitution
@@ -13,5 +20,10 @@ public class Constant implements Term {
         @Override
         public boolean equals(Object obj) {
                 return super.equals(obj);
+        }
+
+        @Override
+        public String toString() {
+                return name;
         }
 }
