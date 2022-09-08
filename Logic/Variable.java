@@ -6,7 +6,16 @@ public class Variable implements Term{
     }
     @Override
     public Term applySub(Substitution substitution) {
-        return null;
+        for(Substitution.Sub sub: substitution.subs()){
+            if(sub.from().equals(this)) {
+                return sub.to();
+            }
+        }
+        return this;
+    }
+    @Override
+    public String name() {
+        return name;
     }
 
     @Override

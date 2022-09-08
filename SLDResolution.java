@@ -20,7 +20,7 @@ public class SLDResolution {
             Atom selectedAtom = select(goal, program);
             assert program.isIDB(selectedAtom.predicate());
             for (Clause c : program.clauses()) {
-                Substitution unifier = findMGU(c.head(), selectedAtom);
+                Substitution unifier = findMGU(selectedAtom, c.head());
                 if(unifier != null){
                     List<Atom> new_goal = new ArrayList<>();
                     for(Atom atom: goal){
@@ -37,14 +37,14 @@ public class SLDResolution {
         }
     }
 
-    private static Substitution findMGU(Atom head, Atom selectedAtom) {
+    private static Substitution findMGU(Atom selectedAtom, Atom head) {
         if(head.predicate() != selectedAtom.predicate()){
             return null;
         }
         Substitution sub = new Substitution();
         for(int i = 0; i<head.args().length; i++){
             if(head.args()[i] != selectedAtom.args()[i]){
-                Substitution unifier = unify(head.args()[i], selectedAtom.args()[i]);
+                Substitution unifier = unify(selectedAtom.args()[i], head.args()[i]);
                 if(unifier == null){
                     return null;
                 }else{
@@ -52,8 +52,29 @@ public class SLDResolution {
                 }
             }
         }
-
+        Substitution temp_unifier = unifyTemporal(selectedAtom.temporal(), head.temporal());
+        if(temp_unifier == null){
+            return null;
+        }else{
+            sub = Substitution.composition(sub, temp_unifier);
+        }
         return sub;
+    }
+
+    private static Substitution unifyTemporal(Temporal one, Temporal two){
+        if(one.variable() == null && two.variable() == null){
+            if(one.constant() != two.constant()){
+                return null;
+            }else{
+                return new Substitution();
+            }
+        }else if(one.variable() == null && two.variable() != null){
+            return new Substitution(two.variable(), new Temporal(null, one.constant()- two.constant()));
+        }else if(one.variable() != null && two.variable() == null){
+            return new Substitution(one.variable(), new Temporal(null, two.constant()- one.constant()));
+        }else{
+            return new Substitution(two.variable(), new Temporal(one.variable(), one.constant() - two.constant()));
+        }
     }
 
     private static Substitution unify(Term one, Term two){

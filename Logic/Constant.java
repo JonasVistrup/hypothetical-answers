@@ -16,6 +16,11 @@ public class Constant implements Term {
                 return this;
         }
 
+        @Override
+        public String name() {
+                return name;
+        }
+
 
         @Override
         public boolean equals(Object obj) {

@@ -59,9 +59,22 @@ public class Substitution {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        return super.toString();
+        builder.append("{");
+        for(Sub s: subs){
+            builder.append("(");
+            builder.append(s.toString());
+            builder.append(")");
+            builder.append(",");
+        }
+        builder.deleteCharAt(builder.length()-1);
+        builder.append("}");
+        return builder.toString();
     }
 
-    private record Sub(Variable from, Term to) {
+    public record Sub(Variable from, Term to) {
+        @Override
+        public String toString() {
+            return from.name()+"/"+to.name();
+        }
     }
 }
