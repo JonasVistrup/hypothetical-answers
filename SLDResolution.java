@@ -1,108 +1,48 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 //TODO
 public class SLDResolution {
     public static List<HypAnswer> preprocess(Atom query, Program program) {
         List<HypAnswer> answers = new ArrayList<>();
 
-        List<Atom> goal = new ArrayList<>();
-        goal.add(query);
-
-        sldInOrderTraversal(answers, goal, program, new Substitution());
+        sldInOrderTraversal(answers, new Goal(query), program, new Substitution());
 
         return answers;
     }
 
-    private static void sldInOrderTraversal(List<HypAnswer> answers, List<Atom> goal, Program program, Substitution sub) {
+    private static void sldInOrderTraversal(List<HypAnswer> answers, Goal goal, Program program, Substitution sub) {
         if (isFinished(goal, program)) {
-            answers.add(new HypAnswer(sub, goal));
+            answers.add(new HypAnswer(sub, Arrays.asList(goal.atoms())));
         } else {
             Atom selectedAtom = select(goal, program);
             assert program.isIDB(selectedAtom.predicate());
             for (Clause c : program.clauses()) {
-                Substitution unifier = findMGU(selectedAtom, c.head());
+                Substitution unifier = Unify.findMGU(selectedAtom, c.head());
                 if(unifier != null){
-                    List<Atom> new_goal = new ArrayList<>();
-                    for(Atom atom: goal){
-                        if(atom != selectedAtom){
-                            new_goal.add(atom.applySub(unifier));
-                        }
-                    }
-                    for(Atom atom: c.body()){
-                        new_goal.add(atom.applySub(unifier));
-                    }
+                    Goal new_goal = goal.remove(selectedAtom);
+                    new_goal = new_goal.add(c.body());
+                    new_goal = new_goal.applySub(unifier);
+
                     sldInOrderTraversal(answers, new_goal, program, Substitution.composition(sub, unifier));
                 }
             }
         }
     }
 
-    private static Substitution findMGU(Atom selectedAtom, Atom head) {
-        if(head.predicate() != selectedAtom.predicate()){
-            return null;
-        }
-        Substitution sub = new Substitution();
-        for(int i = 0; i<head.args().length; i++){
-            if(head.args()[i] != selectedAtom.args()[i]){
-                Substitution unifier = unify(selectedAtom.args()[i], head.args()[i]);
-                if(unifier == null){
-                    return null;
-                }else{
-                    sub = Substitution.composition(sub, unifier);
-                }
+    private static Atom select(Goal goal, Program program) {
+        for(int i = goal.atoms().length-1; i>0; i--){
+            if(program.isIDB(goal.atoms()[i].predicate())){
+                return goal.atoms()[i];
             }
         }
-        Substitution temp_unifier = unifyTemporal(selectedAtom.temporal(), head.temporal());
-        if(temp_unifier == null){
-            return null;
-        }else{
-            sub = Substitution.composition(sub, temp_unifier);
-        }
-        return sub;
-    }
-
-    private static Substitution unifyTemporal(Temporal one, Temporal two){
-        if(one.variable() == null && two.variable() == null){
-            if(one.constant() != two.constant()){
-                return null;
-            }else{
-                return new Substitution();
-            }
-        }else if(one.variable() == null && two.variable() != null){
-            return new Substitution(two.variable(), new Temporal(null, one.constant()- two.constant()));
-        }else if(one.variable() != null && two.variable() == null){
-            return new Substitution(one.variable(), new Temporal(null, two.constant()- one.constant()));
-        }else{
-            return new Substitution(two.variable(), new Temporal(one.variable(), one.constant() - two.constant()));
-        }
-    }
-
-    private static Substitution unify(Term one, Term two){
-        if(one instanceof Variable){
-            return new Substitution((Variable) one, two); //No matter if two is a constant or a variable, we choose to sub one with two
-        }else{
-            if(two instanceof Variable){
-                return new Substitution((Variable) two, one);
-            }else{
-                assert !one.equals(two);
-                return null;
-            }
-        }
-    }
-
-    private static Atom select(List<Atom> goal, Program program) {
-        for(int i = goal.size()-1; i>0; i--){
-            if(program.isIDB(goal.get(i).predicate())){
-                return goal.get(i);
-            }
-        }
-        assert program.isIDB(goal.get(0).predicate());
-        return goal.get(goal.size()-1);
+        assert program.isIDB(goal.atoms()[0].predicate());
+        return goal.atoms()[goal.atoms().length-1];
     }
 
 
-    private static boolean isFinished(List<Atom> goal, Program program) {
-        for(Atom atom : goal) {
+    private static boolean isFinished(Goal goal, Program program) {
+        for(Atom atom : goal.atoms()) {
             if(program.isIDB(atom.predicate())){
                 return false;
             }

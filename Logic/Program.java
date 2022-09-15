@@ -24,4 +24,14 @@ public class Program {
     public List<Clause> clauses() {
         return clauses;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for(Clause c: clauses){
+            builder.append(c.toString());
+            builder.append("\n");
+        }
+        return builder.toString();
+    }
 }

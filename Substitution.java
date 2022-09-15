@@ -71,6 +71,31 @@ public class Substitution {
         return builder.toString();
     }
 
+    public String toString(Atom relevantQuery) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{");
+
+        for(Sub s: subs){
+            if(!relevantSub(s, relevantQuery)) continue;
+            builder.append("(");
+            builder.append(s.toString());
+            builder.append(")");
+            builder.append(",");
+        }
+        if(builder.length()>1) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        builder.append("}");
+        return builder.toString();
+    }
+
+    private static boolean relevantSub(Sub s, Atom relevantQuery) {
+        for(Term t: relevantQuery.args()){
+            if(t.equals(s.from())) return true;
+        }
+        return relevantQuery.temporal().variable().equals(s.from());
+    }
+
     public record Sub(Variable from, Term to) {
         @Override
         public String toString() {
