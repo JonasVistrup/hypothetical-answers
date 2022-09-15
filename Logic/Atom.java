@@ -1,5 +1,3 @@
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -70,7 +68,7 @@ public class Atom implements Comparable<Atom> {
 
     //TODO rewrite
     @Override
-    public int compareTo(@NotNull Atom o) {
+    public int compareTo(Atom o) {
         if((o.temporal.variable() == null && this.temporal.variable() == null) || (o.temporal.variable() != null && this.temporal.variable() != null)){
             return this.temporal.constant() - o.temporal.constant();
         }else{

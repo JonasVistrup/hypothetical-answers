@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 //TODO
 public class Reasoner {
@@ -9,6 +10,7 @@ public class Reasoner {
     private int time;
 
     private List<HypAnswer> hypAnswers;
+    private List<EvidenceAnswer> evidenceAnswers = new ArrayList<EvidenceAnswer>();
 
     /**
      * Constructor.
@@ -40,17 +42,36 @@ public class Reasoner {
     }
 
     //TODO
-    public HypAnswer nextTime(List<Atom> dataSlice) {
+    public List<EvidenceAnswer> nextTime(List<Atom> dataSlice) {
         if (!legalSlice(dataSlice)) {
             throw new IllegalArgumentException("Dataslice is not allowed at time: " + this.time + ".");
         }
         this.time += 1;
+
+        List<EvidenceAnswer> iter = new ArrayList<>(evidenceAnswers);
+        for (EvidenceAnswer evidenceAnswer: iter){
+            Substitution sub = evidenceAnswer.substitution();
+            List<Atom> premise = new ArrayList<>(evidenceAnswer.PremiseConstant());
+            premise.addAll(evidenceAnswer.PremiseVariable());
+            List<EvidenceAnswer> eAnswers = generateEvidenceFromHyp(new HypAnswer(sub, premise), dataSlice);
+            if(eAnswers == null) {
+                this.evidenceAnswers.remove(evidenceAnswer); // Not valid
+                continue;
+            }
+            for(EvidenceAnswer eAnswer: eAnswers){
+                List<Atom> evidence = new ArrayList<Atom>(evidenceAnswer.Evidence());
+                evidence.addAll(eAnswer.Evidence());
+                this.evidenceAnswers.add(new EvidenceAnswer(eAnswer.substitution(), evidence, eAnswer.PremiseConstant(), eAnswer.PremiseVariable()));
+            }
+            return this.evidenceAnswers;
+        }
         //Check constant, and then find variables
         for (HypAnswer hypAnswer : hypAnswers) {
             List<EvidenceAnswer> eAnswer = generateEvidenceFromHyp(hypAnswer, dataSlice);
             if (eAnswer == null) continue;
-            //TODO
+            evidenceAnswers.addAll(eAnswer);
         }
+
         return null;
     }
 
@@ -67,7 +88,7 @@ public class Reasoner {
         if(constantSolutions.isEmpty()){
             return null;
         }
-        List<Atom> premiseConstantWithoutM = hypAnswer.premiseConstant().stream().filter((x)->!M.contains(x)).toList();
+        List<Atom> premiseConstantWithoutM = hypAnswer.premiseConstant().stream().filter((x)->!M.contains(x)).collect(Collectors.toList());
         List<Atom> smallestPremiseTemporal = hypAnswer.getSmallestTemporal();
         for(Substitution s: constantSolutions){
             List<Atom> MSubbed = applySubToList(M, s);
@@ -75,15 +96,16 @@ public class Reasoner {
             List<Atom> premiseConstantSubbed = applySubToList(premiseConstantWithoutM, s);
             List<Atom> premiseTemporalSubbed = applySubToList(hypAnswer.premiseTemporal(),s);
 
-            evidenceAnswers.add(new EvidenceAnswer(s, MSubbed, premiseConstantSubbed, premiseTemporalSubbed)); // TODO use arraylist instead of list for clone feature
+            evidenceAnswers.add(new EvidenceAnswer(Substitution.composition(hypAnswer.substitution(),s), MSubbed, premiseConstantSubbed, premiseTemporalSubbed)); // TODO use arraylist instead of list for clone feature
 
             List<Atom> smallestTSubbed = applySubToList(smallestPremiseTemporal, s);
             List<Substitution> solutions = NormalSLDResolution.SLDResolution(new Goal(smallestTSubbed.toArray(new Atom[0])), dataSliceProgram); // Prove that you can solve constants before Temporal without loss of solution.
             List<Atom> evidencePreSubbed = new ArrayList<>(MSubbed);
             evidencePreSubbed.addAll(smallestTSubbed);
-            List<Atom> premiseVarWithoutE = hypAnswer.premiseTemporal().stream().filter((x)->!smallestPremiseTemporal.contains(x)).toList();
+            List<Atom> premiseVarWithoutE = hypAnswer.premiseTemporal().stream().filter((x)->!smallestPremiseTemporal.contains(x)).collect(Collectors.toList());
             for(Substitution ss: solutions){
-                evidenceAnswers.add(new EvidenceAnswer(s, applySubToList(evidencePreSubbed, ss), applySubToList(premiseConstantSubbed,s),applySubToList(premiseVarWithoutE, Substitution.composition(s, ss)) ));
+                Substitution sss = Substitution.composition(hypAnswer.substitution(),Substitution.composition(s, ss));
+                evidenceAnswers.add(new EvidenceAnswer(sss, applySubToList(evidencePreSubbed, ss), applySubToList(premiseConstantSubbed,s),applySubToList(premiseVarWithoutE, sss) ));
             }
         }
 

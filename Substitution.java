@@ -96,7 +96,22 @@ public class Substitution {
         return relevantQuery.temporal().variable().equals(s.from());
     }
 
-    public record Sub(Variable from, Term to) {
+    public static final class Sub {
+        private final Variable from;
+        private final Term to;
+
+        public Sub(Variable from, Term to){
+            this.from = from;
+            this.to = to;
+        }
+
+        public Variable from(){
+            return from;
+        }
+
+        public Term to(){
+            return to;
+        }
         @Override
         public String toString() {
             return from.name()+"/"+to.name();
