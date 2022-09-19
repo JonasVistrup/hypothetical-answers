@@ -5,7 +5,7 @@ import java.util.*;
 //TODO
 public class ProgramBuilder {
 
-    private static final Map<String, Predicate> predicates = new HashMap<>();
+    public static final Map<String, Predicate> predicates = new HashMap<>();
     private static final Map<String, Term> terms = new HashMap<>();
     private static final Map<String, Variable> temporalVariables = new HashMap<>();
 
@@ -19,6 +19,7 @@ public class ProgramBuilder {
 
 
     public static void addClause(String representation) {
+        //System.out.println("REP:"+representation);
         representation = representation.replaceAll(" ", "");
         String[] parts = representation.split("<-");
         if (parts.length < 1 || parts.length >= 3) {
@@ -30,7 +31,9 @@ public class ProgramBuilder {
             clauses.add(new Clause(head));
             return;
         }
-        parts[1] = parts[1].replaceAll("\\),\\(", ")<-(");
+        //System.out.println("BClause:"+parts[1]);
+        parts[1] = parts[1].replaceAll("\\),", ")<-");
+        //System.out.println("CLAUSE:"+parts[1]);
         String[] strBody = parts[1].split("<-");
         Atom[] body = new Atom[strBody.length];
         for(int i = 0; i<body.length; i++){
@@ -41,6 +44,7 @@ public class ProgramBuilder {
     }
 
     public static Atom parseAtom(String atomRep) {
+        atomRep = atomRep.replaceAll(" ", "");
         String[] strArguments;
         if (atomRep.length() == 0) {
             throw new IllegalArgumentException("Atom representation must not be empty");
@@ -154,15 +158,47 @@ public class ProgramBuilder {
     public static void main(String[] args) {
         addClause("P(a, T)<-Q(a,X,T+1)");
         addClause("P(b, T1)<-P(a, T1-1)");
-        addClause("Q(a,B, T2)<-");
+        //addClause("Q(a,b, T2)<-");
 
         Program program = getProgram();
         System.out.println(program);
         Atom query = parseAtom("P(Y,T3)");
-        List<HypAnswer> answers = SLDResolution.preprocess(query, program);
-        for(HypAnswer answer: answers){
-            System.out.println(answer.toString(query));
+        System.out.println("Query:"+query);
+        Reasoner r = new Reasoner(program, query);
+        List<Atom> dataSlice = new ArrayList<>();
+        dataSlice.add(parseAtom("L(a,b, 0)"));
+
+
+        System.out.println("\nTime -1:");
+        List<HypAnswer> hypAnswers = r.hypAnswers();
+        for(HypAnswer hypAnswer: hypAnswers){
+            System.out.println(hypAnswer.toString(query));
         }
+
+        System.out.println("\nTime 0:");
+        List<EvidenceAnswer> evidenceAnswers = r.nextTime(dataSlice);
+        for(EvidenceAnswer evidenceAnswer: evidenceAnswers){
+            System.out.println(evidenceAnswer.toString(query));
+        }
+
+        System.out.println("\nTime 1:");
+        dataSlice = new ArrayList<>();
+        dataSlice.add(parseAtom("Q(a,b, 1)"));
+
+        evidenceAnswers = r.nextTime(dataSlice);
+        for(EvidenceAnswer evidenceAnswer: evidenceAnswers){
+            System.out.println(evidenceAnswer.toString(query));
+        }
+
+        System.out.println("\nTime 2:");
+        dataSlice = new ArrayList<>();
+        //dataSlice.add(parseAtom("L(a,b, 2)"));
+
+        evidenceAnswers = r.nextTime(dataSlice);
+        for(EvidenceAnswer evidenceAnswer: evidenceAnswers){
+            System.out.println(evidenceAnswer.toString(query));
+        }
+
     }
 
 }

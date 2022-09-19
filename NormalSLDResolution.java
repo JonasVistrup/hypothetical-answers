@@ -24,8 +24,9 @@ public class NormalSLDResolution {
                     Goal new_goal = goal.remove(selectedAtom);
                     new_goal = new_goal.add(c.body());
                     new_goal = new_goal.applySub(unifier);
-
-                    sldInOrderTraversal(answers, new_goal, program, Substitution.composition(sub, unifier));
+                    if(!new_goal.containsNegativeTime()) {
+                        sldInOrderTraversal(answers, new_goal, program, Substitution.composition(sub, unifier));
+                    }
                 }
             }
         }

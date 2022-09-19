@@ -29,8 +29,16 @@ public final class Goal {
 
     @Override
     public String toString() {
-        return "Goal[" +
-                "atoms=" + atoms + ']';
+        StringBuilder b = new StringBuilder();
+        for(Atom a: atoms){
+            b.append(a);
+            b.append(",");
+        }
+        if(atoms.length==0){
+            return "[]";
+        }
+        b.deleteCharAt(b.length()-1);
+        return b.toString();
     }
 
     public Goal applySub(Substitution substitution) {
@@ -78,4 +86,12 @@ public final class Goal {
         }
         return new Goal(new_atoms.toArray(new Atom[0]));
     }
+
+    public boolean containsNegativeTime() {
+        for(Atom a: atoms){
+            if(a.temporal().isNegative()) return true;
+        }
+        return false;
+    }
+
 }

@@ -1,5 +1,6 @@
 public class Unify {
     static Substitution findMGU(Atom selectedAtom, Atom head) {
+
         if(head.predicate() != selectedAtom.predicate()){
             return null;
         }
@@ -32,8 +33,10 @@ public class Unify {
                 return new Substitution();
             }
         }else if(one.variable() == null && two.variable() != null){
+            if(one.constant()- two.constant() < 0) return null;
             return new Substitution(two.variable(), new Temporal(null, one.constant()- two.constant()));
         }else if(one.variable() != null && two.variable() == null){
+            if(two.constant() - one.constant() < 0) return null;
             return new Substitution(one.variable(), new Temporal(null, two.constant()- one.constant()));
         }else{
             return new Substitution(two.variable(), new Temporal(one.variable(), one.constant() - two.constant()));

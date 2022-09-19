@@ -27,11 +27,15 @@ public final class EvidenceAnswer {
     public List<Atom> PremiseVariable(){
         return PremiseVariable;
     }
+
+    //TODO equal
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         EvidenceAnswer that = (EvidenceAnswer) obj;
+        if(!substitution.equals(that.substitution)) return false;
+
         return Objects.equals(this.substitution, that.substitution);
     }
 
@@ -42,8 +46,64 @@ public final class EvidenceAnswer {
 
     @Override
     public String toString() {
-        return "EvidenceAnswer[" +
-                "substitution=" + substitution + ']';
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        builder.append(substitution.toString());
+        builder.append(",{");
+        for(Atom a: Evidence){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        if(!Evidence.isEmpty()){
+            builder.deleteCharAt(builder.length()-1);
+        }
+        builder.append("},{");
+        for(Atom a: PremiseConstant){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+
+        for(Atom a: PremiseVariable){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        if(!PremiseConstant.isEmpty() || !PremiseVariable.isEmpty()){
+            builder.deleteCharAt(builder.length()-1);
+        }
+
+        builder.append("}]");
+        return builder.toString();
     }
+
+    public String toString(Atom releventQuery) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        builder.append(substitution.toString(releventQuery));
+        builder.append(",{");
+        for(Atom a: Evidence){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        if(!Evidence.isEmpty()){
+            builder.deleteCharAt(builder.length()-1);
+        }
+        builder.append("},{");
+        for(Atom a: PremiseConstant){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+
+        for(Atom a: PremiseVariable){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        if(!PremiseConstant.isEmpty() || !PremiseVariable.isEmpty()){
+            builder.deleteCharAt(builder.length()-1);
+        }
+
+        builder.append("}]");
+        return builder.toString();
+    }
+
 
 }

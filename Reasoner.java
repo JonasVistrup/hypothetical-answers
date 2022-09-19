@@ -28,6 +28,14 @@ public class Reasoner {
         this.hypAnswers = SLDResolution.preprocess(this.query, this.program);
     }
 
+    public List<HypAnswer> hypAnswers(){
+        return hypAnswers;
+    }
+
+    public List<EvidenceAnswer> evidenceAnswers(){
+        return evidenceAnswers;
+    }
+
     /**
      * //TODO Complete this.
      * Changing the query resets the time and therefore also the timestream.
@@ -72,7 +80,20 @@ public class Reasoner {
             evidenceAnswers.addAll(eAnswer);
         }
 
-        return null;
+        evidenceAnswers = removeHyp(evidenceAnswers);
+
+        return evidenceAnswers;
+    }
+
+    private List<EvidenceAnswer> removeHyp(List<EvidenceAnswer> evidence){
+        List<EvidenceAnswer> cleanEvidence = new ArrayList<>();
+        for(EvidenceAnswer answer: evidence){
+            if(!answer.Evidence().isEmpty()){
+                cleanEvidence.add(answer);
+            }
+        }
+        return cleanEvidence;
+
     }
 
     //TODO

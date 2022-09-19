@@ -12,19 +12,28 @@ public class SLDResolution {
     }
 
     private static void sldInOrderTraversal(List<HypAnswer> answers, Goal goal, Program program, Substitution sub) {
+        System.out.println("Goal: "+goal.toString());
         if (isFinished(goal, program)) {
             answers.add(new HypAnswer(sub, Arrays.asList(goal.atoms())));
         } else {
             Atom selectedAtom = select(goal, program);
             assert program.isIDB(selectedAtom.predicate());
             for (Clause c : program.clauses()) {
+                System.out.println("\nSELECTED CLAUSE:"+c);
                 Substitution unifier = Unify.findMGU(selectedAtom, c.head());
+                System.out.println("Selected ATOM:"+selectedAtom+ "; Selected HEAD:"+c.head() + "; RESULT:"+unifier);
                 if(unifier != null){
                     Goal new_goal = goal.remove(selectedAtom);
+                    System.out.println("Body:");
+                    for(Atom a: c.body()){
+                        System.out.print("\t"+a);
+                    }
+                    System.out.println("");
                     new_goal = new_goal.add(c.body());
                     new_goal = new_goal.applySub(unifier);
-
-                    sldInOrderTraversal(answers, new_goal, program, Substitution.composition(sub, unifier));
+                    if(!new_goal.containsNegativeTime()){
+                        sldInOrderTraversal(answers, new_goal, program, Substitution.composition(sub, unifier));
+                    }
                 }
             }
         }

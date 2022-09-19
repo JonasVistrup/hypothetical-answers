@@ -6,6 +6,28 @@ import java.util.List;
  */
 public class Main {
     public static void main(String[] args){
+        ProgramBuilder.addClause("Flag(X1,T1)<-Temp(X1, high, T1)");
+        ProgramBuilder.addClause("Cool(X2,T2+1)<-Flag(X2,T2),Flag(X2,T2+1)");
+        ProgramBuilder.addClause("Shdn(X3,T3+1)<-Cool(X3,T3),Flag(X3,T3+1)");
+        ProgramBuilder.addClause("Malf(X4,T4-2)<-Shdn(X4,T4)");
+
+        Program p = ProgramBuilder.getProgram();
+        System.out.println("Temp is IDB:"+p.isIDB(ProgramBuilder.predicates.get("Temp")));
+        Atom query = ProgramBuilder.parseAtom("Malf(X,T)");
+        Reasoner r = new Reasoner(p,query);
+
+        System.out.println(p);
+
+        System.out.println("Query:"+query);
+        System.out.println("Hyp Answers:");
+        for(HypAnswer a: r.hypAnswers()){
+            System.out.println(a.toString());
+        }
+
+
+    }
+
+    public static void oldHorribleTest(){
         ArrayList<Predicate> predicates = new ArrayList<>();
         ArrayList<Constant> constants = new ArrayList<>();
         ArrayList<Variable> variables = new ArrayList<>();
@@ -53,7 +75,5 @@ public class Main {
         for(HypAnswer answer: answers){
             System.out.println(answer.toString(query));
         }
-
-
     }
 }
