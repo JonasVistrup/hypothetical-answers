@@ -1,45 +1,40 @@
-import javax.swing.*;
+import java.util.Map;
 
 public class Temporal implements Term{
 
-    private Variable variable; // Time variable
-    private int constant; // Added constant
+    Variable tVar;
+    int tConstant;
+    Map<Integer, TemporalInstance> variants;
 
-    public Temporal(Variable variable, int constant){
-        this.variable = variable;
-        this.constant = constant;
+    public Temporal(Variable tVar, int tConstant){
+        if(tVar==null && tConstant<0) throw new IllegalArgumentException("Temporal constant must be at least 0");
+
+        this.tVar = tVar;
+        this.tConstant = tConstant;
     }
 
-    public boolean isNegative(){
-        if(variable != null) return false;
-        return constant<0;
-    }
-
-    @Override
-    public Term applySub(Substitution substitution) {
-        if(!substitution.isInSupport(variable)){
-            return this;
-        }
-        Term res_term = variable.applySub(substitution);
-        assert res_term instanceof Temporal;
-        Temporal res = (Temporal) res_term;
-        return new Temporal(res.variable, res.constant+this.constant);
-    }
-
-    public Variable variable() {
-        return variable;
-    }
-
-    @Override
-    public String name() {
-        if(variable != null) {
-            return variable.name();
-        }else {
-            return "" + constant;
+    public TermInstance getVariant(int version){
+        if(this.variants.containsKey(version)){
+            return this.variants.get(version);
+        }else{
+            TemporalInstance instance = new TemporalInstance(this, version);
+            this.variants.put(version, instance);
+            return instance;
         }
     }
 
-    public int constant(){
-        return this.constant;
+
+    @Override
+    public String toString() {
+        if(tVar == null) {
+            return "" + tConstant;
+        }
+
+        StringBuilder b = new StringBuilder(tVar.toString());
+        if(tConstant>=0){
+            b.append("+");
+        }
+        b.append(tConstant);
+        return b.toString();
     }
 }

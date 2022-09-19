@@ -1,34 +1,16 @@
-public class Constant implements Term {
+public class Constant implements Term, TermInstance{
 
+    String id;
+    public Constant(String id){
+        this.id = id;
+    }
 
-        public String name;
-        public Constant(String name){
-                this.name = name;
-        }
+    public TermInstance getVariant(int version){
+        return this;
+    }
 
-        /**
-        *
-        * @param substitution
-        * @return constant Since a substitution on a constant will not change the constant then this always returns itself.
-        */
-        @Override
-        public Term applySub(Substitution substitution){
-                return this;
-        }
-
-        @Override
-        public String name() {
-                return name;
-        }
-
-
-        @Override
-        public boolean equals(Object obj) {
-                return super.equals(obj);
-        }
-
-        @Override
-        public String toString() {
-                return name;
-        }
+    @Override
+    public String toString() {
+        return id;
+    }
 }
