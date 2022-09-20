@@ -1,4 +1,6 @@
-public class TemporalInstance implements TermInstance {
+import org.jetbrains.annotations.NotNull;
+
+public class TemporalInstance implements TermInstance, Comparable<TemporalInstance> {
 
     VariableInstance tVarInst;
     int constant;
@@ -32,5 +34,11 @@ public class TemporalInstance implements TermInstance {
         }
         b.append(this.constant);
         return b.toString();
+    }
+
+    @Override
+    public int compareTo(@NotNull TemporalInstance o) {
+        if(this.tVarInst != o.tVarInst) throw new IllegalArgumentException("Not comparable");
+        return this.constant - o.constant;
     }
 }

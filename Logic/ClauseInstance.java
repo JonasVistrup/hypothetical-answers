@@ -2,17 +2,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClauseInstance {
-    Clause original;
+
     int version;
     AtomInstance head;
-    List<AtomInstance> body;
+    AtomList body;
 
     ClauseInstance(Clause original, int version){
-        this.original = original;
         this.version = version;
 
         this.head = original.head.getInstance(version);
-        this.body = new ArrayList<>();
+        this.body = new AtomList();
         for(Atom a: original.body){
             this.body.add(a.getInstance(version));
         }
@@ -22,6 +21,17 @@ public class ClauseInstance {
 
     @Override
     public String toString() {
-        return original.toString();
+        if (body.isEmpty()) {
+            return head.toString() + "<-";
+        }
+        StringBuilder builder = new StringBuilder();
+        builder.append(head.toString());
+        builder.append("<-");
+        for (AtomInstance atom : body) {
+            builder.append(atom.toString());
+            builder.append(",");
+        }
+        builder.deleteCharAt(builder.length() - 1);
+        return builder.toString();
     }
 }
