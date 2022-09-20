@@ -25,4 +25,31 @@ public class Atom {
             return instance;
         }
     }
+
+
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(predicate.toString());
+        builder.append('(');
+        for(Term t: args){
+            builder.append(t.toString());
+            builder.append(',');
+        }
+        if(temporal.tVar != null) {
+            builder.append(temporal.tVar.toString());
+            if (temporal.tConstant > 0) {
+                builder.append("+");
+                builder.append(temporal.tConstant);
+            } else if (temporal.tConstant < 0) {
+                builder.append(temporal.tConstant);
+            }
+        }else{
+            builder.append(temporal.tConstant);
+        }
+
+        builder.append(')');
+        return builder.toString();
+    }
 }

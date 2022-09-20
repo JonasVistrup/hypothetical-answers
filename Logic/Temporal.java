@@ -17,11 +17,13 @@ public class Temporal implements Term{
         if(this.variants.containsKey(version)){
             return this.variants.get(version);
         }else{
-            TemporalInstance instance = new TemporalInstance(this, version);
+            TemporalInstance instance = new TemporalInstance((VariableInstance) tVar.getVariant(version), this.tConstant, (version));
             this.variants.put(version, instance);
             return instance;
         }
     }
+
+
 
 
     @Override

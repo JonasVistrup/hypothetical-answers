@@ -13,4 +13,9 @@ public class Constant implements Term, TermInstance{
     public String toString() {
         return id;
     }
+
+    @Override
+    public TermInstance applySub(Substitution substitution) {
+        return this;
+    }
 }

@@ -14,15 +14,18 @@ public class Variable implements Term{
         if(this.variants.containsKey(version)){
             return this.variants.get(version);
         }else{
-            VariableInstance instance = new VariableInstance(this, version);
+            VariableInstance instance = new VariableInstance(this.id, version);
             this.variants.put(version, instance);
             return instance;
         }
     }
 
 
+
     @Override
     public String toString() {
         return id;
     }
+
+
 }

@@ -1,16 +1,24 @@
 public class VariableInstance implements TermInstance{
     int version;
-    Variable original;
+    String id;
 
-    public VariableInstance(Variable original, int version){
-        this.original = original;
+    public VariableInstance(String id, int version){
+        this.id = id;
         this.version = version;
     }
 
 
+    @Override
+    public TermInstance applySub(Substitution substitution) {
+        TermInstance t = substitution.getSubstitution(this);
+        if(t != null){
+            return t;
+        }
+        return this;
+    }
 
     @Override
     public String toString() {
-        return original.toString();
+        return id;
     }
 }

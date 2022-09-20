@@ -17,4 +17,11 @@ public class ClauseInstance {
             this.body.add(a.getInstance(version));
         }
     }
+
+
+
+    @Override
+    public String toString() {
+        return original.toString();
+    }
 }
