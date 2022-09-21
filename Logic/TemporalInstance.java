@@ -4,12 +4,11 @@ public class TemporalInstance implements TermInstance, Comparable<TemporalInstan
 
     VariableInstance tVarInst;
     int constant;
-    int version;
 
-    TemporalInstance(VariableInstance tVarInst, int constant,  int version){
+
+    TemporalInstance(VariableInstance tVarInst, int constant){
         this.tVarInst = tVarInst;
         this.constant = constant;
-        this.version = version;
     }
 
     @Override
@@ -18,7 +17,7 @@ public class TemporalInstance implements TermInstance, Comparable<TemporalInstan
         if(to_term != null){
             assert to_term instanceof TemporalInstance;
             TemporalInstance to = (TemporalInstance) to_term;
-            return new TemporalInstance(to.tVarInst,to.constant+this.constant , to.version);
+            return new TemporalInstance(to.tVarInst,to.constant+this.constant);
         }
         return this;
     }

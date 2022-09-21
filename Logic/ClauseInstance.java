@@ -3,13 +3,10 @@ import java.util.List;
 
 public class ClauseInstance {
 
-    int version;
     AtomInstance head;
     AtomList body;
 
     ClauseInstance(Clause original, int version){
-        this.version = version;
-
         this.head = original.head.getInstance(version);
         this.body = new AtomList();
         for(Atom a: original.body){

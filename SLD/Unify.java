@@ -35,10 +35,10 @@ public class Unify {
             }else{
                 return new Substitution();
             }
-        }else if(one.tVarInst == null && two.tVarInst != null){
+        }else if(one.tVarInst == null){
             if(one.constant - two.constant < 0) return null;
             return new Substitution(two.tVarInst, new TemporalInstance(null, one.constant- two.constant));
-        }else if(one.tVarInst != null && two.tVarInst == null){
+        }else if(two.tVarInst == null){
             if(two.constant - one.constant < 0) return null;
             return new Substitution(one.tVarInst, new TemporalInstance(null, two.constant- one.constant));
         }else{
@@ -47,11 +47,11 @@ public class Unify {
     }
 
     private static Substitution unify(TermInstance one, TermInstance two){
-        if(one instanceof VariableInstance){
-            return new Substitution((VariableInstance) one, two); //No matter if two is a constant or a variable, we choose to sub one with two
+        if(two instanceof VariableInstance){
+            return new Substitution((VariableInstance) two, one); //No matter if two is a constant or a variable, we choose to sub two with one
         }else{
-            if(two instanceof VariableInstance){
-                return new Substitution((VariableInstance) two, one);
+            if(one instanceof VariableInstance){
+                return new Substitution((VariableInstance) one, two);
             }else{
                 assert !one.equals(two);
                 return null;

@@ -65,8 +65,8 @@ public class ProgramBuilder {
 
         // Get terms arguments
         List<Term> arguments = new ArrayList<>(numberOfArgs);
-        for (String s: strArguments) {
-            arguments.add(getTerm(s));
+        for (int i = 0; i<numberOfArgs; i++) {
+            arguments.add(getTerm(strArguments[i]));
         }
 
         // Get temporal argument

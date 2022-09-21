@@ -5,7 +5,6 @@ import java.util.List;
 
 public class AtomInstance implements Comparable<AtomInstance> {
     Predicate predicate;
-    int version;
     List<TermInstance> argsInst;
     TemporalInstance temporal;
 
@@ -16,14 +15,13 @@ public class AtomInstance implements Comparable<AtomInstance> {
             this.argsInst.add(t.getVariant(version));
         }
         this.temporal = (TemporalInstance) original.temporal.getVariant(version);
-        this.version = version;
     }
 
-    AtomInstance(Predicate predicate, List<TermInstance> argsInst, TemporalInstance temporal, int version){
+    AtomInstance(Predicate predicate, List<TermInstance> argsInst, TemporalInstance temporal){
         this.predicate = predicate;
         this.argsInst = argsInst;
         this.temporal = temporal;
-        this.version = version;
+
     }
 
     public AtomInstance applySub(Substitution substitution){
@@ -31,7 +29,7 @@ public class AtomInstance implements Comparable<AtomInstance> {
         for(TermInstance t: argsInst){
             new_terms.add(t.applySub(substitution));
         }
-        return new AtomInstance(this.predicate, new_terms, (TemporalInstance) this.temporal.applySub(substitution), this.version);
+        return new AtomInstance(this.predicate, new_terms, (TemporalInstance) this.temporal.applySub(substitution));
     }
 
     @Override

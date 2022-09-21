@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.Map;
 
 public class Temporal implements Term{
@@ -11,13 +12,18 @@ public class Temporal implements Term{
 
         this.tVar = tVar;
         this.tConstant = tConstant;
+        this.variants = new HashMap<>();
     }
 
     public TermInstance getVariant(int version){
+        if(tVar == null){
+            return new TemporalInstance(null, this.tConstant);
+        }
+
         if(this.variants.containsKey(version)){
             return this.variants.get(version);
         }else{
-            TemporalInstance instance = new TemporalInstance((VariableInstance) tVar.getVariant(version), this.tConstant, (version));
+            TemporalInstance instance = new TemporalInstance((VariableInstance) tVar.getVariant(version), this.tConstant);
             this.variants.put(version, instance);
             return instance;
         }

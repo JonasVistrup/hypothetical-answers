@@ -1,10 +1,8 @@
 public class VariableInstance implements TermInstance{
-    int version;
     String id;
 
-    public VariableInstance(String id, int version){
+    public VariableInstance(String id){
         this.id = id;
-        this.version = version;
     }
 
 

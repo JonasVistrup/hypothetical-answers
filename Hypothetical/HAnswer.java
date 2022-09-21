@@ -1,9 +1,9 @@
 import java.util.Collections;
 
 public class HAnswer {
-    private final Substitution substitution;
-    private final AtomList constantPremise; // Sorted list of premises with no temporal variable
-    private final AtomList temporalPremise; // Sorted list of premises with temporal variable
+    public final Substitution substitution;
+    public final AtomList constantPremise; // Sorted list of premises with no temporal variable
+    public final AtomList temporalPremise; // Sorted list of premises with temporal variable
 
     public HAnswer(Substitution substitution, AtomList premise) {
         this.substitution = substitution;
@@ -32,7 +32,7 @@ public class HAnswer {
             builder.append(a.toString());
             builder.append(",");
         }
-        for(AtomInstance a: constantPremise){
+        for(AtomInstance a: temporalPremise){
             builder.append(a.toString());
             builder.append(",");
         }
@@ -53,14 +53,13 @@ public class HAnswer {
             builder.append(a.toString());
             builder.append(",");
         }
-        for(AtomInstance a: constantPremise){
+        for(AtomInstance a: temporalPremise){
             builder.append(a.toString());
             builder.append(",");
         }
         if(!constantPremise.isEmpty() || !temporalPremise.isEmpty()){
             builder.deleteCharAt(builder.length()-1);
         }
-        builder.deleteCharAt(builder.length()-1);
         builder.append("}]");
         return builder.toString();
     }

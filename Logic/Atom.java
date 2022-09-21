@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ public class Atom {
         this.temporal = temporal;
         this.instances = new HashMap<>();
     }
+
+
 
     public AtomInstance getInstance(int version){
         if(this.instances.containsKey(version)){

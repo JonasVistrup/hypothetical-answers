@@ -14,7 +14,7 @@ public class Variable implements Term{
         if(this.variants.containsKey(version)){
             return this.variants.get(version);
         }else{
-            VariableInstance instance = new VariableInstance(this.id, version);
+            VariableInstance instance = new VariableInstance(this.id);
             this.variants.put(version, instance);
             return instance;
         }
