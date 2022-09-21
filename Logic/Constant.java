@@ -1,11 +1,11 @@
-public class Constant implements Term, TermInstance{
+public class Constant implements Term{
 
     String id;
     public Constant(String id){
         this.id = id;
     }
 
-    public TermInstance getVariant(int version){
+    public Term getVariant(int version){
         return this;
     }
 
@@ -15,7 +15,7 @@ public class Constant implements Term, TermInstance{
     }
 
     @Override
-    public TermInstance applySub(Substitution substitution) {
+    public Term applySub(Substitution substitution) {
         return this;
     }
 }

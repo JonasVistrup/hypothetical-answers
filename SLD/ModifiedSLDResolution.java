@@ -15,9 +15,9 @@ public class ModifiedSLDResolution {
             return;
         }
 
-        AtomInstance selected = selectAtom(goal, program);
+        Atom selected = selectAtom(goal, program);
         for(Clause clause: program.clauses){
-            ClauseInstance clauseInstance = clause.getInstance(level);
+            Clause clauseInstance = clause.getInstance(level);
             Substitution unifier = Unify.findMGU(selected, clauseInstance.head);
             if(unifier != null){
                 AtomList new_goal = new AtomList(goal);
@@ -40,7 +40,7 @@ public class ModifiedSLDResolution {
      * @param program
      * @return The last IDB atom in goal
      */
-    private static AtomInstance selectAtom(AtomList goal, Program program) {
+    private static Atom selectAtom(AtomList goal, Program program) {
         for(int i = goal.size()-1; i>0; i--){
             if(goal.get(i).predicate.IDB){
                 return goal.get(i);
@@ -52,7 +52,7 @@ public class ModifiedSLDResolution {
     }
 
     private static boolean isFinished(AtomList goal) {
-        for(AtomInstance a: goal){
+        for(Atom a: goal){
             if(a.predicate.IDB){
                 return false;
             }

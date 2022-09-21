@@ -1,13 +1,13 @@
 public class Unify {
-    static Substitution findMGU(AtomInstance selectedAtom, AtomInstance head) {
+    static Substitution findMGU(Atom selectedAtom, Atom head) {
 
         if(head.predicate != selectedAtom.predicate){
             return null;
         }
         Substitution sub = new Substitution();
-        for(int i = 0; i<selectedAtom.argsInst.size(); i++){
-            TermInstance selectInstance = selectedAtom.argsInst.get(i);
-            TermInstance headInstance = head.argsInst.get(i);
+        for(int i = 0; i<selectedAtom.args.size(); i++){
+            Term selectInstance = selectedAtom.args.get(i);
+            Term headInstance = head.args.get(i);
 
             if(headInstance != selectInstance){
                 Substitution unifier = unify(selectInstance, headInstance);
@@ -28,30 +28,30 @@ public class Unify {
         return sub;
     }
 
-    private static Substitution unifyTemporal(TemporalInstance one, TemporalInstance two){
-        if(one.tVarInst == null && two.tVarInst == null){
-            if(one.constant != two.constant){
+    private static Substitution unifyTemporal(Temporal one, Temporal two){
+        if(one.tVar == null && two.tVar == null){
+            if(one.tConstant != two.tConstant){
                 return null;
             }else{
                 return new Substitution();
             }
-        }else if(one.tVarInst == null){
-            if(one.constant - two.constant < 0) return null;
-            return new Substitution(two.tVarInst, new TemporalInstance(null, one.constant- two.constant));
-        }else if(two.tVarInst == null){
-            if(two.constant - one.constant < 0) return null;
-            return new Substitution(one.tVarInst, new TemporalInstance(null, two.constant- one.constant));
+        }else if(one.tVar == null){
+            if(one.tConstant - two.tConstant < 0) return null;
+            return new Substitution(two.tVar, new Temporal(null, one.tConstant- two.tConstant));
+        }else if(two.tVar == null){
+            if(two.tConstant - one.tConstant < 0) return null;
+            return new Substitution(one.tVar, new Temporal(null, two.tConstant- one.tConstant));
         }else{
-            return new Substitution(two.tVarInst, new TemporalInstance(one.tVarInst, one.constant - two.constant));
+            return new Substitution(two.tVar, new Temporal(one.tVar, one.tConstant - two.tConstant));
         }
     }
 
-    private static Substitution unify(TermInstance one, TermInstance two){
-        if(two instanceof VariableInstance){
-            return new Substitution((VariableInstance) two, one); //No matter if two is a constant or a variable, we choose to sub two with one
+    private static Substitution unify(Term one, Term two){
+        if(two instanceof Variable){
+            return new Substitution((Variable) two, one); //No matter if two is a constant or a variable, we choose to sub two with one
         }else{
-            if(one instanceof VariableInstance){
-                return new Substitution((VariableInstance) one, two);
+            if(one instanceof Variable){
+                return new Substitution((Variable) one, two);
             }else{
                 assert !one.equals(two);
                 return null;

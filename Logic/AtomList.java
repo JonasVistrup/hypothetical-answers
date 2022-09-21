@@ -1,7 +1,8 @@
 import java.util.ArrayList;
+import java.util.List;
 
-public class AtomList extends ArrayList<AtomInstance>{
-    public AtomList(ArrayList<AtomInstance> atoms){
+public class AtomList extends ArrayList<Atom>{
+    public AtomList(ArrayList<Atom> atoms){
         super();
         super.addAll(atoms);
     }
@@ -11,7 +12,7 @@ public class AtomList extends ArrayList<AtomInstance>{
 
     public AtomList applySub(Substitution substitution){
         AtomList atomList = new AtomList();
-        for(AtomInstance a: this){
+        for(Atom a: this){
             atomList.add(a.applySub(substitution));
         }
         return atomList;
@@ -20,7 +21,7 @@ public class AtomList extends ArrayList<AtomInstance>{
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
-        for(AtomInstance a: this){
+        for(Atom a: this){
             b.append(a.toString());
             b.append(",");
         }
@@ -28,5 +29,13 @@ public class AtomList extends ArrayList<AtomInstance>{
             b.deleteCharAt(b.length()-1);
         }
         return b.toString();
+    }
+
+    public Program toProgram() {
+        List<Clause> clauses = new ArrayList<>();
+        for(Atom a: this){
+            clauses.add(new Clause(a, new AtomList()));
+        }
+        return new Program(clauses);
     }
 }

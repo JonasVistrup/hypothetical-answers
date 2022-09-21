@@ -9,8 +9,8 @@ public class HAnswer {
         this.substitution = substitution;
         this.constantPremise = new AtomList();
         this.temporalPremise = new AtomList();
-        for(AtomInstance a: premise) {
-            if (a.temporal.tVarInst == null) {
+        for(Atom a: premise) {
+            if (a.temporal.tVar == null) {
                 constantPremise.add(a);
             }else{
                 temporalPremise.add(a);
@@ -28,11 +28,11 @@ public class HAnswer {
         builder.append("[");
         builder.append(substitution.toString());
         builder.append(",{");
-        for(AtomInstance a: constantPremise){
+        for(Atom a: constantPremise){
             builder.append(a.toString());
             builder.append(",");
         }
-        for(AtomInstance a: temporalPremise){
+        for(Atom a: temporalPremise){
             builder.append(a.toString());
             builder.append(",");
         }
@@ -44,16 +44,16 @@ public class HAnswer {
         return builder.toString();
     }
 
-    public String toString(AtomInstance relevantQuery) {
+    public String toString(Atom relevantQuery) {
         StringBuilder builder = new StringBuilder();
         builder.append("[");
         builder.append(substitution.toString(relevantQuery));
         builder.append(",{");
-        for(AtomInstance a: constantPremise){
+        for(Atom a: constantPremise){
             builder.append(a.toString());
             builder.append(",");
         }
-        for(AtomInstance a: temporalPremise){
+        for(Atom a: temporalPremise){
             builder.append(a.toString());
             builder.append(",");
         }

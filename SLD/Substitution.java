@@ -9,7 +9,7 @@ public class Substitution {
         this.subs = new ArrayList<>();
     }
 
-    public Substitution(VariableInstance from, TermInstance to){
+    public Substitution(Variable from, Term to){
         this.subs = new ArrayList<>();
         this.subs.add(new Sub(from, to));
     }
@@ -36,14 +36,14 @@ public class Substitution {
     }
 
 
-    public boolean isInSupport(VariableInstance var){
+    public boolean isInSupport(Variable var){
         for(Sub sub: subs){
             if(sub.from == var) return true;
         }
         return false;
     }
 
-    public TermInstance getSubstitution(VariableInstance var){
+    public Term getSubstitution(Variable var){
         for(Sub sub: subs){
             if(sub.from == var) return sub.to;
         }
@@ -69,7 +69,7 @@ public class Substitution {
 
 
 
-    public String toString(AtomInstance relevantQuery) {
+    public String toString(Atom relevantQuery) {
         StringBuilder builder = new StringBuilder();
         builder.append("{");
 
@@ -87,11 +87,11 @@ public class Substitution {
         return builder.toString();
     }
 
-    private static boolean relevantSub(Sub s, AtomInstance relevantQuery) {
-        for(TermInstance t: relevantQuery.argsInst){
+    private static boolean relevantSub(Sub s, Atom relevantQuery) {
+        for(Term t: relevantQuery.args){
             if(t == s.from) return true;
         }
-        return relevantQuery.temporal.tVarInst == s.from;
+        return relevantQuery.temporal.tVar == s.from;
     }
 
 }

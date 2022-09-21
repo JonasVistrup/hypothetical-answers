@@ -1,4 +1,5 @@
 public interface Term {
-    TermInstance getVariant(int version);
+    Term getVariant(int version);
+    public Term applySub(Substitution substitution);
 
 }

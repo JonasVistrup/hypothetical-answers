@@ -1,11 +1,13 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class Temporal implements Term{
+public class Temporal implements Term, Comparable<Temporal>{
 
     Variable tVar;
     int tConstant;
-    Map<Integer, TemporalInstance> variants;
+    Map<Integer, Temporal> variants;
 
     public Temporal(Variable tVar, int tConstant){
         if(tVar==null && tConstant<0) throw new IllegalArgumentException("Temporal constant must be at least 0");
@@ -15,18 +17,29 @@ public class Temporal implements Term{
         this.variants = new HashMap<>();
     }
 
-    public TermInstance getVariant(int version){
+    public Term getVariant(int version){
         if(tVar == null){
-            return new TemporalInstance(null, this.tConstant);
+            return this;
         }
 
         if(this.variants.containsKey(version)){
             return this.variants.get(version);
         }else{
-            TemporalInstance instance = new TemporalInstance((VariableInstance) tVar.getVariant(version), this.tConstant);
+            Temporal instance = new Temporal((Variable) tVar.getVariant(version), this.tConstant);
             this.variants.put(version, instance);
             return instance;
         }
+    }
+
+    @Override
+    public Term applySub(Substitution substitution) {
+        Term to_term = substitution.getSubstitution(this.tVar);
+        if(to_term != null){
+            assert to_term instanceof Temporal;
+            Temporal to = (Temporal) to_term;
+            return new Temporal(to.tVar,to.tConstant+this.tConstant);
+        }
+        return this;
     }
 
 
@@ -44,5 +57,11 @@ public class Temporal implements Term{
         }
         b.append(tConstant);
         return b.toString();
+    }
+
+    @Override
+    public int compareTo(@NotNull Temporal o) {
+        if(this.tVar != o.tVar) throw new IllegalArgumentException("Not comparable");
+        return this.tConstant - o.tConstant;
     }
 }

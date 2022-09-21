@@ -4,22 +4,30 @@ import java.util.Map;
 
 public class Clause {
     Atom head;
-    List<Atom> body;
+    AtomList body;
 
-    Map<Integer, ClauseInstance> instances;
+    Map<Integer, Clause> instances;
 
-    Clause(Atom head, List<Atom> body){
+    Clause(Atom head, AtomList body){
         this.head = head;
         this.body = body;
 
         this.instances = new HashMap<>();
     }
 
-    public ClauseInstance getInstance(int version){
+    public Clause(Clause clause, int version){
+        this.head = clause.head.getInstance(version);
+        this.body = new AtomList();
+        for(Atom a: clause.body){
+            this.body.add(a.getInstance(version));
+        }
+    }
+
+    public Clause getInstance(int version){
         if(this.instances.containsKey(version)){
             return this.instances.get(version);
         }else{
-            ClauseInstance instance = new ClauseInstance(this, version);
+            Clause instance = new Clause(this, version);
             this.instances.put(version, instance);
             return instance;
         }

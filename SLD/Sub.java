@@ -1,8 +1,8 @@
 public class Sub {
-    public final VariableInstance from;
-    public final TermInstance to;
+    public final Variable from;
+    public final Term to;
 
-    public Sub(VariableInstance from, TermInstance to){
+    public Sub(Variable from, Term to){
         this.from = from;
         this.to = to;
     }

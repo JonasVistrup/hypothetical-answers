@@ -4,20 +4,29 @@ import java.util.Map;
 public class Variable implements Term{
 
     String id;
-    Map<Integer, VariableInstance> variants;
+    Map<Integer, Variable> variants;
     public Variable(String id){
         this.id = id;
         this.variants = new HashMap<>();
     }
 
-    public TermInstance getVariant(int version){
+    public Term getVariant(int version){
         if(this.variants.containsKey(version)){
             return this.variants.get(version);
         }else{
-            VariableInstance instance = new VariableInstance(this.id);
+            Variable instance = new Variable(this.id);
             this.variants.put(version, instance);
             return instance;
         }
+    }
+
+    @Override
+    public Term applySub(Substitution substitution) {
+        Term t = substitution.getSubstitution(this);
+        if(t != null){
+            return t;
+        }
+        return this;
     }
 
 

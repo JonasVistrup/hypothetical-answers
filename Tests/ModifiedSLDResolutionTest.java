@@ -56,7 +56,7 @@ class ModifiedSLDResolutionTest {
         pB.addClause("Malf(X,T-2)<-Shdn(X,T)");
         Program p = pB.getProgram();
         AtomList queryList = new AtomList();
-        AtomInstance query = pB.parseAtom("Malf(X,T)").getInstance(0);
+        Atom query = pB.parseAtom("Malf(X,T)").getInstance(0);
         queryList.add(query);
         List<HAnswer> answerListGiven = ModifiedSLDResolution.preprocess(p, queryList);
         assertEquals(answerListGiven.size(), 1, "Only one possible unification");

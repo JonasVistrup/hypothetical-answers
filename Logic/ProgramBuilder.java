@@ -25,7 +25,7 @@ public class ProgramBuilder {
         }
         Atom head = parseAtom(parts[0]);
         if(parts.length==1){
-            clauses.add(new Clause(head, new ArrayList<>()));
+            clauses.add(new Clause(head, new AtomList()));
             return;
         }
 
@@ -34,7 +34,7 @@ public class ProgramBuilder {
         parts[1] = parts[1].replaceAll("\\),", ")<-");
         String[] strBody = parts[1].split("<-");
 
-        List<Atom> body = new ArrayList<>(strBody.length);
+        AtomList body = new AtomList();
         for (String s : strBody) {
             body.add(parseAtom(s));
         }
