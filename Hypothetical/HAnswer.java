@@ -3,7 +3,9 @@ import java.util.Collections;
 public class HAnswer {
     public final Substitution substitution;
     public final AtomList constantPremise; // Sorted list of premises with no temporal variable
+    public final AtomList smallestConstant;
     public final AtomList temporalPremise; // Sorted list of premises with temporal variable
+    public final AtomList smallestTemporal;
 
     public HAnswer(Substitution substitution, AtomList premise) {
         this.substitution = substitution;
@@ -18,6 +20,24 @@ public class HAnswer {
         }
         Collections.sort(constantPremise);
         Collections.sort(temporalPremise);
+
+        smallestConstant = findMin(constantPremise);
+        smallestTemporal = findMin(temporalPremise);
+    }
+
+    public static AtomList findMin(AtomList list){
+        AtomList min = new AtomList();
+        if(list.isEmpty()){
+            return min;
+        }
+        int smallestTime = list.get(0).temporal.tConstant;
+        for(Atom a: list){
+            if(a.temporal.tConstant>smallestTime){
+                break;
+            }
+            min.add(a);
+        }
+        return min;
     }
 
 
@@ -63,4 +83,5 @@ public class HAnswer {
         builder.append("}]");
         return builder.toString();
     }
+
 }

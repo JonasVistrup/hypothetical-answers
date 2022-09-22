@@ -6,6 +6,11 @@ public class AtomList extends ArrayList<Atom>{
         super();
         super.addAll(atoms);
     }
+
+    public AtomList(Atom atom){
+        super();
+        super.add(atom);
+    }
     public AtomList(){
         super();
     }
@@ -37,5 +42,18 @@ public class AtomList extends ArrayList<Atom>{
             clauses.add(new Clause(a, new AtomList()));
         }
         return new Program(clauses);
+    }
+
+    //TODO: is this slow?
+    public AtomList without(AtomList other){
+        AtomList atomList = (AtomList) this.clone();
+        atomList.removeAll(other);
+        return atomList;
+    }
+
+    public AtomList plus(AtomList other){
+        AtomList atomList = (AtomList) this.clone();
+        atomList.addAll(other);
+        return atomList;
     }
 }
