@@ -15,7 +15,9 @@ public class ProgramBuilder {
         return new Program(clauses);
     }
 
-
+    public int size(){
+        return clauses.size();
+    }
 
     public void addClause(String representation) {
         representation = representation.replaceAll(" ", "");
@@ -49,7 +51,7 @@ public class ProgramBuilder {
             throw new IllegalArgumentException("Atom representation must not be empty");
         }
         String[] parts = atomRep.split("\\(");
-        int numberOfArgs = 0;
+        int numberOfArgs;
         if (parts.length >= 2) {
             if (!parts[1].contains(")"))
                 throw new IllegalArgumentException("( must end with a )");
@@ -112,7 +114,7 @@ public class ProgramBuilder {
 
     private boolean isInteger(String s){
         try {
-            int i = Integer.parseInt(s);
+            Integer.parseInt(s);
             return true;
         }catch (NumberFormatException e){
             return false;

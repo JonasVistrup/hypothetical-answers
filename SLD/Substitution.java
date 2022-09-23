@@ -70,6 +70,26 @@ public class Substitution {
 
 
     public String toString(Atom relevantQuery) {
+        AtomList relevantList = new AtomList(relevantQuery);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("{");
+
+        for(Sub s: subs){
+            if(!relevantSub(s, relevantList)) continue;
+            builder.append("(");
+            builder.append(s.toString());
+            builder.append(")");
+            builder.append(",");
+        }
+        if(builder.length()>1) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        builder.append("}");
+        return builder.toString();
+    }
+
+    public String toString(AtomList relevantQuery) {
         StringBuilder builder = new StringBuilder();
         builder.append("{");
 
@@ -87,11 +107,15 @@ public class Substitution {
         return builder.toString();
     }
 
-    private static boolean relevantSub(Sub s, Atom relevantQuery) {
-        for(Term t: relevantQuery.args){
-            if(t == s.from) return true;
+
+    private static boolean relevantSub(Sub s, AtomList relevantQuery) {
+        for(Atom a: relevantQuery) {
+            for (Term t : a.args) {
+                if (t == s.from) return true;
+            }
+            if(a.temporal.tVar == s.from) return true;
         }
-        return relevantQuery.temporal.tVar == s.from;
+        return false;
     }
 
 }

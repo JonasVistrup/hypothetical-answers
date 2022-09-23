@@ -84,4 +84,24 @@ public class HAnswer {
         return builder.toString();
     }
 
+    public String toString(AtomList relevantQuery) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        builder.append(substitution.toString(relevantQuery));
+        builder.append(",{");
+        for(Atom a: constantPremise){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: temporalPremise){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        if(!constantPremise.isEmpty() || !temporalPremise.isEmpty()){
+            builder.deleteCharAt(builder.length()-1);
+        }
+        builder.append("}]");
+        return builder.toString();
+    }
+
 }

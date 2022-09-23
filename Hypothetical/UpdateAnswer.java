@@ -25,9 +25,11 @@ public class UpdateAnswer {
 
         List<Substitution> constantAnswerList = SLDResolution.findSubstitutions(p, minConstantPremise);
 
-        for(Substitution constantAnswer: constantAnswerList){
-            Substitution sub = Substitution.composition(hAnswer.substitution, constantAnswer);
-            eAnswers.add(new EAnswer(sub, minConstantPremise, hAnswer.constantPremise.without(minConstantPremise), hAnswer.temporalPremise));
+        if(!minConstantPremise.isEmpty()) {
+            for (Substitution constantAnswer : constantAnswerList) {
+                Substitution sub = Substitution.composition(hAnswer.substitution, constantAnswer);
+                eAnswers.add(new EAnswer(sub, minConstantPremise, hAnswer.constantPremise.without(minConstantPremise).applySub(constantAnswer), hAnswer.temporalPremise.applySub(constantAnswer)));
+            }
         }
 
         if(hAnswer.temporalPremise.isEmpty()){
@@ -42,11 +44,12 @@ public class UpdateAnswer {
 
             for(Substitution answer: temporalAnswerList){
                 Substitution sub = Substitution.composition(hAnswer.substitution, constantAnswer);
+                sub = Substitution.composition(sub, answer);
                 AtomList evidence = minConstantPremise.applySub(sub).plus(minTemporalSubstituted.applySub(answer));
                 AtomList constantRemainingPremise = hAnswer.constantPremise.without(minConstantPremise).applySub(sub);
                 AtomList temporalRemainingPremise = hAnswer.temporalPremise.without(minTemporalPremise).applySub(sub);
 
-                sub = Substitution.composition(sub, answer);
+
 
                 eAnswers.add(new EAnswer(sub, evidence, constantRemainingPremise, temporalRemainingPremise));
             }
@@ -71,10 +74,12 @@ public class UpdateAnswer {
         AtomList minConstantPremise = eAnswer.smallestConstant;
         List<Substitution> constantAnswerList = SLDResolution.findSubstitutions(p, minConstantPremise);
 
-        for(Substitution constantAnswer: constantAnswerList){
+
+        for (Substitution constantAnswer : constantAnswerList) {
             Substitution sub = Substitution.composition(eAnswer.substitution, constantAnswer);
-            eAnswers.add(new EAnswer(sub, eAnswer.evidence.plus(minConstantPremise), eAnswer.constantPremise.without(minConstantPremise), eAnswer.temporalPremise));
+            eAnswers.add(new EAnswer(sub, eAnswer.evidence.plus(minConstantPremise).applySub(sub), eAnswer.constantPremise.without(minConstantPremise).applySub(constantAnswer), eAnswer.temporalPremise.applySub(constantAnswer)));
         }
+
 
         if(eAnswer.temporalPremise.isEmpty()){
             return eAnswers;
@@ -88,11 +93,12 @@ public class UpdateAnswer {
 
             for(Substitution answer: temporalAnswerList){
                 Substitution sub = Substitution.composition(eAnswer.substitution, constantAnswer);
-                AtomList evidence = minConstantPremise.applySub(sub).plus(minTemporalSubstituted.applySub(answer));
-                AtomList constantRemainingPremise = eAnswer.constantPremise.without(minConstantPremise).applySub(sub);
-                AtomList temporalRemainingPremise = eAnswer.temporalPremise.without(minTemporalPremise).applySub(sub);
-
                 sub = Substitution.composition(sub, answer);
+                AtomList evidence = minConstantPremise.applySub(sub).plus(minTemporalSubstituted.applySub(answer));
+                AtomList constantRemainingPremise = eAnswer.constantPremise.without(minConstantPremise).applySub(constantAnswer).applySub(answer);
+                AtomList temporalRemainingPremise = eAnswer.temporalPremise.without(minTemporalPremise).applySub(constantAnswer).applySub(answer);
+
+
 
                 eAnswers.add(new EAnswer(sub, eAnswer.evidence.plus(evidence), constantRemainingPremise, temporalRemainingPremise));
             }
