@@ -1,30 +1,40 @@
+import java.util.HashMap;
+import java.util.Map;
+
 public class Variable implements Term{
 
-    public String name;
-    public Variable(String name){
-        this.name = name;
+    String id;
+    Map<Integer, Variable> variants;
+    public Variable(String id){
+        this.id = id;
+        this.variants = new HashMap<>();
     }
+
+    public Term getVariant(int version){
+        if(this.variants.containsKey(version)){
+            return this.variants.get(version);
+        }else{
+            Variable instance = new Variable(this.id);
+            this.variants.put(version, instance);
+            return instance;
+        }
+    }
+
     @Override
     public Term applySub(Substitution substitution) {
-        for(Substitution.Sub sub: substitution.subs()){
-            if(sub.from().equals(this)) {
-                return sub.to();
-            }
+        Term t = substitution.getSubstitution(this);
+        if(t != null){
+            return t;
         }
         return this;
     }
-    @Override
-    public String name() {
-        return name;
-    }
 
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
+
 
     @Override
     public String toString() {
-        return name;
+        return id;
     }
+
+
 }

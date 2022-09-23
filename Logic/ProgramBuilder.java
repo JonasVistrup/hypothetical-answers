@@ -1,56 +1,57 @@
-import com.sun.jdi.connect.Connector;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.util.*;
-
-//TODO
 public class ProgramBuilder {
-
-    public static final Map<String, Predicate> predicates = new HashMap<>();
-    private static final Map<String, Term> terms = new HashMap<>();
-    private static final Map<String, Variable> temporalVariables = new HashMap<>();
+    private final Map<String, Predicate> predicates = new HashMap<>();
+    private final Map<String, Term> terms = new HashMap<>();
+    private final Map<String, Variable> temporalVariables = new HashMap<>();
 
     private static final ArrayList<Clause> clauses = new ArrayList<>();
 
 
-    public static Program getProgram(){
+    public Program getProgram(){
         return new Program(clauses);
     }
 
+    public int size(){
+        return clauses.size();
+    }
 
-
-    public static void addClause(String representation) {
-        //System.out.println("REP:"+representation);
+    public void addClause(String representation) {
         representation = representation.replaceAll(" ", "");
         String[] parts = representation.split("<-");
         if (parts.length < 1 || parts.length >= 3) {
             throw new IllegalArgumentException("The clause should consist of a \"head<-body\"");
         }
         Atom head = parseAtom(parts[0]);
-
         if(parts.length==1){
-            clauses.add(new Clause(head));
+            clauses.add(new Clause(head, new AtomList()));
             return;
         }
-        //System.out.println("BClause:"+parts[1]);
-        parts[1] = parts[1].replaceAll("\\),", ")<-");
-        //System.out.println("CLAUSE:"+parts[1]);
-        String[] strBody = parts[1].split("<-");
-        Atom[] body = new Atom[strBody.length];
-        for(int i = 0; i<body.length; i++){
-            body[i] = parseAtom(strBody[i]);
-        }
 
+
+
+        parts[1] = parts[1].replaceAll("\\),", ")<-");
+        String[] strBody = parts[1].split("<-");
+
+        AtomList body = new AtomList();
+        for (String s : strBody) {
+            body.add(parseAtom(s));
+        }
+        head.predicate.IDB = true;
         clauses.add(new Clause(head, body));
     }
 
-    public static Atom parseAtom(String atomRep) {
+    public Atom parseAtom(String atomRep) {
         atomRep = atomRep.replaceAll(" ", "");
         String[] strArguments;
         if (atomRep.length() == 0) {
             throw new IllegalArgumentException("Atom representation must not be empty");
         }
         String[] parts = atomRep.split("\\(");
-        int numberOfArgs = 0;
+        int numberOfArgs;
         if (parts.length >= 2) {
             if (!parts[1].contains(")"))
                 throw new IllegalArgumentException("( must end with a )");
@@ -65,17 +66,17 @@ public class ProgramBuilder {
 
 
         // Get terms arguments
-        Term[] arguments = new Term[numberOfArgs];
-        for (int i = 0; i < arguments.length; i++) {
-            arguments[i] = getTerm(strArguments[i]);
+        List<Term> arguments = new ArrayList<>(numberOfArgs);
+        for (int i = 0; i<numberOfArgs; i++) {
+            arguments.add(getTerm(strArguments[i]));
         }
 
         // Get temporal argument
         Temporal temporal = getTemporal(strArguments[numberOfArgs]);
-        return new Atom(p,temporal, arguments);
+        return new Atom(p,arguments, temporal);
     }
 
-    private static Temporal getTemporal(String strTemporal) {
+    private Temporal getTemporal(String strTemporal) {
         String[] temporalParts;
         int constantMultiplier;
         if (strTemporal.contains("+")) {
@@ -99,7 +100,7 @@ public class ProgramBuilder {
         return new Temporal(getTemporalVariable(temporalParts[0]), Integer.parseInt(temporalParts[1])*constantMultiplier);
     }
 
-    private static Variable getTemporalVariable(String tempVar){
+    private Variable getTemporalVariable(String tempVar){
         if(temporalVariables.containsKey(tempVar)){
             return temporalVariables.get(tempVar);
         }else{
@@ -111,16 +112,16 @@ public class ProgramBuilder {
         }
     }
 
-    private static boolean isInteger(String s){
+    private boolean isInteger(String s){
         try {
-            int i = Integer.parseInt(s);
+            Integer.parseInt(s);
             return true;
         }catch (NumberFormatException e){
             return false;
         }
     }
 
-    private static Term getTerm(String name) {
+    private Term getTerm(String name) {
         if (terms.containsKey(name)) {
             return terms.get(name);
         } else {
@@ -138,67 +139,21 @@ public class ProgramBuilder {
         }
     }
 
-    private static Predicate getPredicate(String name, int numberOfArgs) {
-        if (numberOfArgs < 1) {
-            throw new IllegalArgumentException("All predicates must contain a temporal argument");
+    private Predicate getPredicate(String name, int numberOfArgs) {
+        if (numberOfArgs < 0) {
+            throw new IllegalArgumentException("Only a non-negative amount of arguments allowed");
         }
         Predicate res;
         if (predicates.containsKey(name)) {
             res = predicates.get(name);
-            if (res.numberOfArgs() != numberOfArgs) {
+            if (res.nArgs != numberOfArgs) {
                 throw new IllegalArgumentException("Predicate " + name + " contains an inconsistent of arguments");
             }
         } else {
-            res = new Predicate(numberOfArgs, name);
+            res = new Predicate(name, numberOfArgs);
             predicates.put(name, res);
         }
         return res;
-    }
-
-    public static void main(String[] args) {
-        addClause("P(a, T)<-Q(a,X,T+1)");
-        addClause("P(b, T1)<-P(a, T1-1)");
-        //addClause("Q(a,b, T2)<-");
-
-        Program program = getProgram();
-        System.out.println(program);
-        Atom query = parseAtom("P(Y,T3)");
-        System.out.println("Query:"+query);
-        Reasoner r = new Reasoner(program, query);
-        List<Atom> dataSlice = new ArrayList<>();
-        dataSlice.add(parseAtom("L(a,b, 0)"));
-
-
-        System.out.println("\nTime -1:");
-        List<HypAnswer> hypAnswers = r.hypAnswers();
-        for(HypAnswer hypAnswer: hypAnswers){
-            System.out.println(hypAnswer.toString(query));
-        }
-
-        System.out.println("\nTime 0:");
-        List<EvidenceAnswer> evidenceAnswers = r.nextTime(dataSlice);
-        for(EvidenceAnswer evidenceAnswer: evidenceAnswers){
-            System.out.println(evidenceAnswer.toString(query));
-        }
-
-        System.out.println("\nTime 1:");
-        dataSlice = new ArrayList<>();
-        dataSlice.add(parseAtom("Q(a,b, 1)"));
-
-        evidenceAnswers = r.nextTime(dataSlice);
-        for(EvidenceAnswer evidenceAnswer: evidenceAnswers){
-            System.out.println(evidenceAnswer.toString(query));
-        }
-
-        System.out.println("\nTime 2:");
-        dataSlice = new ArrayList<>();
-        //dataSlice.add(parseAtom("L(a,b, 2)"));
-
-        evidenceAnswers = r.nextTime(dataSlice);
-        for(EvidenceAnswer evidenceAnswer: evidenceAnswers){
-            System.out.println(evidenceAnswer.toString(query));
-        }
-
     }
 
 }

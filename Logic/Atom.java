@@ -1,45 +1,55 @@
-import java.util.Arrays;
-import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
-public class Atom implements Comparable<Atom> {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    private Predicate predicate;
-    private Temporal temporal;
-    private Term[] args;
+public class Atom implements Comparable<Atom>{
+    Predicate predicate;
+    List<Term> args;
+    Temporal temporal;
+    Map<Integer, Atom> instances;
 
-    public Atom(Predicate predicate, Temporal temporal, Term... args) {
+    Atom(Predicate predicate, List<Term> args, Temporal temporal){
+        if(predicate.nArgs != args.size()) throw new IllegalArgumentException("Number of arguments does not match predicate");
         this.predicate = predicate;
-        this.temporal = temporal;
         this.args = args;
-        if(args.length != predicate.numberOfArgs()){
-            throw new IllegalArgumentException("The number of terms must match the number of args in the predicate.");
+        this.temporal = temporal;
+        this.instances = new HashMap<>();
+    }
+
+    Atom(Atom parent, int version){
+        this.predicate = parent.predicate;
+        this.args = new ArrayList<>();
+        for(Term t: parent.args){
+            this.args.add(t.getVariant(version));
         }
-        if(temporal.variable() == null && temporal.constant()<0){
-            throw new IllegalArgumentException("TimeConstant must be positive if no Temporal variable is given.");
+        this.temporal = (Temporal) parent.temporal.getVariant(version);
+        this.instances = new HashMap<>();
+    }
+
+
+
+    public Atom getInstance(int version){
+        if(this.instances.containsKey(version)){
+            return this.instances.get(version);
+        }else{
+            Atom instance = new Atom(this, version);
+            this.instances.put(version, instance);
+            return instance;
         }
     }
 
-
-    public Predicate predicate(){
-        return predicate;
-    }
-
-    public Temporal temporal(){
-        return temporal;
-    }
-
-    public Term[] args(){
-        return args;
-    }
-
-
-    public Atom applySub(Substitution substitution) {
-        Term[] subbed_args = new Term[this.args.length];
-        for (int i = 0; i < this.args.length; i++) {
-            subbed_args[i] = this.args[i].applySub(substitution);
+    public Atom applySub(Substitution substitution){
+        List<Term> new_terms = new ArrayList<>();
+        for(Term t: args){
+            new_terms.add(t.applySub(substitution));
         }
-        return new Atom(predicate, (Temporal) this.temporal.applySub(substitution), subbed_args);
+        return new Atom(this.predicate, new_terms, (Temporal) this.temporal.applySub(substitution));
     }
+
+
 
     @Override
     public String toString() {
@@ -50,54 +60,24 @@ public class Atom implements Comparable<Atom> {
             builder.append(t.toString());
             builder.append(',');
         }
-        if(temporal.variable() != null) {
-            builder.append(temporal.variable().name);
-            if (temporal.constant() > 0) {
+        if(temporal.tVar != null) {
+            builder.append(temporal.tVar.toString());
+            if (temporal.tConstant > 0) {
                 builder.append("+");
-                builder.append(temporal.constant());
-            } else if (temporal.constant() < 0) {
-                builder.append(temporal.constant());
+                builder.append(temporal.tConstant);
+            } else if (temporal.tConstant < 0) {
+                builder.append(temporal.tConstant);
             }
         }else{
-            builder.append(temporal.constant());
+            builder.append(temporal.tConstant);
         }
 
         builder.append(')');
         return builder.toString();
     }
 
-    //TODO rewrite
     @Override
-    public int compareTo(Atom o) {
-        if((o.temporal.variable() == null && this.temporal.variable() == null) || (o.temporal.variable() != null && this.temporal.variable() != null)){
-            return this.temporal.constant() - o.temporal.constant();
-        }else{
-            throw new IllegalArgumentException("Cannot compare temporal variable to constant");
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Atom atom = (Atom) o;
-        if(!Objects.equals(predicate, atom.predicate)) return false;
-        if(!Objects.equals(temporal.variable(), atom.temporal().variable())) return false; //TODO is this needed??
-        if(temporal.constant() != atom.temporal.constant()) return false;
-        if(args.length != atom.args.length) return false;
-        for(int i = 0; i<args.length; i++){
-            if(!Objects.equals(args[i], atom.args[i]) && !(args[i] instanceof Variable && atom.args[i] instanceof Variable))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(predicate, temporal);
-        result = 31 * result + Arrays.hashCode(args);
-        return result;
+    public int compareTo(@NotNull Atom o) {
+        return this.temporal.compareTo(o.temporal);
     }
 }

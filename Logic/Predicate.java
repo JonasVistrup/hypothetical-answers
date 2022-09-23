@@ -1,46 +1,26 @@
-import java.util.Objects;
+public class Predicate {
+    String id;
+    int nArgs;
 
-/**
- * Class representing the un-initialize predicate.
- */
-public final class Predicate {
-    private final int numberOfArgs;
-    private final String name;
+    public boolean IDB;
 
     /**
-     *
-     * @param numberOfArgs Number of non-temporal arguments.
-     * @param name Name of predicate which will be printed.
+     * Constructor for predicate class.
+     * @param id    String represenation of predicate
+     * @param nArgs Number of non-temporal arguments
      */
-    Predicate(int numberOfArgs, String name) {
-        this.numberOfArgs = numberOfArgs;
-        this.name = name;
-    }
-
-    public int numberOfArgs() {
-        return numberOfArgs;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        Predicate that = (Predicate) obj;
-        return this.numberOfArgs == that.numberOfArgs &&
-                Objects.equals(this.name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(numberOfArgs, name);
+    public Predicate(String id, int nArgs){
+        this.id = id;
+        this.nArgs = nArgs;
+        this.IDB = false;
     }
 
     @Override
     public String toString() {
-        return name;
+        return id;
+    }
+
+    public boolean isIDB(){
+        return IDB;
     }
 }

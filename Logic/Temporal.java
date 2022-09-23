@@ -1,45 +1,67 @@
-import javax.swing.*;
+import org.jetbrains.annotations.NotNull;
 
-public class Temporal implements Term{
+import java.util.HashMap;
+import java.util.Map;
 
-    private Variable variable; // Time variable
-    private int constant; // Added constant
+public class Temporal implements Term, Comparable<Temporal>{
 
-    public Temporal(Variable variable, int constant){
-        this.variable = variable;
-        this.constant = constant;
+    Variable tVar;
+    int tConstant;
+    Map<Integer, Temporal> variants;
+
+    public Temporal(Variable tVar, int tConstant){
+        if(tVar==null && tConstant<0) throw new IllegalArgumentException("Temporal constant must be at least 0");
+
+        this.tVar = tVar;
+        this.tConstant = tConstant;
+        this.variants = new HashMap<>();
     }
 
-    public boolean isNegative(){
-        if(variable != null) return false;
-        return constant<0;
+    public Term getVariant(int version){
+        if(tVar == null){
+            return this;
+        }
+
+        if(this.variants.containsKey(version)){
+            return this.variants.get(version);
+        }else{
+            Temporal instance = new Temporal((Variable) tVar.getVariant(version), this.tConstant);
+            this.variants.put(version, instance);
+            return instance;
+        }
     }
 
     @Override
     public Term applySub(Substitution substitution) {
-        if(!substitution.isInSupport(variable)){
-            return this;
+        Term to_term = substitution.getSubstitution(this.tVar);
+        if(to_term != null){
+            assert to_term instanceof Temporal;
+            Temporal to = (Temporal) to_term;
+            return new Temporal(to.tVar,to.tConstant+this.tConstant);
         }
-        Term res_term = variable.applySub(substitution);
-        assert res_term instanceof Temporal;
-        Temporal res = (Temporal) res_term;
-        return new Temporal(res.variable, res.constant+this.constant);
+        return this;
     }
 
-    public Variable variable() {
-        return variable;
+
+
+
+    @Override
+    public String toString() {
+        if(tVar == null) {
+            return "" + tConstant;
+        }
+
+        StringBuilder b = new StringBuilder(tVar.toString());
+        if(tConstant>=0){
+            b.append("+");
+        }
+        b.append(tConstant);
+        return b.toString();
     }
 
     @Override
-    public String name() {
-        if(variable != null) {
-            return variable.name();
-        }else {
-            return "" + constant;
-        }
-    }
-
-    public int constant(){
-        return this.constant;
+    public int compareTo(@NotNull Temporal o) {
+        if(this.tVar != o.tVar) throw new IllegalArgumentException("Not comparable");
+        return this.tConstant - o.tConstant;
     }
 }
