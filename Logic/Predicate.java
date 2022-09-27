@@ -1,13 +1,27 @@
+/**
+ * A logical predicate.
+ */
 public class Predicate {
-    String id;
-    int nArgs;
 
+
+    /**
+     * String representation of predicate.
+     */
+    private final String id;
+    /**
+     * Number of non-temporal arguments of the predicate.
+     */
+    final int nArgs;
+
+    /**
+     * Indicator for wheter or not this predicate is an intensional (true) or extensional (false).
+     */
     public boolean IDB;
 
     /**
-     * Constructor for predicate class.
-     * @param id    String represenation of predicate
-     * @param nArgs Number of non-temporal arguments
+     * Constructs a predicate with signature id and nArgs number of non-temporal arguments.
+     * @param id    String representation of predicate
+     * @param nArgs number of non-temporal arguments
      */
     public Predicate(String id, int nArgs){
         this.id = id;
@@ -15,12 +29,13 @@ public class Predicate {
         this.IDB = false;
     }
 
+    /**
+     * Returns the String representation of this predicate.
+     * @return id
+     */
     @Override
     public String toString() {
         return id;
     }
 
-    public boolean isIDB(){
-        return IDB;
-    }
 }

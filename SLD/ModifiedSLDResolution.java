@@ -2,16 +2,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModifiedSLDResolution {
-    public static List<HAnswer> preprocess(Program program, AtomList query){
-        List<HAnswer> hAnswers = new ArrayList<>();
+    public static List<HypotheticalAnswer> preprocess(Program program, AtomList query){
+        List<HypotheticalAnswer> hAnswers = new ArrayList<>();
         inOrderTraversal(hAnswers, query, new Substitution(), program, 1);
 
         return hAnswers;
     }
 
-    private static void inOrderTraversal(List<HAnswer> hAnswers, AtomList goal, Substitution sub, Program program, int level){
+    private static void inOrderTraversal(List<HypotheticalAnswer> hAnswers, AtomList goal, Substitution sub, Program program, int level){
         if(isFinished(goal)){
-            hAnswers.add(new HAnswer(sub, goal));
+            hAnswers.add(new HypotheticalAnswer(sub, goal));
             return;
         }
 
