@@ -1,6 +1,10 @@
+
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A set of logical clauses called a program.
+ */
 public class Program{
     /**
      * List of program clauses.

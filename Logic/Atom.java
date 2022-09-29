@@ -6,21 +6,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * A logical atom.
  */
 public class Atom implements Comparable<Atom>{
     /**
      * Predicate of the atom.
      */
-    final Predicate predicate;
+    public final Predicate predicate;
     /**
      * Non-temporal arguments of the atom.
      */
-    final List<Term> args;
+    public final List<Term> args;
     /**
      * Temporal argument of the atom.
      */
-    final Temporal temporal;
+    public final Temporal temporal;
     /**
      * Map of different variants of this atom.
      */

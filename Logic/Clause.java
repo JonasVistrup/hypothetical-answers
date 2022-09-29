@@ -1,3 +1,4 @@
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class Clause {
     }
 
 
-    /** Returns a string representation of this clause in the form of HEAD<-BODY.
+    /** Returns a string representation of this clause in the form of HEAD{@literal <}-BODY.
      * @return string representation of clause
      */
     @Override

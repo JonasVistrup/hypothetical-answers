@@ -1,3 +1,5 @@
+
+
 /**
  * A logical constant
  */

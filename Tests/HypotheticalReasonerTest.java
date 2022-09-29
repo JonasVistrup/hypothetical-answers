@@ -12,12 +12,13 @@ class HypotheticalReasonerTest {
 
     @BeforeEach
     void setUp(){
-        h = new HypotheticalReasoner();
+
     }
 
     @Test
     @DisplayName("Simple Test")
     void evidenceTest(){
+        h = new HypotheticalReasoner();
         h.addClause("P(T)<-Q(0),Q(1),R(T)");
         h.query("P(T)");
         h.nextTime("Q(0)");
@@ -43,6 +44,7 @@ class HypotheticalReasonerTest {
     @Test
     @DisplayName("Test from Paper")
     void PaperTest(){
+        h = new HypotheticalReasoner();
         h.addClause("Flag(X,T)<-Temp(X,high,T)");
         h.addClause("Cool(X,T+1)<-Flag(X,T),Flag(X,T+1)");
         h.addClause("Shdn(X,T+1)<-Cool(X,T),Flag(X,T+1)");

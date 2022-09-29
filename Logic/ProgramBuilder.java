@@ -1,14 +1,19 @@
+
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A class which builds programs using string versions of its clauses.
+ */
 public class ProgramBuilder {
     private final Map<String, Predicate> predicates = new HashMap<>();
     private final Map<String, Term> terms = new HashMap<>();
     private final Map<String, Variable> temporalVariables = new HashMap<>();
 
-    private static final ArrayList<Clause> clauses = new ArrayList<>();
+    private final ArrayList<Clause> clauses = new ArrayList<>();
 
 
     /**
@@ -28,7 +33,7 @@ public class ProgramBuilder {
     }
 
     /**
-     * Adds a clause to the ProgramBuilder based upon the string representation of the clause given in the format HEAD<-BODY.
+     * Adds a clause to the ProgramBuilder based upon the string representation of the clause given in the format HEAD{@literal <}-BODY.
      * @param representation string representation of the clause
      */
     public void addClause(String representation) {

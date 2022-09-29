@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+
+
 /**
  * Class which allows the user to define a logical system of define temporal clauses.
  * That logical system can then be queried, creating hypothetical answer based upon some premise.
