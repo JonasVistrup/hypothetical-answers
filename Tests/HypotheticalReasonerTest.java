@@ -2,10 +2,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HypotheticalReasonerTest {
@@ -14,20 +12,21 @@ class HypotheticalReasonerTest {
 
     @BeforeEach
     void setUp(){
-        h = new HypotheticalReasoner();
+
     }
 
     @Test
     @DisplayName("Simple Test")
     void evidenceTest(){
+        h = new HypotheticalReasoner();
         h.addClause("P(T)<-Q(0),Q(1),R(T)");
         h.query("P(T)");
         h.nextTime("Q(0)");
-        List<EAnswer> S0 = h.evidenceAnswers();
+        List<EvidenceAnswer> S0 = h.evidenceAnswers();
         h.nextTime("Q(1),R(1)");
-        List<EAnswer> S1 = h.evidenceAnswers();
+        List<EvidenceAnswer> S1 = h.evidenceAnswers();
         h.nextTime("");
-        List<EAnswer> S2 = h.evidenceAnswers();
+        List<EvidenceAnswer> S2 = h.evidenceAnswers();
 
 
         assertEquals(1, S0.size());
@@ -45,6 +44,7 @@ class HypotheticalReasonerTest {
     @Test
     @DisplayName("Test from Paper")
     void PaperTest(){
+        h = new HypotheticalReasoner();
         h.addClause("Flag(X,T)<-Temp(X,high,T)");
         h.addClause("Cool(X,T+1)<-Flag(X,T),Flag(X,T+1)");
         h.addClause("Shdn(X,T+1)<-Cool(X,T),Flag(X,T+1)");

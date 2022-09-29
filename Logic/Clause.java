@@ -1,13 +1,30 @@
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A logical clause.
+ */
 public class Clause {
+    /**
+     * Head of the clause.
+     */
     Atom head;
+    /**
+     * Body of the clause.
+     */
     AtomList body;
 
+    /**
+     * Map of different variants of this clause.
+     */
     Map<Integer, Clause> instances;
 
+    /**
+     * @param head head of the clause
+     * @param body body of the clause
+     */
     Clause(Atom head, AtomList body){
         this.head = head;
         this.body = body;
@@ -15,6 +32,11 @@ public class Clause {
         this.instances = new HashMap<>();
     }
 
+    /**
+     * Constructs a variant of a clause.
+     * @param clause original clause for which this is a variant
+     * @param version version of the variant
+     */
     public Clause(Clause clause, int version){
         this.head = clause.head.getInstance(version);
         this.body = new AtomList();
@@ -23,6 +45,11 @@ public class Clause {
         }
     }
 
+    /**
+     * Returns a variant of this clause.
+     * @param version which variant that should be returned
+     * @return a variant of this atom
+     */
     public Clause getInstance(int version){
         if(this.instances.containsKey(version)){
             return this.instances.get(version);
@@ -34,7 +61,9 @@ public class Clause {
     }
 
 
-
+    /** Returns a string representation of this clause in the form of HEAD{@literal <}-BODY.
+     * @return string representation of clause
+     */
     @Override
     public String toString() {
         if (body.isEmpty()) {

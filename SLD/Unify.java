@@ -1,4 +1,13 @@
+/**
+ * A class for unified two atoms.
+ */
 public class Unify {
+    /**
+     * Finds a most general unifier between selectedAtom and head if one exist, otherwise returns 0.
+     * @param selectedAtom atom which variables are only substituted if absolutely necessary.
+     * @param head atom which variables are substituted whenever possible.
+     * @return a substitution which is a most general unifier.
+     */
     static Substitution findMGU(Atom selectedAtom, Atom head) {
 
         if(head.predicate != selectedAtom.predicate){

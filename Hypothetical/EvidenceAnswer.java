@@ -1,14 +1,42 @@
-public class EAnswer {
+/**
+ * A supported answer.
+ */
+public class EvidenceAnswer {
 
+    /**
+     * Substitutions which have been applied to the evidence and premises.
+     */
     public final Substitution substitution;
+    /**
+     * List of evidence.
+     */
     public final AtomList evidence;
-    public final AtomList constantPremise; // Sorted list of premises with no temporal variable
+    /**
+     * Sorted list of premises without a temporal variable.
+     */
+    public final AtomList constantPremise;
+    /**
+     * List of premises with the smallest time constant and without a temporal variable.
+     */
     public final AtomList smallestConstant;
+    /**
+     * Sorted list of premises with a temporal variable.
+     */
     public final AtomList temporalPremise; // Sorted list of premises with temporal variable
+    /**
+     * List of premises with the smallest time constant and with a temporal variable.
+     */
     public final AtomList smallestTemporal;
 
 
-    public EAnswer(Substitution substitution, AtomList evidence, AtomList constantPremise, AtomList temporalPremise) {
+    /**
+     * Constructs an evidence answer.
+     * @param substitution substitution applied on the evidence and premise
+     * @param evidence evidence obtained for the query
+     * @param constantPremise premises without a temporal variable.
+     * @param temporalPremise premises with a temporal variable.
+     */
+    public EvidenceAnswer(Substitution substitution, AtomList evidence, AtomList constantPremise, AtomList temporalPremise) {
 
         this.substitution = substitution;
         this.evidence = evidence;
@@ -24,12 +52,14 @@ public class EAnswer {
                 this.temporalPremise.add(a);
             }
         }
-        //this.constantPremise = constantPremise;
-        //this.temporalPremise = temporalPremise;
-        this.smallestConstant = HAnswer.findMin(this.constantPremise);
-        this.smallestTemporal = HAnswer.findMin(this.temporalPremise);
+        this.smallestConstant = HypotheticalAnswer.findMin(this.constantPremise);
+        this.smallestTemporal = HypotheticalAnswer.findMin(this.temporalPremise);
     }
 
+    /**
+     * Returns a string representation of this.
+     * @return string representation.
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -61,6 +91,11 @@ public class EAnswer {
         return builder.toString();
     }
 
+    /**
+     * Returns a string representation of this, where only substitutions relating to an atom is show.
+     * @param relevantQuery the atom for which only relevant substitutions is showed.
+     * @return string representation.
+     */
     public String toString(Atom relevantQuery) {
         StringBuilder builder = new StringBuilder();
         builder.append("[");
@@ -91,6 +126,11 @@ public class EAnswer {
         return builder.toString();
     }
 
+    /**
+     * Returns a string representation of this, where only substitutions relating to a list of atoms is show.
+     * @param relevantQuery the list of atoms for which only relevant substitutions is showed.
+     * @return string representation.
+     */
     public String toString(AtomList relevantQuery) {
         StringBuilder builder = new StringBuilder();
         builder.append("[");

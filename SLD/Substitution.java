@@ -1,23 +1,38 @@
 import java.util.ArrayList;
 import java.util.List;
 
+
+
+/**
+ * A set of substitutions.
+ */
 public class Substitution {
 
     private final List<Sub> subs; //TODO: convert to hashmap for speedup
 
+    /**
+     * Constructs an empty set of substitutions.
+     */
     public Substitution(){
         this.subs = new ArrayList<>();
     }
 
+    /**
+     * Constructs a set of substitutions with a single sub.
+     * @param from variable which to substitute.
+     * @param to term to substitute the variable into.
+     */
     public Substitution(Variable from, Term to){
         this.subs = new ArrayList<>();
         this.subs.add(new Sub(from, to));
     }
 
-    public List<Sub> subs(){
-        return subs;
-    }
-
+    /**
+     * Creates a new substitution based upon two substitutions.
+     * @param subs1 the first substitution.
+     * @param subs2 the second substitution.
+     * @return the composition of the two substitutions.
+     */
     public static Substitution composition(Substitution subs1, Substitution subs2){
         Substitution resultingSubs = new Substitution();
 
@@ -28,7 +43,8 @@ public class Substitution {
             }
         }
         for(Sub sub: subs2.subs){
-            if(!resultingSubs.isInSupport(sub.from)){
+            Term to = resultingSubs.getSubstitution(sub.from);
+            if(to == null){
                 resultingSubs.subs.add(sub);
             }
         }
@@ -36,13 +52,11 @@ public class Substitution {
     }
 
 
-    public boolean isInSupport(Variable var){
-        for(Sub sub: subs){
-            if(sub.from == var) return true;
-        }
-        return false;
-    }
-
+    /**
+     * Returns the term that a variable is substituted into. Null if the variable is not substituted.
+     * @param var variable for which its substitution is searched for.
+     * @return the term var is substituted into or null if no substitution of var is in this list of substitutions.
+     */
     public Term getSubstitution(Variable var){
         for(Sub sub: subs){
             if(sub.from == var) return sub.to;
@@ -51,7 +65,9 @@ public class Substitution {
     }
 
 
-
+    /** Returns a string representation of the substitution.
+     * @return string representation of the substitution.
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -68,7 +84,10 @@ public class Substitution {
     }
 
 
-
+    /**Returns a string representation of the all substitutions relevant to the atom.
+     * @param relevantQuery atom for which the representation is relevant for.
+     * @return string representation.
+     */
     public String toString(Atom relevantQuery) {
         AtomList relevantList = new AtomList(relevantQuery);
 
@@ -89,6 +108,10 @@ public class Substitution {
         return builder.toString();
     }
 
+    /**Returns a string representation of the all substitutions relevant to an atom in a list of atoms.
+     * @param relevantQuery list of atom for which the representation is relevant for.
+     * @return string representation.
+     */
     public String toString(AtomList relevantQuery) {
         StringBuilder builder = new StringBuilder();
         builder.append("{");
@@ -108,6 +131,12 @@ public class Substitution {
     }
 
 
+    /**
+     * Returns whether the sub would affect any of the atoms in the query.
+     * @param s the substitution
+     * @param relevantQuery the list of atoms
+     * @return true iff relevantQuery contains the variable which is substituted in s.
+     */
     private static boolean relevantSub(Sub s, AtomList relevantQuery) {
         for(Atom a: relevantQuery) {
             for (Term t : a.args) {

@@ -5,12 +5,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A logical atom.
+ */
 public class Atom implements Comparable<Atom>{
-    Predicate predicate;
-    List<Term> args;
-    Temporal temporal;
-    Map<Integer, Atom> instances;
+    /**
+     * Predicate of the atom.
+     */
+    public final Predicate predicate;
+    /**
+     * Non-temporal arguments of the atom.
+     */
+    public final List<Term> args;
+    /**
+     * Temporal argument of the atom.
+     */
+    public final Temporal temporal;
+    /**
+     * Map of different variants of this atom.
+     */
+    private final Map<Integer, Atom> instances;
 
+    /**
+     * Constructs an atom.
+     * @param predicate predicate of atom.
+     * @param args non-temporal arguments of atom.
+     * @param temporal temporal argument of atom.
+     */
     Atom(Predicate predicate, List<Term> args, Temporal temporal){
         if(predicate.nArgs != args.size()) throw new IllegalArgumentException("Number of arguments does not match predicate");
         this.predicate = predicate;
@@ -19,6 +40,11 @@ public class Atom implements Comparable<Atom>{
         this.instances = new HashMap<>();
     }
 
+    /**
+     * Constructs a variant of an atom.
+     * @param parent original atom for which this is a variant
+     * @param version version of the variant
+     */
     Atom(Atom parent, int version){
         this.predicate = parent.predicate;
         this.args = new ArrayList<>();
@@ -30,7 +56,11 @@ public class Atom implements Comparable<Atom>{
     }
 
 
-
+    /**
+     * Returns a variant of this atom.
+     * @param version which variant that should be returned
+     * @return a variant of this atom
+     */
     public Atom getInstance(int version){
         if(this.instances.containsKey(version)){
             return this.instances.get(version);
@@ -41,6 +71,11 @@ public class Atom implements Comparable<Atom>{
         }
     }
 
+    /**
+     * Applies a substitution on every term in the atom, returning the resulting atom.
+     * @param substitution applied substitution
+     * @return new atom with substituted terms
+     */
     public Atom applySub(Substitution substitution){
         List<Term> new_terms = new ArrayList<>();
         for(Term t: args){
@@ -50,7 +85,10 @@ public class Atom implements Comparable<Atom>{
     }
 
 
-
+    /**
+     * Returns a String representation of this atom.
+     * @return representation of this atom.
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -60,22 +98,17 @@ public class Atom implements Comparable<Atom>{
             builder.append(t.toString());
             builder.append(',');
         }
-        if(temporal.tVar != null) {
-            builder.append(temporal.tVar.toString());
-            if (temporal.tConstant > 0) {
-                builder.append("+");
-                builder.append(temporal.tConstant);
-            } else if (temporal.tConstant < 0) {
-                builder.append(temporal.tConstant);
-            }
-        }else{
-            builder.append(temporal.tConstant);
-        }
+        builder.append(temporal);
 
         builder.append(')');
         return builder.toString();
     }
 
+    /**
+     * Compares the temporal aspects of atom o and this atom. See Temporal.compareTo for details.
+     * @param o the object to be compared
+     * @return a negative, 0 or a positive number
+     */
     @Override
     public int compareTo(@NotNull Atom o) {
         return this.temporal.compareTo(o.temporal);

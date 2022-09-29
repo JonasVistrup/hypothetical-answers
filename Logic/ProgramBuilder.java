@@ -1,24 +1,41 @@
+
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A class which builds programs using string versions of its clauses.
+ */
 public class ProgramBuilder {
     private final Map<String, Predicate> predicates = new HashMap<>();
     private final Map<String, Term> terms = new HashMap<>();
     private final Map<String, Variable> temporalVariables = new HashMap<>();
 
-    private static final ArrayList<Clause> clauses = new ArrayList<>();
+    private final ArrayList<Clause> clauses = new ArrayList<>();
 
 
+    /**
+     * Returns a program consisting of the current clauses.
+     * @return program made from the added clauses
+     */
     public Program getProgram(){
         return new Program(clauses);
     }
 
+    /**
+     * Returns the number of clauses added.
+     * @return number of clauses added.
+     */
     public int size(){
         return clauses.size();
     }
 
+    /**
+     * Adds a clause to the ProgramBuilder based upon the string representation of the clause given in the format HEAD{@literal <}-BODY.
+     * @param representation string representation of the clause
+     */
     public void addClause(String representation) {
         representation = representation.replaceAll(" ", "");
         String[] parts = representation.split("<-");
@@ -44,6 +61,11 @@ public class ProgramBuilder {
         clauses.add(new Clause(head, body));
     }
 
+    /**
+     * Returns an atom based upon the string representation given.
+     * @param atomRep string representation
+     * @return atom which the string representation corresponds to
+     */
     public Atom parseAtom(String atomRep) {
         atomRep = atomRep.replaceAll(" ", "");
         String[] strArguments;

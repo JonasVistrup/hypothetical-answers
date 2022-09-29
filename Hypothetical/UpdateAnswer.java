@@ -1,25 +1,38 @@
 import java.util.ArrayList;
 import java.util.List;
 
+
+
+/**
+ * Class of static functions used to update evidence based upon new information.
+ */
 public class UpdateAnswer {
 
 
-    public static List<EAnswer> update(List<HAnswer> hAnswers, List<EAnswer> eAnswers, AtomList dataStream, int time){
-        List<EAnswer> updated_EAnswers = getEAnswersFromHAnswers(hAnswers, dataStream, time);
+    /**
+     * Updates the evidence based upon the dataStream given.
+     * @param hAnswers hypothetical answers gathered from preprocessing.
+     * @param eAnswers evidence for at the previous time
+     * @param dataStream facts at the current time
+     * @param time current time (Currently not used)
+     * @return list of evidence for the current time
+     */
+    public static List<EvidenceAnswer> update(List<HypotheticalAnswer> hAnswers, List<EvidenceAnswer> eAnswers, AtomList dataStream, int time){
+        List<EvidenceAnswer> updated_EAnswers = getEAnswersFromHAnswers(hAnswers, dataStream, time);
         updated_EAnswers.addAll(updateEAnswers(eAnswers, dataStream, time));
         return updated_EAnswers;
     }
 
-    public static List<EAnswer> getEAnswersFromHAnswers(List<HAnswer> hAnswers, AtomList dataStream, int time){
+    private static List<EvidenceAnswer> getEAnswersFromHAnswers(List<HypotheticalAnswer> hAnswers, AtomList dataStream, int time){
         Program p = dataStream.toProgram();
-        List<EAnswer> eAnswers = new ArrayList<>();
-        for(HAnswer hAnswer: hAnswers){
+        List<EvidenceAnswer> eAnswers = new ArrayList<>();
+        for(HypotheticalAnswer hAnswer: hAnswers){
             eAnswers.addAll(getEAnswersFromHAnswer(hAnswer, p, time));
         }
         return eAnswers;
     }
-    private static List<EAnswer> getEAnswersFromHAnswer(HAnswer hAnswer, Program p, int time){  //TODO use time for early rejection on contantPremise with timeConstant less then current time.
-        List<EAnswer> eAnswers = new ArrayList<>();
+    private static List<EvidenceAnswer> getEAnswersFromHAnswer(HypotheticalAnswer hAnswer, Program p, int time){  //TODO use time for early rejection on contantPremise with timeConstant less then current time.
+        List<EvidenceAnswer> eAnswers = new ArrayList<>();
 
         AtomList minConstantPremise = hAnswer.smallestConstant;
 
@@ -28,7 +41,7 @@ public class UpdateAnswer {
         if(!minConstantPremise.isEmpty()) {
             for (Substitution constantAnswer : constantAnswerList) {
                 Substitution sub = Substitution.composition(hAnswer.substitution, constantAnswer);
-                eAnswers.add(new EAnswer(sub, minConstantPremise, hAnswer.constantPremise.without(minConstantPremise).applySub(constantAnswer), hAnswer.temporalPremise.applySub(constantAnswer)));
+                eAnswers.add(new EvidenceAnswer(sub, minConstantPremise, hAnswer.constantPremise.without(minConstantPremise).applySub(constantAnswer), hAnswer.temporalPremise.applySub(constantAnswer)));
             }
         }
 
@@ -51,7 +64,7 @@ public class UpdateAnswer {
 
 
 
-                eAnswers.add(new EAnswer(sub, evidence, constantRemainingPremise, temporalRemainingPremise));
+                eAnswers.add(new EvidenceAnswer(sub, evidence, constantRemainingPremise, temporalRemainingPremise));
             }
         }
         return eAnswers;
@@ -59,17 +72,17 @@ public class UpdateAnswer {
 
 
 
-    public static List<EAnswer> updateEAnswers(List<EAnswer> eAnswers, AtomList dataStream, int time){
+    private static List<EvidenceAnswer> updateEAnswers(List<EvidenceAnswer> eAnswers, AtomList dataStream, int time){
         Program p = dataStream.toProgram();
-        List<EAnswer> result = new ArrayList<>();
-        for(EAnswer eAnswer: eAnswers){
+        List<EvidenceAnswer> result = new ArrayList<>();
+        for(EvidenceAnswer eAnswer: eAnswers){
             result.addAll(updateEAnswer(eAnswer, p, time));
         }
         return result;
     }
 
-    private static List<EAnswer> updateEAnswer(EAnswer eAnswer, Program p, int time){
-        List<EAnswer> eAnswers = new ArrayList<>();
+    private static List<EvidenceAnswer> updateEAnswer(EvidenceAnswer eAnswer, Program p, int time){
+        List<EvidenceAnswer> eAnswers = new ArrayList<>();
 
         AtomList minConstantPremise = eAnswer.smallestConstant;
         List<Substitution> constantAnswerList = SLDResolution.findSubstitutions(p, minConstantPremise);
@@ -77,7 +90,7 @@ public class UpdateAnswer {
 
         for (Substitution constantAnswer : constantAnswerList) {
             Substitution sub = Substitution.composition(eAnswer.substitution, constantAnswer);
-            eAnswers.add(new EAnswer(sub, eAnswer.evidence.plus(minConstantPremise).applySub(sub), eAnswer.constantPremise.without(minConstantPremise).applySub(constantAnswer), eAnswer.temporalPremise.applySub(constantAnswer)));
+            eAnswers.add(new EvidenceAnswer(sub, eAnswer.evidence.plus(minConstantPremise).applySub(sub), eAnswer.constantPremise.without(minConstantPremise).applySub(constantAnswer), eAnswer.temporalPremise.applySub(constantAnswer)));
         }
 
 
@@ -100,7 +113,7 @@ public class UpdateAnswer {
 
 
 
-                eAnswers.add(new EAnswer(sub, eAnswer.evidence.plus(evidence), constantRemainingPremise, temporalRemainingPremise));
+                eAnswers.add(new EvidenceAnswer(sub, eAnswer.evidence.plus(evidence), constantRemainingPremise, temporalRemainingPremise));
             }
         }
         return eAnswers;
