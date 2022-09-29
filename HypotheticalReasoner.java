@@ -113,6 +113,9 @@ public class HypotheticalReasoner {
         }
 
 
+        /**Returns the query of the program.
+         * @return The query of the program.
+         */
         public AtomList getQuery(){
                 return this.query;
         }
