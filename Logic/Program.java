@@ -1,12 +1,24 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Program{
-    List<Clause> clauses;
+    /**
+     * List of program clauses.
+     */
+    final List<Clause> clauses;
 
+    /**
+     * Constructs a program given a list of clauses
+     * @param clauses clauses of the program
+     */
     Program(List<Clause> clauses) {
-        this.clauses = clauses;
+        this.clauses = new ArrayList<>(clauses);
     }
 
+    /**
+     * Returns a string representation of this program consisting of every clause in the program.
+     * @return string representation of this program.
+     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

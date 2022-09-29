@@ -1,16 +1,27 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class of static functions used to update evidence based upon new information.
+ */
 public class UpdateAnswer {
 
 
+    /**
+     * Updates the evidence based upon the dataStream given.
+     * @param hAnswers hypothetical answers gathered from preprocessing.
+     * @param eAnswers evidence for at the previous time
+     * @param dataStream facts at the current time
+     * @param time current time (Currently not used)
+     * @return list of evidence for the current time
+     */
     public static List<EvidenceAnswer> update(List<HypotheticalAnswer> hAnswers, List<EvidenceAnswer> eAnswers, AtomList dataStream, int time){
         List<EvidenceAnswer> updated_EAnswers = getEAnswersFromHAnswers(hAnswers, dataStream, time);
         updated_EAnswers.addAll(updateEAnswers(eAnswers, dataStream, time));
         return updated_EAnswers;
     }
 
-    public static List<EvidenceAnswer> getEAnswersFromHAnswers(List<HypotheticalAnswer> hAnswers, AtomList dataStream, int time){
+    private static List<EvidenceAnswer> getEAnswersFromHAnswers(List<HypotheticalAnswer> hAnswers, AtomList dataStream, int time){
         Program p = dataStream.toProgram();
         List<EvidenceAnswer> eAnswers = new ArrayList<>();
         for(HypotheticalAnswer hAnswer: hAnswers){
@@ -59,7 +70,7 @@ public class UpdateAnswer {
 
 
 
-    public static List<EvidenceAnswer> updateEAnswers(List<EvidenceAnswer> eAnswers, AtomList dataStream, int time){
+    private static List<EvidenceAnswer> updateEAnswers(List<EvidenceAnswer> eAnswers, AtomList dataStream, int time){
         Program p = dataStream.toProgram();
         List<EvidenceAnswer> result = new ArrayList<>();
         for(EvidenceAnswer eAnswer: eAnswers){

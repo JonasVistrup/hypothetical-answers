@@ -11,14 +11,26 @@ public class ProgramBuilder {
     private static final ArrayList<Clause> clauses = new ArrayList<>();
 
 
+    /**
+     * Returns a program consisting of the current clauses.
+     * @return program made from the added clauses
+     */
     public Program getProgram(){
         return new Program(clauses);
     }
 
+    /**
+     * Returns the number of clauses added.
+     * @return number of clauses added.
+     */
     public int size(){
         return clauses.size();
     }
 
+    /**
+     * Adds a clause to the ProgramBuilder based upon the string representation of the clause given in the format HEAD<-BODY.
+     * @param representation string representation of the clause
+     */
     public void addClause(String representation) {
         representation = representation.replaceAll(" ", "");
         String[] parts = representation.split("<-");
@@ -44,6 +56,11 @@ public class ProgramBuilder {
         clauses.add(new Clause(head, body));
     }
 
+    /**
+     * Returns an atom based upon the string representation given.
+     * @param atomRep string representation
+     * @return atom which the string representation corresponds to
+     */
     public Atom parseAtom(String atomRep) {
         atomRep = atomRep.replaceAll(" ", "");
         String[] strArguments;

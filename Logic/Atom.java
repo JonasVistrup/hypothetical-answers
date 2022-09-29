@@ -57,9 +57,9 @@ public class Atom implements Comparable<Atom>{
 
 
     /**
-     * Returns a variant of the atom.
+     * Returns a variant of this atom.
      * @param version which variant that should be returned
-     * @return a variant of the atom
+     * @return a variant of this atom
      */
     public Atom getInstance(int version){
         if(this.instances.containsKey(version)){
