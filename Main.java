@@ -43,19 +43,19 @@ public class Main {
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("Temp(wt25,high,0)");
+        h.nextTime("Temp(wt25,high,0),Temp(wt12,high,0)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("Temp(wt25,high,1)");
+        h.nextTime("Temp(wt25,high,1),Temp(wt12,high,1)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("Temp(wt25,high,2)");
+        h.nextTime("Temp(wt25,high,2),Temp(wt12,high,2)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("P(wt25,3)");
+        h.nextTime("P(wt25,3),Temp(wt12,high,3)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
     }
