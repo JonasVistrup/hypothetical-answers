@@ -1,5 +1,5 @@
 # Hypothetical Answers
-Hypothetical answers is an ongoing implementation of the paper **Hypothetical answers to continuous queries over data streams** by *Luís Cruz-filipe*, *Graça Gasper* and *Isabel Nunes*.
+Hypothetical answers is an ongoing implementation of the paper **Hypothetical answers to continuous queries over data streams** by *Luís Cruz-Filipe*, *Graça Gasper* and *Isabel Nunes*.
 
 The framework provided in the paper is a datalog based framework where every predicate has a temporal argument. Each instance of a predicate can then either be initiated to a specific time or to a time-variable.
 Some predicates, called EDB predicates, will then be provided as information to the program over time with all true instances of EDB predicates with time 0 being provided at time 0. Anything not provided is presumed to be false.
