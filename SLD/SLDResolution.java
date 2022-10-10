@@ -15,6 +15,10 @@ public class SLDResolution {
     public static List<Substitution> findSubstitutions(Program program, AtomList query){ //TODO might add the same substitution multiple times (SHOULD BE SET INSTEAD OF LIST?)
         List<Substitution> answers = new ArrayList<>();
 
+        if(query.isEmpty()){ //Is this correct?
+            return answers;
+        }
+
         inOrderTraversal(answers, query, new Substitution(), program, 1);
 
         return answers;

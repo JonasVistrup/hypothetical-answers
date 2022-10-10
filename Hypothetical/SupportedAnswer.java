@@ -1,7 +1,7 @@
 /**
  * A supported answer.
  */
-public class EvidenceAnswer {
+public class SupportedAnswer {
 
     /**
      * Substitutions which have been applied to the evidence and premises.
@@ -36,7 +36,7 @@ public class EvidenceAnswer {
      * @param constantPremise premises without a temporal variable.
      * @param temporalPremise premises with a temporal variable.
      */
-    public EvidenceAnswer(Substitution substitution, AtomList evidence, AtomList constantPremise, AtomList temporalPremise) {
+    public SupportedAnswer(Substitution substitution, AtomList evidence, AtomList constantPremise, AtomList temporalPremise) {
 
         this.substitution = substitution;
         this.evidence = evidence;
@@ -52,8 +52,27 @@ public class EvidenceAnswer {
                 this.temporalPremise.add(a);
             }
         }
-        this.smallestConstant = HypotheticalAnswer.findMin(this.constantPremise);
-        this.smallestTemporal = HypotheticalAnswer.findMin(this.temporalPremise);
+        this.smallestConstant = PreprocessingAnswer.findMin(this.constantPremise);
+        this.smallestTemporal = PreprocessingAnswer.findMin(this.temporalPremise);
+    }
+
+    public SupportedAnswer(Substitution substitution, AtomList evidence, AtomList premise) {
+
+        this.substitution = substitution;
+        this.evidence = evidence;
+
+        this.constantPremise = new AtomList();
+        this.temporalPremise = new AtomList();
+
+        for(Atom a: premise){
+            if (a.temporal.tVar == null) {
+                this.constantPremise.add(a);
+            }else{
+                this.temporalPremise.add(a);
+            }
+        }
+        this.smallestConstant = PreprocessingAnswer.findMin(this.constantPremise);
+        this.smallestTemporal = PreprocessingAnswer.findMin(this.temporalPremise);
     }
 
     /**

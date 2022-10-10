@@ -12,8 +12,8 @@ public class ModifiedSLDResolution {
      * @param query the query.
      * @return hypothetical answers.
      */
-    public static List<HypotheticalAnswer> preprocess(Program program, AtomList query){
-        List<HypotheticalAnswer> hAnswers = new ArrayList<>();
+    public static List<PreprocessingAnswer> preprocess(Program program, AtomList query){
+        List<PreprocessingAnswer> hAnswers = new ArrayList<>();
         inOrderTraversal(hAnswers, query, new Substitution(), program, 1);
 
         return hAnswers;
@@ -27,9 +27,9 @@ public class ModifiedSLDResolution {
      * @param program the program.
      * @param level the current level of the SLD-tree.
      */
-    private static void inOrderTraversal(List<HypotheticalAnswer> hAnswers, AtomList goal, Substitution sub, Program program, int level){
+    private static void inOrderTraversal(List<PreprocessingAnswer> hAnswers, AtomList goal, Substitution sub, Program program, int level){
         if(isFinished(goal)){
-            hAnswers.add(new HypotheticalAnswer(sub, goal));
+            hAnswers.add(new PreprocessingAnswer(sub, goal));
             return;
         }
 

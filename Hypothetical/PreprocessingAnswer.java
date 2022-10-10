@@ -4,7 +4,7 @@ import java.util.Collections;
 /**
  * A non-supported answer
  */
-public class HypotheticalAnswer {
+public class PreprocessingAnswer {
 
     /**
      * Substitutions which have been applied to the evidence and premises.
@@ -32,7 +32,7 @@ public class HypotheticalAnswer {
      * @param substitution substitution applied on the premise
      * @param premise premises of the hypothetical answer
      */
-    public HypotheticalAnswer(Substitution substitution, AtomList premise) {
+    public PreprocessingAnswer(Substitution substitution, AtomList premise) {
         this.substitution = substitution;
         this.constantPremise = new AtomList();
         this.temporalPremise = new AtomList();

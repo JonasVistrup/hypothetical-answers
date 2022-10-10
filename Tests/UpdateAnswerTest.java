@@ -22,14 +22,14 @@ class UpdateAnswerTest {
         pB.addClause("P(T)<-Q(0),Q(1),R(T)");
         Program p = pB.getProgram();
         Atom query = pB.parseAtom("P(T)");
-        List<HypotheticalAnswer> answerList = ModifiedSLDResolution.preprocess(p, new AtomList(query));
+        List<PreprocessingAnswer> answerList = ModifiedSLDResolution.preprocess(p, new AtomList(query));
         AtomList T0 = new AtomList(pB.parseAtom("Q(0)"));
         AtomList T1 = new AtomList(pB.parseAtom("Q(1)"));
         T1.add(pB.parseAtom("R(1)"));
 
-        List<EvidenceAnswer> S0 = UpdateAnswer.update(answerList, new ArrayList<>(), T0, 0);
-        List<EvidenceAnswer> S1 = UpdateAnswer.update(answerList, S0, T1, 1);
-        List<EvidenceAnswer> S2 = UpdateAnswer.update(answerList, S1, new AtomList(), 1);
+        List<SupportedAnswer> S0 = UpdateAnswer.update(answerList, new ArrayList<>(), T0, 0);
+        List<SupportedAnswer> S1 = UpdateAnswer.update(answerList, S0, T1, 1);
+        List<SupportedAnswer> S2 = UpdateAnswer.update(answerList, S1, new AtomList(), 1);
 
         assertEquals(1, S0.size());
         assertEquals(2, S1.size());

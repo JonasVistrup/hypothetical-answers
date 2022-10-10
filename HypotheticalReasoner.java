@@ -13,8 +13,8 @@ import java.util.Scanner;
  */
 public class HypotheticalReasoner {
         private final ProgramBuilder pBuilder;
-        private List<HypotheticalAnswer> hAnswers;
-        private List<EvidenceAnswer> eAnswers;
+        private List<PreprocessingAnswer> hAnswers;
+        private List<SupportedAnswer> eAnswers;
 
         private AtomList query;
 
@@ -125,7 +125,7 @@ public class HypotheticalReasoner {
          * @throws IllegalStateException if the reasoner has not been queried yet
          * @return list of hypothetical answers generated during preprocessing
          */
-        public List<HypotheticalAnswer> hypotheticalAnswers(){
+        public List<PreprocessingAnswer> hypotheticalAnswers(){
                 if(this.hAnswers == null) throw new IllegalStateException("The Reasoner must be queried before hypothetical answers are generated.");
                 return hAnswers;
         }
@@ -135,7 +135,7 @@ public class HypotheticalReasoner {
          * @throws IllegalStateException if the reasoner has not been queried yet
          * @return list of the current supported answers
          */
-        public List<EvidenceAnswer> evidenceAnswers(){
+        public List<SupportedAnswer> evidenceAnswers(){
                 if(this.hAnswers == null) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
               return this.eAnswers;
         }
@@ -156,19 +156,19 @@ public class HypotheticalReasoner {
                 }
                 b.append("\n");
                 b.append("Hypothetical Answers:\n");
-                for(HypotheticalAnswer hAnswer: hAnswers){
+                for(PreprocessingAnswer hAnswer: hAnswers){
                         b.append("\t").append(hAnswer.toString(this.query)).append("\n");
                 }
                 b.append("\n");
 
                 b.append("Evidence Answers:\n");
-                for(EvidenceAnswer eAnswer: eAnswers){
+                for(SupportedAnswer eAnswer: eAnswers){
                         b.append("\t").append(eAnswer.toString(this.query)).append("\n");
                 }
                 b.append("\n");
 
                 b.append("Answers:\n");
-                for(EvidenceAnswer eAnswer: eAnswers){
+                for(SupportedAnswer eAnswer: eAnswers){
                         if(eAnswer.constantPremise.isEmpty() && eAnswer.temporalPremise.isEmpty()) {
                                 b.append("\t").append(eAnswer.substitution.toString(this.query)).append("\n");
                         }

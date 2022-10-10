@@ -17,16 +17,16 @@ class HypotheticalReasonerTest {
 
     @Test
     @DisplayName("Simple Test")
-    void evidenceTest(){
+    void evidenceTest1(){
         h = new HypotheticalReasoner();
         h.addClause("P(T)<-Q(0),Q(1),R(T)");
         h.query("P(T)");
         h.nextTime("Q(0)");
-        List<EvidenceAnswer> S0 = h.evidenceAnswers();
+        List<SupportedAnswer> S0 = h.evidenceAnswers();
         h.nextTime("Q(1),R(1)");
-        List<EvidenceAnswer> S1 = h.evidenceAnswers();
+        List<SupportedAnswer> S1 = h.evidenceAnswers();
         h.nextTime("");
-        List<EvidenceAnswer> S2 = h.evidenceAnswers();
+        List<SupportedAnswer> S2 = h.evidenceAnswers();
 
 
         assertEquals(1, S0.size());
@@ -38,6 +38,32 @@ class HypotheticalReasonerTest {
         assertEquals("[{},{Q(0),Q(1)},{R(T)}]",S2.get(0).toString(h.getQuery()));
         assertEquals("[{(T/1)},{Q(0),Q(1),R(1)},{}]",S2.get(1).toString(h.getQuery()));
         assertEquals("Program:\nP(T)<-Q(0),Q(1),R(T)\n\nHypothetical Answers:\n\t[{},{Q(0),Q(1),R(T)}]\n\nEvidence Answers:\n\t[{},{Q(0),Q(1)},{R(T)}]\n\t[{(T/1)},{Q(0),Q(1),R(1)},{}]\n\nAnswers:\n\t{(T/1)}\n", h.toString());
+
+    }
+
+
+    @Test
+    @DisplayName("Simple Test with propagation")
+    void evidenceTest2(){
+        h = new HypotheticalReasoner();
+        h.addClause("P(T)<-Q(0),Q(2),R(T)");
+        h.query("P(T)");
+        h.nextTime("Q(0)");
+        List<SupportedAnswer> S0 = h.evidenceAnswers();
+        List<PreprocessingAnswer> H = h.hypotheticalAnswers();
+        h.nextTime("Q(1),R(1)");
+        List<SupportedAnswer> S1 = h.evidenceAnswers();
+        h.nextTime("Q(2)");
+        List<SupportedAnswer> S2 = h.evidenceAnswers();
+
+
+        assertEquals(1, S0.size());
+        //assertEquals(2, S1.size());
+        assertEquals("[{},{Q(0)},{Q(2),R(T)}]",S0.get(0).toString(h.getQuery()));
+        assertEquals("[{(T/1)},{Q(0),R(1)},{Q(2)}]",S1.get(0).toString(h.getQuery()));
+        assertEquals(1, S2.size());
+        assertEquals("[{(T/1)},{Q(0),R(1),Q(2)},{}]",S2.get(0).toString(h.getQuery()));
+        assertEquals("Program:\nP(T)<-Q(0),Q(2),R(T)\n\nHypothetical Answers:\n\t[{},{Q(0),Q(2),R(T)}]\n\nEvidence Answers:\n\t[{(T/1)},{Q(0),R(1),Q(2)},{}]\n\nAnswers:\n\t{(T/1)}\n", h.toString());
 
     }
 
