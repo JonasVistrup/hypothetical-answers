@@ -1,0 +1,4 @@
+Temp(X,high,T)->Flag(X,T)
+Flag(X,T),Flag(X,T+1)->Cool(X,T+1)
+Shdn(X,T+1)<-Cool(X,T),Flag(X,T+1)
+Shdn(X,T)->Malf(X,T-2)

@@ -39,8 +39,19 @@ public class ProgramBuilder {
     public void addClause(String representation) {
         representation = representation.replaceAll(" ", "");
         String[] parts = representation.split("<-");
-        if (parts.length < 1 || parts.length >= 3) {
-            throw new IllegalArgumentException("The clause should consist of a \"head<-body\"");
+        if (parts.length == 1 && parts[0].equals(representation)){
+            String [] temp_parts = representation.split("->");
+            if (temp_parts.length == 1 && temp_parts[0].equals(representation)) {
+                throw new IllegalArgumentException("The clause should consist of a \"head<-body\" or  \"body->head\"");
+            }
+            parts = new String[temp_parts.length];
+            parts[0] = temp_parts[temp_parts.length-1];
+            if(parts.length > 1) {
+                parts[1] = temp_parts[0];
+            }
+        }
+        if (parts.length >= 3) {
+            throw new IllegalArgumentException("The clause should consist of a \"head<-body\" or  \"body->head\"");
         }
         Atom head = parseAtom(parts[0]);
         if(parts.length==1){
@@ -60,6 +71,8 @@ public class ProgramBuilder {
         head.predicate.IDB = true;
         clauses.add(new Clause(head, body));
     }
+
+
 
     /**
      * Returns an atom based upon the string representation given.
