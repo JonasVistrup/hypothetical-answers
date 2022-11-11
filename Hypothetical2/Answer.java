@@ -21,9 +21,16 @@ public class Answer {
         nextAnswers.addAll(stepA(dataSlice, time));
         nextAnswers.addAll(stepB(dataSlice, time));
         nextAnswers.addAll(stepC(dataSlice, time));
+
+        return nextAnswers;
     }
 
+    public boolean shouldBePreserved(int time){
+        AtomList mPlus = premise.positive().smallestConstant();
+        AtomList mMinus = premise.negative().smallestConstant();
 
+        return (mPlus.isEmpty() || mPlus.get(0).temporal.tConstant>time) && (mMinus.isEmpty() || mMinus.get(0).temporal.tConstant>time);
+    }
 
 
     private Set<Answer> stepA(Program dataSlice, int time){
