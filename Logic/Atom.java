@@ -1,5 +1,3 @@
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +108,46 @@ public class Atom implements Comparable<Atom>{
      * @return a negative, 0 or a positive number
      */
     @Override
-    public int compareTo(@NotNull Atom o) {
-        return this.temporal.compareTo(o.temporal);
+    public int compareTo(Atom o) {
+        int res = this.temporal.compareTo(o.temporal);
+        if(res != 0){
+            return res;
+        }
+
+        if(this.predicate != o.predicate){
+            return this.predicate.toString().compareTo(o.predicate.toString());
+        }
+
+        for(int i = 0; i<this.args.size(); i++){
+            Term one = this.args.get(i);
+            Term two = o.args.get(i);
+
+            if(one instanceof Variable && two instanceof Variable){
+                continue;
+            }
+
+            if(one instanceof Constant){
+                if(two instanceof Constant){
+                    if(one != two){
+                        return one.toString().compareTo(two.toString());
+                    }
+                }else{
+                    return -1;  // Constants are smaller than variables.
+                }
+            }else{
+                if(two instanceof Constant){
+                    return 1; // Variables are larger than constants.
+                }
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Atom other)){
+            return false;
+        }
+        return this.compareTo(other) == 0;
     }
 }

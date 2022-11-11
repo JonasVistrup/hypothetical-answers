@@ -1,10 +1,19 @@
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * A list of atom
  */
 public class AtomList extends ArrayList<Atom>{
+
+    private AtomList constantTime = new AtomList();
+    private AtomList variableTime = new AtomList();
+    private AtomList smallestConstant = new AtomList();
+    private AtomList smallestVariable = new AtomList();
+
+    private boolean organized = false;
 
     /**
      * Constructs a list of atoms based upon the list of atoms given.
@@ -13,6 +22,7 @@ public class AtomList extends ArrayList<Atom>{
     public AtomList(ArrayList<Atom> atoms){
         super();
         super.addAll(atoms);
+        organize();
     }
 
     /**
@@ -22,6 +32,66 @@ public class AtomList extends ArrayList<Atom>{
     public AtomList(Atom atom){
         super();
         super.add(atom);
+    }
+
+    @Override
+    public boolean add(Atom atom) {
+        organized = false;
+        return super.add(atom);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Atom> c) {
+        organized = false;
+        return super.addAll(c);
+    }
+
+    @Override
+    public void add(int index, Atom element) {
+        organized = false;
+        super.add(index, element);
+    }
+
+    @Override
+    public boolean addAll(int index, Collection<? extends Atom> c) {
+        organized = false;
+        return super.addAll(index, c);
+    }
+
+    /**
+     * Must only be called if all instances are constant or all instances are variables.
+     * Sorts the list and returns the smallest atoms.
+     * @return the smallest atoms in this list.
+     */
+    public AtomList getMin(){
+        Collections.sort(this);
+
+        AtomList min = new AtomList();
+        if(this.isEmpty()){
+            return min;
+        }
+        int smallestTime = this.get(0).temporal.tConstant;
+        for(Atom a: this){
+            if(a.temporal.tConstant>smallestTime){
+                break;
+            }
+            min.add(a);
+        }
+        return min;
+    }
+
+    private void organize(){
+        constantTime = new AtomList();
+        variableTime = new AtomList();
+        for(Atom a: this){
+            if(a.temporal.tVar == null) constantTime.add(a);
+            else variableTime.add(a);
+        }
+
+        smallestConstant = constantTime.getMin();
+        smallestVariable = smallestVariable.getMin();
+
+        organized = true;
     }
 
     /**
@@ -42,6 +112,31 @@ public class AtomList extends ArrayList<Atom>{
             atomList.add(a.applySub(substitution));
         }
         return atomList;
+    }
+
+    public AtomList constantTime(){
+        if(!organized) organize();
+
+        return constantTime;
+    }
+
+    public AtomList smallestConstant(){
+        if(!organized) organize();
+
+        return smallestConstant;
+    }
+
+    public AtomList smallestVariable(){
+        if(!organized) organize();
+
+        return smallestVariable;
+    }
+
+
+    public AtomList variableTime(){
+        if(!organized) organize();
+
+        return variableTime;
     }
 
     /**
@@ -94,5 +189,27 @@ public class AtomList extends ArrayList<Atom>{
         AtomList atomList = (AtomList) this.clone();
         atomList.addAll(other);
         return atomList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof AtomList other)){
+            return false;
+        }
+        if(!this.organized) this.organize();
+        if(!other.organized) other.organize();
+
+        return sameLists(this.constantTime, other.constantTime) && sameLists(this.variableTime, other.variableTime);
+    }
+
+    private static boolean sameLists(AtomList one, AtomList two){
+        if(one.size() != two.size()) return false;
+
+        for(int i = 0; i<one.size(); i++){
+            if(!one.get(i).equals(two.get(i))){
+                return false;
+            }
+        }
+        return true;
     }
 }
