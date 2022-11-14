@@ -51,6 +51,10 @@ public class Substitution {
         return resultingSubs;
     }
 
+    public Substitution add(Substitution other){
+        return composition(this, other);
+    }
+
 
     /**
      * Returns the term that a variable is substituted into. Null if the variable is not substituted.

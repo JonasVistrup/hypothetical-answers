@@ -19,8 +19,7 @@ public class Answer {
         Set<Answer> nextAnswers = new HashSet<>();
 
         nextAnswers.addAll(stepA(dataSlice, time));
-        nextAnswers.addAll(stepB(dataSlice, time));
-        nextAnswers.addAll(stepC(dataSlice, time));
+        nextAnswers.addAll(stepBC(dataSlice, time));
 
         return nextAnswers;
     }
@@ -34,11 +33,67 @@ public class Answer {
 
 
     private Set<Answer> stepA(Program dataSlice, int time){
+        //Constant part.
+        Set<Answer> result = new HashSet<>();
 
+        if(!this.premise.positive().smallestConstant().isEmpty() && this.premise.positive().smallestConstant().get(0).temporal.tConstant == time){
+            AtomList constants = this.premise.positive().smallestConstant();
+            List<Substitution> answers = SLDResolution.findSubstitutions(dataSlice, constants);
+
+            for(Substitution answer: answers){
+                Substitution sub = this.substitution.add(answer);
+                LiteralList newEvidence = new LiteralList(this.evidence.positive().plus(constants), this.evidence.negative()).applySub(answer);
+                LiteralList newPremise = new LiteralList(this.premise.positive().without(constants), this.evidence.negative()).applySub(answer);
+
+                result.add(new Answer(sub, newEvidence, newPremise));
+            }
+        }
+
+        //Constant and Temporal part.
+        if(!this.premise.positive().smallestVariable().isEmpty()){
+            AtomList smallestPremise = this.premise.positive().smallestConstant().isEmpty() || this.premise.positive().smallestConstant().get(0).temporal.tConstant!= time?
+                    this.premise.positive().smallestVariable() : this.premise.positive().smallestConstant().plus(this.premise.positive().smallestVariable());
+
+            List<Substitution> answers = SLDResolution.findSubstitutions(dataSlice, smallestPremise); //TODO can be optimized. The constants do not need to be solved twice.
+
+            for(Substitution answer: answers){
+                Substitution sub = this.substitution.add(answer);
+                LiteralList newEvidence = new LiteralList(this.evidence.positive().plus(smallestPremise), this.evidence.negative()).applySub(answer);
+                LiteralList newPremise = new LiteralList(this.premise.positive().without(smallestPremise), this.evidence.negative()).applySub(answer);
+
+                result.add(new Answer(sub, newEvidence, newPremise));
+            }
+        }
+
+        return result;
     }
-    private Set<Answer> stepB(Program dataSlice, int time) {
-    }
-    private Set<Answer> stepC(Program dataSlice, int time) {
+    private Set<Answer> stepBC(Program dataSlice, int time) {
+        Set<Answer> result = new HashSet<>();
+
+        Substitution answerSub = this.substitution;
+        LiteralList answerEvidence = this.evidence;
+        LiteralList answerPremise = this.premise;
+
+        if(!this.premise.positive().variableTime().isEmpty() || !this.premise.negative().variableTime().isEmpty()){
+            Variable t;
+            if(!this.premise.positive().variableTime().isEmpty()){
+                t = this.premise.positive().variableTime().get(0).temporal.tVar;
+            }else{
+                t = this.premise.negative().variableTime().get(0).temporal.tVar;
+            }
+
+            Substitution tSub = new Substitution(t, new Temporal(null, time));  //This means that all rules must start with P(...,T)<- and not P(...,T+1)<-
+
+            answerSub = answerSub.add(tSub);
+            answerEvidence = answerEvidence.applySub(tSub);
+            answerPremise = answerPremise.applySub(tSub);
+        }
+
+        if(answerPremise.positive().smallestConstant().isEmpty() || answerEvidence.positive().smallestConstant().get(0).temporal.tConstant>time){
+            result.add(new Answer(answerSub, answerEvidence, answerPremise));
+        }
+
+        return result;
     }
 
 

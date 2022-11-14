@@ -31,4 +31,8 @@ public class LiteralList{
         }
         return this.positive.equals(other.positive) && this.negative.equals(other.negative);
     }
+
+    public LiteralList applySub(Substitution sub){
+        return new LiteralList(this.positive.applySub(sub), this.negative.applySub(sub));
+    }
 }

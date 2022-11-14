@@ -81,6 +81,10 @@ public class AtomList extends ArrayList<Atom>{
     }
 
     private void organize(){
+        if(organized){
+            return;
+        }
+
         constantTime = new AtomList();
         variableTime = new AtomList();
         for(Atom a: this){
@@ -115,26 +119,26 @@ public class AtomList extends ArrayList<Atom>{
     }
 
     public AtomList constantTime(){
-        if(!organized) organize();
+        organize();
 
         return constantTime;
     }
 
     public AtomList smallestConstant(){
-        if(!organized) organize();
+        organize();
 
         return smallestConstant;
     }
 
     public AtomList smallestVariable(){
-        if(!organized) organize();
+        organize();
 
         return smallestVariable;
     }
 
 
     public AtomList variableTime(){
-        if(!organized) organize();
+        organize();
 
         return variableTime;
     }
@@ -196,8 +200,8 @@ public class AtomList extends ArrayList<Atom>{
         if(!(o instanceof AtomList other)){
             return false;
         }
-        if(!this.organized) this.organize();
-        if(!other.organized) other.organize();
+        this.organize();
+        other.organize();
 
         return sameLists(this.constantTime, other.constantTime) && sameLists(this.variableTime, other.variableTime);
     }
