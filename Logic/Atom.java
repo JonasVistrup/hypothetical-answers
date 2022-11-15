@@ -145,9 +145,10 @@ public class Atom implements Comparable<Atom>{
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Atom other)){
+        if(!(obj instanceof Atom)){
             return false;
         }
+        Atom other = (Atom) obj;
         return this.compareTo(other) == 0;
     }
 }

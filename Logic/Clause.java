@@ -14,7 +14,7 @@ public class Clause {
     /**
      * Body of the clause.
      */
-    AtomList body;
+    LiteralList body;
 
     /**
      * Map of different variants of this clause.
@@ -23,9 +23,16 @@ public class Clause {
 
     /**
      * @param head head of the clause
-     * @param body body of the clause
+     * @param body positive body of the clause
      */
     Clause(Atom head, AtomList body){
+        this.head = head;
+        this.body = new LiteralList(body, new AtomList());
+
+        this.instances = new HashMap<>();
+    }
+
+    Clause(Atom head, LiteralList body){
         this.head = head;
         this.body = body;
 
@@ -39,10 +46,15 @@ public class Clause {
      */
     public Clause(Clause clause, int version){
         this.head = clause.head.getInstance(version);
-        this.body = new AtomList();
-        for(Atom a: clause.body){
-            this.body.add(a.getInstance(version));
+        this.body = new LiteralList();
+        for(Atom a: clause.body.positive()){
+            this.body.add(a.getInstance(version), true);
         }
+        for(Atom a: clause.body.negative()){
+            this.body.add(a.getInstance(version), false);
+        }
+
+        this.instances = new HashMap<>();
     }
 
     /**
@@ -66,13 +78,18 @@ public class Clause {
      */
     @Override
     public String toString() {
-        if (body.isEmpty()) {
+        if (body.positive().isEmpty() && body.negative().isEmpty()) {
             return head.toString() + "<-";
         }
         StringBuilder builder = new StringBuilder();
         builder.append(head.toString());
         builder.append("<-");
-        for (Atom atom : body) {
+        for (Atom atom : body.positive()) {
+            builder.append(atom.toString());
+            builder.append(",");
+        }
+        for (Atom atom : body.negative()) {
+            builder.append("-");
             builder.append(atom.toString());
             builder.append(",");
         }

@@ -1,5 +1,4 @@
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +103,7 @@ public class Temporal implements Term, Comparable<Temporal>{
      * @return a negative number if the o is larger than this temporal, 0 if they are equal, and a positive number otherwise
      */
     @Override
-    public int compareTo(@NotNull Temporal o) {
+    public int compareTo(Temporal o) {
         if(this.tVar != o.tVar) throw new IllegalArgumentException("Not comparable");
         return this.tConstant - o.tConstant;
     }

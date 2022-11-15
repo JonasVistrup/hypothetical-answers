@@ -64,15 +64,23 @@ public class ProgramBuilder {
         parts[1] = parts[1].replaceAll("\\),", ")<-");
         String[] strBody = parts[1].split("<-");
 
-        AtomList body = new AtomList();
+        LiteralList body = new LiteralList();
         for (String s : strBody) {
-            body.add(parseAtom(s));
+            addLiteral(body, s);
         }
         head.predicate.IDB = true;
         clauses.add(new Clause(head, body));
     }
 
 
+    public void addLiteral(LiteralList list, String literalRep){
+        if(literalRep.charAt(0) == '-'){
+            list.add(parseAtom(literalRep.substring(1)), false);
+        }else{
+            list.add(parseAtom(literalRep), true);
+        }
+
+    }
 
     /**
      * Returns an atom based upon the string representation given.

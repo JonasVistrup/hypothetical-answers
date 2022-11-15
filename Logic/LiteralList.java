@@ -5,9 +5,19 @@ public class LiteralList{
     private AtomList negative;
 
 
+    public LiteralList(){
+        positive = new AtomList();
+        negative = new AtomList();
+    }
+
+    public LiteralList(LiteralList copy){
+        this.positive = (AtomList) copy.positive.clone();
+        this.negative = (AtomList) copy.negative.clone();
+    }
+
     public LiteralList(AtomList positive, AtomList negative){
-        positive = new AtomList(positive);
-        negative = new AtomList(negative);
+        this.positive = new AtomList(positive);
+        this.negative = new AtomList(negative);
     }
 
 
@@ -23,12 +33,16 @@ public class LiteralList{
         return negative;
     }
 
+    public boolean isEmpty(){
+        return positive.isEmpty() && negative.isEmpty();
+    }
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof LiteralList other)){
+        if(!(obj instanceof LiteralList)){
             return false;
         }
+        LiteralList other =  (LiteralList) obj;
         return this.positive.equals(other.positive) && this.negative.equals(other.negative);
     }
 

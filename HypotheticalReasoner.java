@@ -1,23 +1,11 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
-
-
-/**
- * Class which allows the user to define a logical system of define temporal clauses.
- * That logical system can then be queried, creating hypothetical answer based upon some premise.
- * A stream of data can then be given such that the hypothetical answer now become supported evidence answers.
- */
 public class HypotheticalReasoner {
         private final ProgramBuilder pBuilder;
-        private List<PreprocessingAnswer> hAnswers;
-        private List<SupportedAnswer> eAnswers;
-
-        private AtomList query;
-
+        private Query query;
+        private List<Query> queries;
         private int time;
 
         /**
@@ -26,8 +14,7 @@ public class HypotheticalReasoner {
         public HypotheticalReasoner() {
                 pBuilder = new ProgramBuilder();
                 this.query = null;
-                this.hAnswers = null;
-                this.eAnswers = null;
+                this.queries = null;
                 this.time = -1;
         }
 
@@ -57,8 +44,7 @@ public class HypotheticalReasoner {
         public void addClause(String representation){
                 pBuilder.addClause(representation);
                 this.query = null;
-                this.hAnswers = null;
-                this.eAnswers = null;
+                this.queries = null;
                 this.time = -1;
         }
 
@@ -68,16 +54,34 @@ public class HypotheticalReasoner {
          */
         public void query(String atomsRep){
                 atomsRep = atomsRep.replaceAll(" ", "");
-                atomsRep = atomsRep.replaceAll("\\),", " ");
-                String[] atomRepList = atomsRep.split(" ");
-                this.query = new AtomList();
-                for(String atom: atomRepList){
-                        this.query.add(pBuilder.parseAtom(atom));
-                }
+                Atom queriedAtom = pBuilder.parseAtom(atomsRep);
 
-                this.hAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), this.query);
-                this.eAnswers = new ArrayList<>();
+                Set<Atom> queried = new HashSet<>();
+                List<Atom> atomsToQuery = new ArrayList<>();
+
+                List<Answer> preprocessAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), new AtomList(queriedAtom));
+                this.query = new Query(queriedAtom, preprocessAnswers);
                 this.time = 0;
+
+                queries.add(query);
+
+                addNewAtomsToQuery(queried, atomsToQuery, this.query);
+                while(!atomsToQuery.isEmpty()){
+                        Atom next = atomsToQuery.remove(0); // Would be faster if last atom is taken.
+                        List<Answer> nextPreprocessAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), new AtomList(next));
+                        queries.add(new Query(next, preprocessAnswers));
+                }
+        }
+
+        private void addNewAtomsToQuery(Set<Atom> queries, List<Atom> atomsToQuery, Query query){ //TODO make one list instead of a list + a set.
+                for(Answer answer: query.answers){
+                        for(Atom atom: answer.premise.negative()){
+                                if(!queries.contains(atom)){
+                                        queries.add(atom);
+                                        atomsToQuery.add(atom);
+                                }
+                        }
+                }
         }
 
         /**
@@ -85,15 +89,18 @@ public class HypotheticalReasoner {
          * @param dataSliceRep String representation of the atoms arriving in at the next time. All atoms must be initated to the current time.
          */
         public void nextTime(String dataSliceRep){
-                if(hAnswers == null) throw  new IllegalStateException("query must be called before time slices can be added");
+                if(query == null) throw  new IllegalStateException("query must be called before time slices can be added");
                 AtomList dataSlice = stringToAtomList(dataSliceRep);
                 for(Atom a: dataSlice){
                         if(a.temporal.tVar != null) throw new IllegalArgumentException("Temporal aspect of "+a.toString()+" is not initiated");
                         if(a.temporal.tConstant != this.time) throw new IllegalArgumentException("Time constant of "+a.toString()+" is not equal to current time: "+this.time);
                 }
-                eAnswers = UpdateAnswer.update(hAnswers, eAnswers, dataSlice, this.time);
+
+                //TODO What
+
                 this.time = this.time + 1;
         }
+
 
         private AtomList stringToAtomList(String stringRep){
                 AtomList atomList = new AtomList();
@@ -116,7 +123,7 @@ public class HypotheticalReasoner {
         /**Returns the query of the program.
          * @return The query of the program.
          */
-        public AtomList getQuery(){
+        public Query getQuery(){
                 return this.query;
         }
 
@@ -125,9 +132,15 @@ public class HypotheticalReasoner {
          * @throws IllegalStateException if the reasoner has not been queried yet
          * @return list of hypothetical answers generated during preprocessing
          */
-        public List<PreprocessingAnswer> hypotheticalAnswers(){
-                if(this.hAnswers == null) throw new IllegalStateException("The Reasoner must be queried before hypothetical answers are generated.");
-                return hAnswers;
+        public List<Answer> hypotheticalAnswers(){
+                if(this.query == null) throw new IllegalStateException("The Reasoner must be queried before hypothetical answers are generated.");
+                List<Answer> res = new ArrayList<>();
+                for(Answer answer: query.answers){
+                        if(answer.evidence.isEmpty()){
+                                res.add(answer);
+                        }
+                }
+                return res;
         }
 
         /**
@@ -135,9 +148,15 @@ public class HypotheticalReasoner {
          * @throws IllegalStateException if the reasoner has not been queried yet
          * @return list of the current supported answers
          */
-        public List<SupportedAnswer> evidenceAnswers(){
-                if(this.hAnswers == null) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
-              return this.eAnswers;
+        public List<Answer> evidenceAnswers(){
+                if(this.query == null) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
+                List<Answer> res = new ArrayList<>();
+                for(Answer answer: query.answers){
+                        if(answer.premise.isEmpty()){
+                                res.add(answer);
+                        }
+                }
+                return res;
         }
 
 
@@ -151,29 +170,30 @@ public class HypotheticalReasoner {
                 if(pBuilder.size()>0) b.append("Program:\n");
                 b.append(pBuilder.getProgram().toString());
 
-                if(hAnswers == null){
+                if(query == null){
                         return b.toString();
                 }
                 b.append("\n");
                 b.append("Hypothetical Answers:\n");
-                for(PreprocessingAnswer hAnswer: hAnswers){
-                        b.append("\t").append(hAnswer.toString(this.query)).append("\n");
+                for(Answer answer: hypotheticalAnswers()){
+                        b.append("\t").append(answer.toString(this.query.queriedAtom)).append("\n");
                 }
                 b.append("\n");
 
                 b.append("Evidence Answers:\n");
-                for(SupportedAnswer eAnswer: eAnswers){
-                        b.append("\t").append(eAnswer.toString(this.query)).append("\n");
+                for(Answer answer: evidenceAnswers()){
+                        b.append("\t").append(answer.toString(this.query.queriedAtom)).append("\n");
                 }
                 b.append("\n");
 
                 b.append("Answers:\n");
-                for(SupportedAnswer eAnswer: eAnswers){
-                        if(eAnswer.constantPremise.isEmpty() && eAnswer.temporalPremise.isEmpty()) {
-                                b.append("\t").append(eAnswer.substitution.toString(this.query)).append("\n");
+                for(Answer answer: evidenceAnswers()){
+                        if(answer.premise.isEmpty()) {
+                                b.append("\t").append(answer.substitution.toString(this.query.queriedAtom)).append("\n");
                         }
                 }
 
                 return b.toString();
         }
+
 }

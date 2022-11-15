@@ -99,9 +99,62 @@ public class Answer {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Answer other)){
+        if(!(obj instanceof Answer)){
             return false;
         }
+        Answer other = (Answer) obj;
         return this.evidence.equals(other.evidence) && this.premise.equals(other.premise);
+    }
+
+
+
+    /**
+     * Returns a string representation of this, where only substitutions relating to an atom is show.
+     * @param relevantQuery the atom for which only relevant substitutions is showed.
+     * @return string representation.
+     */
+    public String toString(Atom relevantQuery) {
+        return toString(new AtomList(relevantQuery));
+    }
+
+
+    /**
+     * Returns a string representation of this, where only substitutions relating to a list of atoms is show.
+     * @param relevantQuery the list of atoms for which only relevant substitutions is showed.
+     * @return string representation.
+     */
+    public String toString(AtomList relevantQuery) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        builder.append(substitution.toString(relevantQuery));
+        builder.append(",{");
+        for(Atom a: this.evidence.positive()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.evidence.negative()){
+            builder.append("-");
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        if(!this.premise.isEmpty()){
+            builder.deleteCharAt(builder.length()-1);
+        }
+        builder.append("}");
+        builder.append(",{");
+        for(Atom a: this.premise.positive()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.premise.negative()){
+            builder.append("-");
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        if(!this.premise.isEmpty()){
+            builder.deleteCharAt(builder.length()-1);
+        }
+        builder.append("}]");
+        return builder.toString();
     }
 }

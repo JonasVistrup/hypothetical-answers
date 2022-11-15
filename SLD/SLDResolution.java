@@ -48,7 +48,7 @@ public class SLDResolution {
                 new_goal.remove(selected);
                 new_goal = new_goal.applySub(unifier);
 
-                new_goal.addAll(clauseInstance.body.applySub(unifier));
+                new_goal.addAll(clauseInstance.body.positive().applySub(unifier));
 
                 Substitution new_sub = Substitution.composition(sub, unifier);
 

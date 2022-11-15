@@ -8,10 +8,10 @@ import java.util.List;
  */
 public class AtomList extends ArrayList<Atom>{
 
-    private AtomList constantTime = new AtomList();
-    private AtomList variableTime = new AtomList();
-    private AtomList smallestConstant = new AtomList();
-    private AtomList smallestVariable = new AtomList();
+    private AtomList constantTime = null;
+    private AtomList variableTime = null;
+    private AtomList smallestConstant = null;
+    private AtomList smallestVariable = null;
 
     private boolean organized = false;
 
@@ -197,9 +197,10 @@ public class AtomList extends ArrayList<Atom>{
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof AtomList other)){
+        if(!(o instanceof AtomList)){
             return false;
         }
+        AtomList other = (AtomList) o;
         this.organize();
         other.organize();
 

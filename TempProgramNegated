@@ -1,0 +1,5 @@
+GCM(X,T),GBOL(X,T) -> GVS(X,T)
+BCA(X,T + 2) -> ST(X, us,T + 1)
+-GVS(X,T ), -ST(X, us,T) -> ST(X, us,T + 1)
+-GVS(X,T), ST(X, us,T ) -> ST(X, ic,T + 1)
+ST(X, ic,T + 2) -> Risk(X,T )
