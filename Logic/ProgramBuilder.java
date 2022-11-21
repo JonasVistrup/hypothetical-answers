@@ -15,6 +15,16 @@ public class ProgramBuilder {
 
     private final ArrayList<Clause> clauses = new ArrayList<>();
 
+    public List<Constant> getConstants(){
+        List<Constant> res = new ArrayList<>();
+        for(Term t: terms.values()){
+            if(t instanceof Constant){
+                res.add((Constant) t);
+            }
+        }
+        return res;
+    }
+
 
     /**
      * Returns a program consisting of the current clauses.
@@ -30,6 +40,11 @@ public class ProgramBuilder {
      */
     public int size(){
         return clauses.size();
+    }
+
+    public void addConstant(String constantString){
+        constantString = constantString.replaceAll(" ","");
+        getTerm(constantString);
     }
 
     /**

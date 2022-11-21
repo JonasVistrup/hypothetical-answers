@@ -13,11 +13,12 @@ class ProgramBuilderTest {
     @Test
     void negation() {
         HypotheticalReasoner h = new HypotheticalReasoner("TempProgramNegated");
-        assertEquals("Program:\n" +
+        String programString = "Program:\n" +
                 "GVS(X,T)<-GCM(X,T),GBOL(X,T)\n" +
                 "ST(X,us,T+1)<-BCA(X,T+2)\n" +
                 "ST(X,us,T+1)<--GVS(X,T),-ST(X,us,T)\n" +
                 "ST(X,ic,T+1)<-ST(X,us,T),-GVS(X,T)\n" +
-                "Risk(X,T)<-ST(X,ic,T+2)\n", h.toString());
+                "Risk(X,T)<-ST(X,ic,T+2)\n";
+        assertEquals(programString, h.toString());
     }
 }

@@ -5,6 +5,7 @@ import java.util.*;
 public class HypotheticalReasoner {
         private final ProgramBuilder pBuilder;
         private Query query;
+        private List<Answer> hypothetical;
         private List<Query> queries;
         private int time;
 
@@ -16,6 +17,7 @@ public class HypotheticalReasoner {
                 this.query = null;
                 this.queries = null;
                 this.time = -1;
+                this.hypothetical = new ArrayList<>();
         }
 
         /**
@@ -59,8 +61,9 @@ public class HypotheticalReasoner {
                 Set<Atom> queried = new HashSet<>();
                 List<Atom> atomsToQuery = new ArrayList<>();
 
-                List<Answer> preprocessAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), new AtomList(queriedAtom));
-                this.query = new Query(queriedAtom, preprocessAnswers);
+                this.hypothetical = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), new AtomList(queriedAtom));
+                this.query = new Query(queriedAtom, this.hypothetical);
+                this.queries = new ArrayList<>();
                 this.time = 0;
 
                 queries.add(query);
@@ -69,7 +72,7 @@ public class HypotheticalReasoner {
                 while(!atomsToQuery.isEmpty()){
                         Atom next = atomsToQuery.remove(0); // Would be faster if last atom is taken.
                         List<Answer> nextPreprocessAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), new AtomList(next));
-                        queries.add(new Query(next, preprocessAnswers));
+                        queries.add(new Query(next, nextPreprocessAnswers));
                 }
         }
 
@@ -77,8 +80,12 @@ public class HypotheticalReasoner {
                 for(Answer answer: query.answers){
                         for(Atom atom: answer.premise.negative()){
                                 if(!queries.contains(atom)){
-                                        queries.add(atom);
-                                        atomsToQuery.add(atom);
+                                        Atom variant = atom.getInstance(-1);
+                                        if(variant.temporal.tVar != null){ // Set time to T
+                                                variant = new Atom(variant.predicate, variant.args, new Temporal(variant.temporal.tVar, 0));
+                                        }
+                                        queries.add(variant);
+                                        atomsToQuery.add(variant);
                                 }
                         }
                 }
@@ -96,7 +103,8 @@ public class HypotheticalReasoner {
                         if(a.temporal.tConstant != this.time) throw new IllegalArgumentException("Time constant of "+a.toString()+" is not equal to current time: "+this.time);
                 }
 
-                //TODO What
+                queries = UpdateQueries.update(queries, dataSlice, time, pBuilder.getConstants());
+                this.query = queries.get(0);
 
                 this.time = this.time + 1;
         }
@@ -123,8 +131,8 @@ public class HypotheticalReasoner {
         /**Returns the query of the program.
          * @return The query of the program.
          */
-        public Query getQuery(){
-                return this.query;
+        public Atom getQuery(){
+                return this.query.queriedAtom;
         }
 
         /**
@@ -140,7 +148,16 @@ public class HypotheticalReasoner {
                                 res.add(answer);
                         }
                 }
+                Collections.sort(res);
                 return res;
+        }
+
+        public void addConstant(String representation){
+                representation = representation.replaceAll(" ","");
+                String[] constantStrings = representation.split(",");
+                for(String constant: constantStrings){
+                        pBuilder.addConstant(constant);
+                }
         }
 
         /**
@@ -152,10 +169,11 @@ public class HypotheticalReasoner {
                 if(this.query == null) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
                 List<Answer> res = new ArrayList<>();
                 for(Answer answer: query.answers){
-                        if(answer.premise.isEmpty()){
+                        if(!answer.evidence.isEmpty()){
                                 res.add(answer);
                         }
                 }
+                Collections.sort(res);
                 return res;
         }
 
@@ -175,7 +193,7 @@ public class HypotheticalReasoner {
                 }
                 b.append("\n");
                 b.append("Hypothetical Answers:\n");
-                for(Answer answer: hypotheticalAnswers()){
+                for(Answer answer: hypothetical){
                         b.append("\t").append(answer.toString(this.query.queriedAtom)).append("\n");
                 }
                 b.append("\n");

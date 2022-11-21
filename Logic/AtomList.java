@@ -32,6 +32,7 @@ public class AtomList extends ArrayList<Atom>{
     public AtomList(Atom atom){
         super();
         super.add(atom);
+        organize();
     }
 
     @Override
@@ -93,7 +94,7 @@ public class AtomList extends ArrayList<Atom>{
         }
 
         smallestConstant = constantTime.getMin();
-        smallestVariable = smallestVariable.getMin();
+        smallestVariable = variableTime.getMin();
 
         organized = true;
     }

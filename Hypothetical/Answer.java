@@ -3,7 +3,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Answer {
+public class Answer implements Comparable<Answer>{
 
     public final Substitution substitution;
     public final LiteralList evidence;
@@ -84,12 +84,17 @@ public class Answer {
 
             Substitution tSub = new Substitution(t, new Temporal(null, time));  //This means that all rules must start with P(...,T)<- and not P(...,T+1)<-
 
-            answerSub = answerSub.add(tSub);
-            answerEvidence = answerEvidence.applySub(tSub);
-            answerPremise = answerPremise.applySub(tSub);
+            try {
+                answerSub = answerSub.add(tSub);
+                answerEvidence = answerEvidence.applySub(tSub);
+                answerPremise = answerPremise.applySub(tSub);
+            }catch (IllegalArgumentException e){ // Negative temporal initiations
+                return result;
+            }
+
         }
 
-        if(answerPremise.positive().smallestConstant().isEmpty() || answerEvidence.positive().smallestConstant().get(0).temporal.tConstant>time){
+        if(!answerPremise.isEmpty() &&(answerPremise.positive().smallestConstant().isEmpty() || answerPremise.positive().smallestConstant().get(0).temporal.tConstant>time)){
             result.add(new Answer(answerSub, answerEvidence, answerPremise));
         }
 
@@ -128,6 +133,63 @@ public class Answer {
         builder.append("[");
         builder.append(substitution.toString(relevantQuery));
         builder.append(",{");
+        for(Atom a: this.evidence.positive().constantTime()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.evidence.negative().constantTime()){
+            builder.append("-");
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.evidence.positive().variableTime()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.evidence.negative().variableTime()){
+            builder.append("-");
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        if(!this.evidence.isEmpty()){
+            builder.deleteCharAt(builder.length()-1);
+        }
+        builder.append("}");
+        builder.append(",{");
+        for(Atom a: this.premise.positive().constantTime()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.premise.negative().constantTime()){
+            builder.append("-");
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.premise.positive().variableTime()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.premise.negative().variableTime()){
+            builder.append("-");
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        if(!this.premise.isEmpty()){
+            builder.deleteCharAt(builder.length()-1);
+        }
+        builder.append("}]");
+        return builder.toString();
+    }
+
+    /**
+     * Returns a string representation of this.
+     * @return string representation.
+     */
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        builder.append(substitution.toString());
+        builder.append(",{");
         for(Atom a: this.evidence.positive()){
             builder.append(a.toString());
             builder.append(",");
@@ -137,7 +199,7 @@ public class Answer {
             builder.append(a.toString());
             builder.append(",");
         }
-        if(!this.premise.isEmpty()){
+        if(!this.evidence.isEmpty()){
             builder.deleteCharAt(builder.length()-1);
         }
         builder.append("}");
@@ -156,5 +218,10 @@ public class Answer {
         }
         builder.append("}]");
         return builder.toString();
+    }
+
+    @Override
+    public int compareTo(Answer o) {
+        return this.toString().compareTo(o.toString());
     }
 }

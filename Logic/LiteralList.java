@@ -20,6 +20,10 @@ public class LiteralList{
         this.negative = new AtomList(negative);
     }
 
+    public int size(){
+        return positive.size() + negative.size();
+    }
+
 
     public void add(Atom a, boolean isPositive){
         if(isPositive) positive.add(a);

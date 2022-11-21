@@ -104,7 +104,7 @@ public class Temporal implements Term, Comparable<Temporal>{
      */
     @Override
     public int compareTo(Temporal o) {
-        if(this.tVar != o.tVar) throw new IllegalArgumentException("Not comparable");
+        //if(this.tVar != o.tVar) throw new IllegalArgumentException("Not comparable"); //TODO check if this should still be checked
         return this.tConstant - o.tConstant;
     }
 }
