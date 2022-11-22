@@ -1,7 +1,11 @@
 public class Main {
-/*
+
     public static void main(String[] args){
-        test2();
+        negTest();
+    }
+
+    private static void negTest(){
+
     }
 
 
@@ -60,5 +64,5 @@ public class Main {
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
     }
-*/
+
 }

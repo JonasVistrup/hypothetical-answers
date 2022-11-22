@@ -31,4 +31,21 @@ public class Query {
     public Query copy(){
         return new Query(queriedAtom, new ArrayList<>(answers));
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(queriedAtom.toString()).append(":");
+        if(answers.isEmpty()){
+            builder.append(" NO ANSWERS");
+        }else{
+            builder.append("\n");
+        }
+        for(Answer a: answers){
+            builder.append("\t");
+            builder.append(a.toString(queriedAtom));
+            builder.append("\n");
+        }
+        return builder.toString();
+    }
 }

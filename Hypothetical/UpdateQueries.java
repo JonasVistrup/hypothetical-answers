@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Set;
 
 public class UpdateQueries {
+
+    private static int count = 0;
     public static List<Query> update(List<Query> queries, AtomList dataSlice, int time, List<Constant> constants){
+
         List<Query> result = new ArrayList<>();
         Program p = dataSlice.toProgram();
 
@@ -20,6 +23,7 @@ public class UpdateQueries {
 
 
         // X
+        count = 0;
         X(result, constants, time);
 
         for(int i=0; i<queries.size(); i++){ // TODO Encapsulate
@@ -35,6 +39,8 @@ public class UpdateQueries {
 
 
     private static void X(List<Query> currentQueries, List<Constant> constants, int time){
+        printQuires(currentQueries);
+        
         boolean changed = false;
 
 
@@ -57,6 +63,17 @@ public class UpdateQueries {
         if(changed){
             X(nextQueries,constants, time);
         }
+    }
+
+    private static void printQuires(List<Query> currentQueries) {
+        count++;
+        System.out.println("\n-------------"+count+"-------------------\n");
+        for(Query q: currentQueries){
+
+            System.out.println(q.toString());
+            System.out.println("\n");
+        }
+        System.out.println("--------------------------------\n");
     }
 
     private static List<Query> deepCopyQueries(List<Query> queries) {
