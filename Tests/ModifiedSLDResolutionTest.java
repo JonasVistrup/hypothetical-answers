@@ -1,6 +1,14 @@
+import Hypothetical.PreprocessingAnswer;
+import Logic.AtomList;
+import Logic.Program;
+import Logic.ProgramBuilder;
+import SLD.ModifiedSLDResolution;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import Hypothetical.*;
+import Logic.*;
+import SLD.*;
 
 import java.util.List;
 

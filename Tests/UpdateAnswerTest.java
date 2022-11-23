@@ -1,9 +1,19 @@
+import Hypothetical.PreprocessingAnswer;
+import Hypothetical.SupportedAnswer;
+import Hypothetical.UpdateAnswer;
+import Logic.AtomList;
+import Logic.Program;
+import Logic.ProgramBuilder;
+import SLD.ModifiedSLDResolution;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import Hypothetical.*;
+import Logic.*;
+import SLD.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,3 +1,4 @@
+package Logic;
 
 /**
  * A logical predicate.

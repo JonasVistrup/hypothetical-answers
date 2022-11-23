@@ -1,4 +1,6 @@
+package Logic;
 
+import Logic.Term;
 
 /**
  * A logical constant

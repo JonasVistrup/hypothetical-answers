@@ -37,7 +37,7 @@ System.out.println(h);
 ```
 Which should show:
 ```
-Program:
+Logic.Program:
 Flag(X,T)<-Temp(X,high,T)
 Cool(X,T+1)<-Flag(X,T),Flag(X,T+1)
 Shdn(X,T+1)<-Cool(X,T),Flag(X,T+1)

@@ -13,11 +13,11 @@ public class Main {
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.query("Malf(X,T)");
+        h.query("HotTopic(X,T)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("Temp(wt25,high,0)");
+        h.nextTime("Temp(wt25,high,0),Trendy(Paris,0),Temp(wt24,low,0)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
@@ -25,7 +25,7 @@ public class Main {
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("Temp(wt25,high,2)");
+        h.nextTime("Temp(wt25,high,2),Temp(wt12,low,2)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 

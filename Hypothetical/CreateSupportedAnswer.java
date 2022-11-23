@@ -1,5 +1,9 @@
+package Hypothetical;
+
 import java.util.ArrayList;
 import java.util.List;
+import Logic.*;
+import SLD.*;
 
 public class CreateSupportedAnswer {
     public static List<SupportedAnswer> create(PreprocessingAnswer pa, Program dataStream, int time) {
@@ -48,7 +52,7 @@ public class CreateSupportedAnswer {
         }
 
 
-        //Temporal aspect
+        //Logic.Temporal aspect
         List<Substitution> answers = SLDResolution.findSubstitutions(dataStream, pa.smallestTemporal);
         AtomList leftoverPremise = pa.temporalPremise.without(pa.smallestTemporal).plus(pa.constantPremise);
         for (Substitution answer : answers) {

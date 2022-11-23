@@ -1,5 +1,7 @@
-import java.util.Collections;
+package Hypothetical;
 
+import java.util.Collections;
+import Logic.*;
 
 /**
  * A non-supported answer

@@ -1,6 +1,9 @@
+package Hypothetical;
+
 import java.util.ArrayList;
 import java.util.List;
-
+import Logic.*;
+import SLD.*;
 public class UpdateSupportedAnswer {
     public static List<SupportedAnswer> update(SupportedAnswer sa, Program dataStream, int time) {
         List<SupportedAnswer> constantResults = new ArrayList<>();
@@ -41,7 +44,7 @@ public class UpdateSupportedAnswer {
         }
 
 
-        //Temporal aspect
+        //Logic.Temporal aspect
         List<Substitution> answers = SLDResolution.findSubstitutions(dataStream, sa.smallestTemporal);
         AtomList leftoverPremise = sa.temporalPremise.without(sa.smallestTemporal).plus(sa.constantPremise);
         for (Substitution answer : answers) {

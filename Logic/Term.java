@@ -1,3 +1,4 @@
+package Logic;
 
 /**
  * A logical term.
@@ -8,7 +9,7 @@ public interface Term {
      * @param version which variant that should be returned.
      * @return a variant of the term
      */
-    Term getVariant(int version);
+    public Term getVariant(int version);
 
     /**
      * Returns the result of applying the substitution to this term.

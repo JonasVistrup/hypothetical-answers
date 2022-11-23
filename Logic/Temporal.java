@@ -1,5 +1,4 @@
-
-import org.jetbrains.annotations.NotNull;
+package Logic;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,13 +10,13 @@ public class Temporal implements Term, Comparable<Temporal>{
 
 
     /**
-     * Temporal variable. May be null in the case of the temporal aspect only containing a constant.
+     * Logic.Temporal variable. May be null in the case of the temporal aspect only containing a constant.
      */
-    final Variable tVar;
+    public final Variable tVar;
     /**
-     * Temporal constant.
+     * Logic.Temporal constant.
      */
-    final int tConstant;
+    public final int tConstant;
 
     /**
      * Map of different variants of this temporal.
@@ -30,7 +29,7 @@ public class Temporal implements Term, Comparable<Temporal>{
      * @param tConstant temporal constant
      */
     public Temporal(Variable tVar, int tConstant){
-        if(tVar==null && tConstant<0) throw new IllegalArgumentException("Temporal constant must be at least 0");
+        if(tVar==null && tConstant<0) throw new IllegalArgumentException("Logic.Temporal constant must be at least 0");
 
         this.tVar = tVar;
         this.tConstant = tConstant;
@@ -104,7 +103,7 @@ public class Temporal implements Term, Comparable<Temporal>{
      * @return a negative number if the o is larger than this temporal, 0 if they are equal, and a positive number otherwise
      */
     @Override
-    public int compareTo(@NotNull Temporal o) {
+    public int compareTo(Temporal o) {
         if(this.tVar != o.tVar) throw new IllegalArgumentException("Not comparable");
         return this.tConstant - o.tConstant;
     }

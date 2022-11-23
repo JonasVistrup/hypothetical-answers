@@ -1,6 +1,9 @@
+package Hypothetical;
+
 import java.util.ArrayList;
 import java.util.List;
-
+import Logic.*;
+import SLD.*;
 
 
 /**

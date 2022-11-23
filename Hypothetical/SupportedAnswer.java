@@ -1,3 +1,7 @@
+package Hypothetical;
+
+import Logic.*;
+
 /**
  * A supported answer.
  */

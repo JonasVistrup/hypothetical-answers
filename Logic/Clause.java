@@ -1,6 +1,6 @@
+package Logic;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,16 +10,16 @@ public class Clause {
     /**
      * Head of the clause.
      */
-    Atom head;
+    public Atom head;
     /**
      * Body of the clause.
      */
-    AtomList body;
+    public AtomList body;
 
     /**
      * Map of different variants of this clause.
      */
-    Map<Integer, Clause> instances;
+    public Map<Integer, Clause> instances;
 
     /**
      * @param head head of the clause

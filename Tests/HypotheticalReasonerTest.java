@@ -1,3 +1,5 @@
+import Hypothetical.PreprocessingAnswer;
+import Hypothetical.SupportedAnswer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -5,7 +7,9 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import Hypothetical.*;
+import Logic.*;
+import SLD.*;
 class HypotheticalReasonerTest {
 
     HypotheticalReasoner h;
@@ -37,7 +41,7 @@ class HypotheticalReasonerTest {
         assertEquals(2, S2.size());
         assertEquals("[{},{Q(0),Q(1)},{R(T)}]",S2.get(0).toString(h.getQuery()));
         assertEquals("[{(T/1)},{Q(0),Q(1),R(1)},{}]",S2.get(1).toString(h.getQuery()));
-        assertEquals("Program:\nP(T)<-Q(0),Q(1),R(T)\n\nHypothetical Answers:\n\t[{},{Q(0),Q(1),R(T)}]\n\nEvidence Answers:\n\t[{},{Q(0),Q(1)},{R(T)}]\n\t[{(T/1)},{Q(0),Q(1),R(1)},{}]\n\nAnswers:\n\t{(T/1)}\n", h.toString());
+        assertEquals("Logic.Program:\nP(T)<-Q(0),Q(1),R(T)\n\nHypothetical Answers:\n\t[{},{Q(0),Q(1),R(T)}]\n\nEvidence Answers:\n\t[{},{Q(0),Q(1)},{R(T)}]\n\t[{(T/1)},{Q(0),Q(1),R(1)},{}]\n\nAnswers:\n\t{(T/1)}\n", h.toString());
 
     }
 
@@ -63,7 +67,7 @@ class HypotheticalReasonerTest {
         assertEquals("[{(T/1)},{Q(0),R(1)},{Q(2)}]",S1.get(0).toString(h.getQuery()));
         assertEquals(1, S2.size());
         assertEquals("[{(T/1)},{Q(0),R(1),Q(2)},{}]",S2.get(0).toString(h.getQuery()));
-        assertEquals("Program:\nP(T)<-Q(0),Q(2),R(T)\n\nHypothetical Answers:\n\t[{},{Q(0),Q(2),R(T)}]\n\nEvidence Answers:\n\t[{(T/1)},{Q(0),R(1),Q(2)},{}]\n\nAnswers:\n\t{(T/1)}\n", h.toString());
+        assertEquals("Logic.Program:\nP(T)<-Q(0),Q(2),R(T)\n\nHypothetical Answers:\n\t[{},{Q(0),Q(2),R(T)}]\n\nEvidence Answers:\n\t[{(T/1)},{Q(0),R(1),Q(2)},{}]\n\nAnswers:\n\t{(T/1)}\n", h.toString());
 
     }
 
@@ -76,7 +80,7 @@ class HypotheticalReasonerTest {
         h.addClause("Shdn(X,T+1)<-Cool(X,T),Flag(X,T+1)");
         h.addClause("Malf(X,T-2)<-Shdn(X,T)");
 
-        String pString = "Program:\nFlag(X,T)<-Temp(X,high,T)\nCool(X,T+1)<-Flag(X,T),Flag(X,T+1)\nShdn(X,T+1)<-Cool(X,T),Flag(X,T+1)\nMalf(X,T-2)<-Shdn(X,T)\n";
+        String pString = "Logic.Program:\nFlag(X,T)<-Temp(X,high,T)\nCool(X,T+1)<-Flag(X,T),Flag(X,T+1)\nShdn(X,T+1)<-Cool(X,T),Flag(X,T+1)\nMalf(X,T-2)<-Shdn(X,T)\n";
         assertEquals(pString, h.toString());
 
         h.query("Malf(X,T)");

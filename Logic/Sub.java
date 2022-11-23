@@ -1,15 +1,18 @@
+package Logic;
 
+import Logic.Term;
+import Logic.Variable;
 
 /**
  * A single substitution.
  */
 public class Sub {
     /**
-     * Variable that will be substituted.
+     * Logic.Variable that will be substituted.
      */
     public final Variable from;
     /**
-     * Term that the variable from will be substituted into.
+     * Logic.Term that the variable from will be substituted into.
      */
     public final Term to;
 

@@ -1,4 +1,4 @@
-import org.jetbrains.annotations.NotNull;
+package Logic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class Atom implements Comparable<Atom>{
     /**
-     * Predicate of the atom.
+     * Logic.Predicate of the atom.
      */
     public final Predicate predicate;
     /**
@@ -18,7 +18,7 @@ public class Atom implements Comparable<Atom>{
      */
     public final List<Term> args;
     /**
-     * Temporal argument of the atom.
+     * Logic.Temporal argument of the atom.
      */
     public final Temporal temporal;
     /**
@@ -105,12 +105,12 @@ public class Atom implements Comparable<Atom>{
     }
 
     /**
-     * Compares the temporal aspects of atom o and this atom. See Temporal.compareTo for details.
+     * Compares the temporal aspects of atom o and this atom. See Logic.Temporal.compareTo for details.
      * @param o the object to be compared
      * @return a negative, 0 or a positive number
      */
     @Override
-    public int compareTo(@NotNull Atom o) {
+    public int compareTo(Atom o) {
         return this.temporal.compareTo(o.temporal);
     }
 }

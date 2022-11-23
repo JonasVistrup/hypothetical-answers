@@ -1,4 +1,6 @@
+package Logic;
 
+import Logic.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +35,7 @@ public class ProgramBuilder {
     }
 
     /**
-     * Adds a clause to the ProgramBuilder based upon the string representation of the clause given in the format HEAD{@literal <}-BODY.
+     * Adds a clause to the Logic.ProgramBuilder based upon the string representation of the clause given in the format HEAD{@literal <}-BODY.
      * @param representation string representation of the clause
      */
     public void addClause(String representation) {
@@ -130,8 +132,8 @@ public class ProgramBuilder {
             }
         }
 
-        if(temporalParts.length>2) throw new IllegalArgumentException("Temporal argument must only contain a single + or a single -");
-        if(!isInteger(temporalParts[1])) throw new IllegalArgumentException("Temporal constant is not a number");
+        if(temporalParts.length>2) throw new IllegalArgumentException("Logic.Temporal argument must only contain a single + or a single -");
+        if(!isInteger(temporalParts[1])) throw new IllegalArgumentException("Logic.Temporal constant is not a number");
         return new Temporal(getTemporalVariable(temporalParts[0]), Integer.parseInt(temporalParts[1])*constantMultiplier);
     }
 
@@ -139,7 +141,7 @@ public class ProgramBuilder {
         if(temporalVariables.containsKey(tempVar)){
             return temporalVariables.get(tempVar);
         }else{
-            if(!tempVar.toUpperCase().equals(tempVar)) throw new IllegalArgumentException("Temporal variables must be uppercase");
+            if(!tempVar.toUpperCase().equals(tempVar)) throw new IllegalArgumentException("Logic.Temporal variables must be uppercase");
 
             Variable v = new Variable(tempVar);
             temporalVariables.put(tempVar, v);
@@ -182,7 +184,7 @@ public class ProgramBuilder {
         if (predicates.containsKey(name)) {
             res = predicates.get(name);
             if (res.nArgs != numberOfArgs) {
-                throw new IllegalArgumentException("Predicate " + name + " contains an inconsistent of arguments");
+                throw new IllegalArgumentException("Logic.Predicate " + name + " contains an inconsistent of arguments");
             }
         } else {
             res = new Predicate(name, numberOfArgs);

@@ -1,3 +1,7 @@
+import Hypothetical.*;
+import Logic.*;
+import SLD.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -82,13 +86,13 @@ public class HypotheticalReasoner {
 
         /**
          * Updates the Reasoner with
-         * @param dataSliceRep String representation of the atoms arriving in at the next time. All atoms must be initated to the current time.
+         * @param dataSliceRep String representation of the atoms arriving in at the next time. All atoms must be initiated to the current time.
          */
         public void nextTime(String dataSliceRep){
                 if(hAnswers == null) throw  new IllegalStateException("query must be called before time slices can be added");
                 AtomList dataSlice = stringToAtomList(dataSliceRep);
                 for(Atom a: dataSlice){
-                        if(a.temporal.tVar != null) throw new IllegalArgumentException("Temporal aspect of "+a.toString()+" is not initiated");
+                        if(a.temporal.tVar != null) throw new IllegalArgumentException("Logic.Temporal aspect of "+a.toString()+" is not initiated");
                         if(a.temporal.tConstant != this.time) throw new IllegalArgumentException("Time constant of "+a.toString()+" is not equal to current time: "+this.time);
                 }
                 eAnswers = UpdateAnswer.update(hAnswers, eAnswers, dataSlice, this.time);
@@ -148,7 +152,7 @@ public class HypotheticalReasoner {
         @Override
         public String toString() {
                 StringBuilder b = new StringBuilder();
-                if(pBuilder.size()>0) b.append("Program:\n");
+                if(pBuilder.size()>0) b.append("Logic.Program:\n");
                 b.append(pBuilder.getProgram().toString());
 
                 if(hAnswers == null){

@@ -1,12 +1,15 @@
+import Logic.Constant;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import Hypothetical.*;
+import Logic.*;
+import SLD.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConstantTest {
     @Test
-    @DisplayName("Constant toString check")
+    @DisplayName("Logic.Constant toString check")
     void toStringTest(){
         assertEquals("a", new Constant("a").toString(), "Should print its id");
         assertEquals("HEY ", new Constant("HEY ").toString(), "Should print its id");

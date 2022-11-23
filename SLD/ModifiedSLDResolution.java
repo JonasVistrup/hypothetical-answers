@@ -1,3 +1,8 @@
+package SLD;
+
+import Hypothetical.PreprocessingAnswer;
+import Logic.*;
+
 import java.util.ArrayList;
 import java.util.List;
 

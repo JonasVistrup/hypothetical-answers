@@ -1,3 +1,7 @@
+package SLD;
+
+import Logic.*;
+
 /**
  * A class for unified two atoms.
  */
