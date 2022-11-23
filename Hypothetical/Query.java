@@ -1,5 +1,10 @@
+package Hypothetical;
+
+import Logic.*;
+
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class Query {
     public List<Answer> answers;

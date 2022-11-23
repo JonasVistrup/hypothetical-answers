@@ -1,3 +1,8 @@
+package Hypothetical;
+
+import Logic.*;
+import SLD.Unify;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +43,7 @@ public class UpdateQueries {
     }
 
 
+
     private static void X(List<Query> currentQueries, List<Constant> constants, int time){
         printQuires(currentQueries);
         
@@ -67,6 +73,7 @@ public class UpdateQueries {
 
     private static void printQuires(List<Query> currentQueries) {
         count++;
+        if(count>10) return;
         System.out.println("\n-------------"+count+"-------------------\n");
         for(Query q: currentQueries){
 

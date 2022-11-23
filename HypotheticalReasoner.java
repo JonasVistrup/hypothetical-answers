@@ -1,6 +1,9 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import Hypothetical.*;
+import Logic.*;
+import SLD.*;
 
 public class HypotheticalReasoner {
         private final ProgramBuilder pBuilder;
@@ -61,29 +64,33 @@ public class HypotheticalReasoner {
                 Set<Atom> queried = new HashSet<>();
                 List<Atom> atomsToQuery = new ArrayList<>();
 
-                this.hypothetical = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), new AtomList(queriedAtom));
-                this.query = new Query(queriedAtom, this.hypothetical);
                 this.queries = new ArrayList<>();
                 this.time = 0;
 
-                queries.add(query);
+                queried.add(queriedAtom);
+                atomsToQuery.add(queriedAtom);
 
-                addNewAtomsToQuery(queried, atomsToQuery, this.query);
                 while(!atomsToQuery.isEmpty()){
                         Atom next = atomsToQuery.remove(0); // Would be faster if last atom is taken.
                         List<Answer> nextPreprocessAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), new AtomList(next));
-                        queries.add(new Query(next, nextPreprocessAnswers));
+                        Query nextQ = new Query(next, nextPreprocessAnswers);
+                        addNewAtomsToQuery(queried, atomsToQuery, nextQ);
+                        queries.add(nextQ);
                 }
+
+                this.query = queries.get(0);
+                this.hypothetical = this.query.answers;
         }
 
         private void addNewAtomsToQuery(Set<Atom> queries, List<Atom> atomsToQuery, Query query){ //TODO make one list instead of a list + a set.
                 for(Answer answer: query.answers){
                         for(Atom atom: answer.premise.negative()){
-                                if(!queries.contains(atom)){
-                                        Atom variant = atom.getInstance(-1);
-                                        if(variant.temporal.tVar != null){ // Set time to T
-                                                variant = new Atom(variant.predicate, variant.args, new Temporal(variant.temporal.tVar, 0));
-                                        }
+                                Atom variant = atom.getInstance(-1);
+                                if(variant.temporal.tVar != null){ // Set time to T
+                                        variant = new Atom(variant.predicate, variant.args, new Temporal(variant.temporal.tVar, 0));
+                                }
+                                System.out.println(variant);
+                                if(!queries.contains(variant)){
                                         queries.add(variant);
                                         atomsToQuery.add(variant);
                                 }

@@ -1,3 +1,5 @@
+package Logic;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +32,7 @@ public class Atom implements Comparable<Atom>{
      * @param args non-temporal arguments of atom.
      * @param temporal temporal argument of atom.
      */
-    Atom(Predicate predicate, List<Term> args, Temporal temporal){
+    public Atom(Predicate predicate, List<Term> args, Temporal temporal){
         if(predicate.nArgs != args.size()) throw new IllegalArgumentException("Number of arguments does not match predicate");
         this.predicate = predicate;
         this.args = args;
@@ -43,7 +45,7 @@ public class Atom implements Comparable<Atom>{
      * @param parent original atom for which this is a variant
      * @param version version of the variant
      */
-    Atom(Atom parent, int version){
+    public Atom(Atom parent, int version){
         this.predicate = parent.predicate;
         this.args = new ArrayList<>();
         for(Term t: parent.args){
@@ -109,9 +111,11 @@ public class Atom implements Comparable<Atom>{
      */
     @Override
     public int compareTo(Atom o) {
-        int res = this.temporal.compareTo(o.temporal);
-        if(res != 0){
-            return res;
+        if(this.temporal.tVar == o.temporal.tVar) {
+            int res = this.temporal.compareTo(o.temporal);
+            if (res != 0) {
+                return res;
+            }
         }
 
         if(this.predicate != o.predicate){
@@ -122,10 +126,6 @@ public class Atom implements Comparable<Atom>{
             Term one = this.args.get(i);
             Term two = o.args.get(i);
 
-            if(one instanceof Variable && two instanceof Variable){
-                continue;
-            }
-
             if(one instanceof Constant){
                 if(two instanceof Constant){
                     if(one != two){
@@ -135,9 +135,10 @@ public class Atom implements Comparable<Atom>{
                     return -1;  // Constants are smaller than variables.
                 }
             }else{
-                if(two instanceof Constant){
+                if(two instanceof Constant) {
                     return 1; // Variables are larger than constants.
                 }
+                // Variables are equal.
             }
         }
         return 0;

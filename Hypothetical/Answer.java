@@ -1,4 +1,8 @@
-import java.util.Collection;
+package Hypothetical;
+
+import Logic.*;
+import SLD.SLDResolution;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

@@ -1,4 +1,4 @@
-
+package Logic;
 
 /**
  * A logical constant

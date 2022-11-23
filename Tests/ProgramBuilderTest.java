@@ -1,5 +1,7 @@
 import org.junit.jupiter.api.Test;
-
+import Hypothetical.*;
+import Logic.*;
+import SLD.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProgramBuilderTest {

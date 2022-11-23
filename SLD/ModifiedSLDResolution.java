@@ -1,3 +1,8 @@
+package SLD;
+import Logic.*;
+import Hypothetical.Answer;
+import Logic.Substitution;
+
 import java.util.ArrayList;
 import java.util.List;
 

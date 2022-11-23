@@ -1,3 +1,4 @@
+package Logic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,13 +10,13 @@ public class Program{
     /**
      * List of program clauses.
      */
-    final List<Clause> clauses;
+    public final List<Clause> clauses;
 
     /**
      * Constructs a program given a list of clauses
      * @param clauses clauses of the program
      */
-    Program(List<Clause> clauses) {
+     Program(List<Clause> clauses) {
         this.clauses = new ArrayList<>(clauses);
     }
 

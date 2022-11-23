@@ -1,3 +1,6 @@
+package SLD;
+import Logic.*;
+
 /**
  * A class for unified two atoms.
  */
@@ -8,7 +11,7 @@ public class Unify {
      * @param head atom which variables are substituted whenever possible.
      * @return a substitution which is a most general unifier.
      */
-    static Substitution findMGU(Atom selectedAtom, Atom head) {
+    public static Substitution findMGU(Atom selectedAtom, Atom head) {
 
         if(head.predicate != selectedAtom.predicate){
             return null;

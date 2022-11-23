@@ -1,5 +1,5 @@
 
-
+package Logic;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,11 +12,11 @@ public class Temporal implements Term, Comparable<Temporal>{
     /**
      * Temporal variable. May be null in the case of the temporal aspect only containing a constant.
      */
-    final Variable tVar;
+    public final Variable tVar;
     /**
      * Temporal constant.
      */
-    final int tConstant;
+    public final int tConstant;
 
     /**
      * Map of different variants of this temporal.
@@ -104,7 +104,7 @@ public class Temporal implements Term, Comparable<Temporal>{
      */
     @Override
     public int compareTo(Temporal o) {
-        //if(this.tVar != o.tVar) throw new IllegalArgumentException("Not comparable"); //TODO check if this should still be checked
+        if(this.tVar != o.tVar) throw new IllegalArgumentException("Not comparable");
         return this.tConstant - o.tConstant;
     }
 }
