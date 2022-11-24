@@ -8,9 +8,9 @@ Hypothetical answers allows the specification of such a program. The program can
 The program will not only answer whether a query can be satisfied, but also what is required of the future information for the query to be satisfied, and what previous EDB instances support this answer.  
 
 ## Getting started
-Create a HypotheticalReasoner.
+Create a Hypothetical.HypotheticalReasoner.
 
-```HypotheticalReasoner h = new HyptoheticalReasoner();```
+```Hypothetical.HypotheticalReasoner h = new HyptoheticalReasoner();```
 
 Add some clauses.
 
@@ -31,7 +31,7 @@ h.nextTime("Temp(wt25,high,1),Temp(wt12,high,1)");
 h.nextTime("Temp(wt25,high,2)");
 h.nextTime("Temp(wt12,high,3)");
 ```
-Printing the HypotheticalReasoner will now show answers.
+Printing the Hypothetical.HypotheticalReasoner will now show answers.
 ```
 System.out.println(h);
 ```
@@ -59,5 +59,5 @@ Answers:
 	{(X/wt12),(T/0)}
 
 ```
-## HypotheticalReasoner
+## Hypothetical.HypotheticalReasoner
 //TODO
