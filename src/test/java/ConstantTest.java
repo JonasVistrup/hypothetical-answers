@@ -1,14 +1,12 @@
-package Jonas;
-
 import Jonas.Logic.Constant;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConstantTest {
     @Test
-    @DisplayName("Logic.Constant toString check")
+    @DisplayName("Constant toString check")
     void toStringTest(){
         assertEquals("a", new Constant("a").toString(), "Should print its id");
         assertEquals("HEY ", new Constant("HEY ").toString(), "Should print its id");

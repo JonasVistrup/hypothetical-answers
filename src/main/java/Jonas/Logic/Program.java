@@ -16,7 +16,7 @@ public class Program{
      * Constructs a program given a list of clauses
      * @param clauses clauses of the program
      */
-    Program(List<Clause> clauses) {
+    public Program(List<Clause> clauses) {
         this.clauses = new ArrayList<>(clauses);
     }
 

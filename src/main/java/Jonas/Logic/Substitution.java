@@ -149,4 +149,7 @@ public class Substitution {
         return false;
     }
 
+    public Substitution add(Substitution answer) {
+        return Substitution.composition(this, answer);
+    }
 }

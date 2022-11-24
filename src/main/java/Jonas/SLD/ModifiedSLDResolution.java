@@ -1,7 +1,7 @@
 package Jonas.SLD;
 
+import Jonas.Hypothetical.Answer;
 import Jonas.Logic.*;
-import Jonas.Hypothetical.PreprocessingAnswer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,24 +17,24 @@ public class ModifiedSLDResolution {
      * @param query the query.
      * @return hypothetical answers.
      */
-    public static List<PreprocessingAnswer> preprocess(Program program, AtomList query){
-        List<PreprocessingAnswer> hAnswers = new ArrayList<>();
-        inOrderTraversal(hAnswers, query, new Substitution(), program, 1);
+    public static List<Answer> preprocess(Program program, AtomList query){
+        List<Answer> answers = new ArrayList<>();
+        inOrderTraversal(answers, query, new Substitution(), program, 1);
 
-        return hAnswers;
+        return answers;
     }
 
     /**
      * Recursively performs depth first search of the SLD-tree, but stops whenever a goal which only contains atoms with EDB predicates.
-     * @param hAnswers the list of hypothetical answer found so far.
+     * @param answers the list of hypothetical answer found so far.
      * @param goal the current list of atoms to try to unify with the program.
      * @param sub the current substitution applied to the goal.
      * @param program the program.
      * @param level the current level of the SLD-tree.
      */
-    private static void inOrderTraversal(List<PreprocessingAnswer> hAnswers, AtomList goal, Substitution sub, Program program, int level){
+    private static void inOrderTraversal(List<Answer> answers, AtomList goal, Substitution sub, Program program, int level){
         if(isFinished(goal)){
-            hAnswers.add(new PreprocessingAnswer(sub, goal));
+            answers.add(new Answer(sub,new AtomList(), goal));
             return;
         }
 
@@ -47,12 +47,11 @@ public class ModifiedSLDResolution {
 
                 new_goal.remove(selected);
                 new_goal = new_goal.applySub(unifier);
-
                 new_goal.addAll(clauseInstance.body.applySub(unifier));
 
                 Substitution new_sub = Substitution.composition(sub, unifier);
 
-                inOrderTraversal(hAnswers, new_goal, new_sub, program, level+1);
+                inOrderTraversal(answers, new_goal, new_sub, program, level+1);
             }
         }
     }
