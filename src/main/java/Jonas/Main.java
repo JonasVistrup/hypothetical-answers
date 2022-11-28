@@ -4,7 +4,7 @@ import Jonas.Hypothetical.HypotheticalReasoner;
 
 public class Main {
     public static void main(String[] args){
-        test2();
+        test1();
     }
 
 
@@ -17,25 +17,26 @@ public class Main {
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.query("HotTopic(X,T)");
+        h.query("Malf(X,T)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("Temp(wt25,high,0),Trendy(Paris,0),Temp(wt24,low,0)");
+        h.nextTime("Temp(wt25,high,0),Temp(wt12,high,0)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("Temp(wt25,high,1)");
+        h.nextTime("Temp(wt25,high,1),Temp(wt12,high,1)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("Temp(wt25,high,2),Temp(wt12,low,2)");
+        h.nextTime("Temp(wt25,high,2),Temp(wt12,high,2)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
 
-        h.nextTime("P(wt25,3)");
+        h.nextTime("P(wt25,3),Temp(wt12,high,3)");
         System.out.println(h);
         System.out.println("------------------------------------------------\n");
+        System.out.println(h.toJSONObject().toString(2));
     }
 
     private static void test2(){

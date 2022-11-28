@@ -1,5 +1,7 @@
 package Jonas.Logic;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -153,15 +155,23 @@ public class Substitution {
         return Substitution.composition(this, answer);
     }
 
-
-    /*public String toJSON(String indent, AtomList relevantQuery){
-        StringBuilder b = new StringBuilder(indent + "\"Substitution\": \n");
+    public JSONArray toJSONArray() {
+        JSONArray arr = new JSONArray();
         for(Sub s: this.subs){
-            if(relevantSub(s,relevantQuery)){
-                b.append(indent).append()
+            arr.put(s.toJSONObject());
+        }
+        return arr;
+    }
+
+    public JSONArray toJSONArray(AtomList relevantQuery) {
+        JSONArray arr = new JSONArray();
+        for(Sub s: this.subs){
+            if(relevantSub(s, relevantQuery)) {
+                arr.put(s.toJSONObject());
             }
         }
+        return arr;
+    }
 
 
-    }*/
 }

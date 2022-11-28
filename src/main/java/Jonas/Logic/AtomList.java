@@ -1,5 +1,7 @@
 package Jonas.Logic;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -219,5 +221,13 @@ public class AtomList extends ArrayList<Atom>{
             }
         }
         return true;
+    }
+
+    public JSONArray toJSONArray() {
+        JSONArray arr = new JSONArray();
+        for(Atom a: this){
+            arr.put(a.toJSONObject());
+        }
+        return arr;
     }
 }

@@ -5,6 +5,8 @@ import Jonas.Logic.AtomList;
 import Jonas.Logic.Program;
 import Jonas.Logic.Substitution;
 import Jonas.SLD.SLDResolution;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.List;
@@ -137,5 +139,23 @@ public class Answer implements Comparable<Answer>{
     @Override
     public int compareTo(Answer o) {
         return this.toString().compareTo(o.toString());
+    }
+
+    public JSONObject toJSONObject() {
+        JSONObject o = new JSONObject();
+        o.put("substitutions", this.substitution.toJSONArray());
+        o.put("evidence",this.evidence.toJSONArray());
+        o.put("premise",this.premise.toJSONArray());
+
+        return o;
+    }
+
+    public JSONObject toJSONObject(AtomList relevantQuery) {
+        JSONObject o = new JSONObject();
+        o.put("substitutions", this.substitution.toJSONArray(relevantQuery));
+        o.put("evidence",this.evidence.toJSONArray());
+        o.put("premise",this.premise.toJSONArray());
+
+        return o;
     }
 }

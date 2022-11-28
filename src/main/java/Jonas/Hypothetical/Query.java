@@ -58,8 +58,12 @@ public class Query {
         return builder.toString();
     }
 
-    public JSONObject toJSONObject() { //TODO
+    public JSONObject toJSONObject() {
         JSONObject o = new JSONObject();
+        o.put("query", this.queriedAtoms.toString());
+        for(Answer a: this.supportedAnswers){
+            o.accumulate("answers", a.toJSONObject(this.queriedAtoms));
+        }
         return o;
     }
 }

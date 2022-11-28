@@ -1,5 +1,7 @@
 package Jonas.Logic;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -151,5 +153,11 @@ public class Atom implements Comparable<Atom>{
         }
         Atom other = (Atom) obj;
         return this.compareTo(other) == 0;
+    }
+
+    public JSONObject toJSONObject() {
+        JSONObject o = new JSONObject();
+        o.put("atom",this.toString());
+        return o;
     }
 }

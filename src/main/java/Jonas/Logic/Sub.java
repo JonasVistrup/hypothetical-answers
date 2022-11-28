@@ -1,5 +1,7 @@
 package Jonas.Logic;
 
+import org.json.JSONObject;
+
 /**
  * A single substitution.
  */
@@ -29,5 +31,12 @@ public class Sub {
     @Override
     public String toString() {
         return from.toString()+"/"+to.toString();
+    }
+
+    public JSONObject toJSONObject(){
+        JSONObject o = new JSONObject();
+        o.put("from", from.toString());
+        o.put("to",to.toString());
+        return o;
     }
 }
