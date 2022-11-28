@@ -9,7 +9,7 @@ import java.util.Map;
  * A class which builds programs using string versions of its clauses.
  */
 public class ProgramBuilder {
-    private final Map<String, Predicate> predicates = new HashMap<>();
+    private final Map<String, PredicateInterface> predicates = new HashMap<>();
     private final Map<String, Term> terms = new HashMap<>();
     private final Map<String, Variable> temporalVariables = new HashMap<>();
 
@@ -31,6 +31,9 @@ public class ProgramBuilder {
     public int size(){
         return clauses.size();
     }
+
+
+    public void addFunctionPredicate(FunctionalInterface fPredicate){}
 
     /**
      * Adds a clause to the Logic.ProgramBuilder based upon the string representation of the clause given in the format HEAD{@literal <}-BODY.
@@ -160,14 +163,14 @@ public class ProgramBuilder {
         if (terms.containsKey(name)) {
             return terms.get(name);
         } else {
-            if (name.toUpperCase().equals(name)) {
-                Variable var = new Variable(name);
-                terms.put(name, var);
-                return var;
-            } else if (name.toLowerCase().equals(name)) {
+            if (name.toLowerCase().equals(name)) {
                 Constant constant = new Constant(name);
                 terms.put(name, constant);
                 return constant;
+            } else if(name.toUpperCase().equals(name)) {
+                Variable var = new Variable(name);
+                terms.put(name, var);
+                return var;
             } else {
                 throw new IllegalArgumentException("Terms must either be all uppercase for variables or all lowercase for constants");
             }
@@ -180,7 +183,7 @@ public class ProgramBuilder {
         }
         Predicate res;
         if (predicates.containsKey(name)) {
-            res = predicates.get(name);
+            res = (Predicate) predicates.get(name);
             if (res.nArgs != numberOfArgs) {
                 throw new IllegalArgumentException("Logic.Predicate " + name + " contains an inconsistent of arguments");
             }

@@ -3,7 +3,7 @@ package Jonas.Logic;
 /**
  * A logical predicate.
  */
-public class Predicate {
+public class Predicate implements PredicateInterface{
 
 
     /**
@@ -29,6 +29,10 @@ public class Predicate {
         this.id = id;
         this.nArgs = nArgs;
         this.IDB = false;
+    }
+
+    public boolean IDB(){
+        return IDB;
     }
 
     /**

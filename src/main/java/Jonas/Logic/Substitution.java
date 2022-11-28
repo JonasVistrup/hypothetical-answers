@@ -152,4 +152,16 @@ public class Substitution {
     public Substitution add(Substitution answer) {
         return Substitution.composition(this, answer);
     }
+
+
+    /*public String toJSON(String indent, AtomList relevantQuery){
+        StringBuilder b = new StringBuilder(indent + "\"Substitution\": \n");
+        for(Sub s: this.subs){
+            if(relevantSub(s,relevantQuery)){
+                b.append(indent).append()
+            }
+        }
+
+
+    }*/
 }

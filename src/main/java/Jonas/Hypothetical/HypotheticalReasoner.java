@@ -8,8 +8,7 @@ import Jonas.SLD.ModifiedSLDResolution;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
-
-
+import org.json.JSONObject;
 /**
  * Class which allows the user to define a logical system of define temporal clauses.
  * That logical system can then be queried, creating hypothetical answer based upon some premise.
@@ -73,7 +72,6 @@ public class HypotheticalReasoner {
 
                 List<Answer> preprocessingAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), query);
                 this.queries.add(new Query(query, preprocessingAnswers));
-                this.time = 0;
         }
 
         /**
@@ -82,9 +80,13 @@ public class HypotheticalReasoner {
          */
         public void nextTime(String dataSliceRep){
                 if(queries.isEmpty()) throw  new IllegalStateException("query must be called before time slices can be added");
+
                 AtomList dataSlice = stringToAtomList(dataSliceRep);
                 for(Atom a: dataSlice){
                         if(a.temporal.tVar != null) throw new IllegalArgumentException("Logic.Temporal aspect of "+a.toString()+" is not initiated");
+                        if(this.time == -1){
+                                this.time = a.temporal.tConstant;
+                        }
                         if(a.temporal.tConstant != this.time) throw new IllegalArgumentException("Time constant of "+a.toString()+" is not equal to current time: "+this.time);
                 }
 
@@ -167,13 +169,13 @@ public class HypotheticalReasoner {
                 }
                 Query query = queries.get(0);
                 b.append("\n");
-                b.append("Hypothetical Answers:\n");
+                b.append("Preprocessing Answers:\n");
                 for(Answer answer: preprocessingAnswers()){
                         b.append("\t").append(answer.toString(query.queriedAtoms)).append("\n");
                 }
                 b.append("\n");
 
-                b.append("Evidence Answers:\n");
+                b.append("Supported Answers:\n");
                 for(Answer answer: supportedAnswers()){
                         b.append("\t").append(answer.toString(query.queriedAtoms)).append("\n");
                 }
@@ -188,6 +190,19 @@ public class HypotheticalReasoner {
 
                 return b.toString();
         }
+
+
+        public JSONObject toJSONObject(){
+                JSONObject o = new JSONObject();
+                for(Query q: queries){
+                        o.put("Queries",q.toJSONObject());
+                }
+                return o;
+        }
+        public String toJSON(){
+                return toJSONObject().toString();
+        }
+
 
 
 }

@@ -61,3 +61,34 @@ Answers:
 ```
 ## Hypothetical.HypotheticalReasoner
 //TODO
+
+## JSON Example output
+```JSON
+{
+    "queries": [{
+      "query": "p(X,T)",
+      "answers": [{
+        "substitutions": [{
+          "from": "X",
+          "to": "a"
+          },
+          {
+          "from": "T",
+          "to": 5
+          }
+        ],
+        "evidences": [{
+          "atom": "r(a,4)"
+          },
+          {
+          "atom": "q(a,4)"
+          }
+        ],
+        "premises": [{
+          "atom": "r(a,5)"
+          }
+        ]}
+      ]}
+    ]
+}
+```

@@ -2,6 +2,7 @@ package Jonas.Hypothetical;
 
 import Jonas.Logic.AtomList;
 import Jonas.Logic.Substitution;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,5 +56,10 @@ public class Query {
             builder.append("\n");
         }
         return builder.toString();
+    }
+
+    public JSONObject toJSONObject() { //TODO
+        JSONObject o = new JSONObject();
+        return o;
     }
 }
