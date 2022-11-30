@@ -1,11 +1,14 @@
 package Jonas.Hypothetical;
 
 import Jonas.Logic.AtomList;
+import Jonas.Logic.Program;
 import Jonas.Logic.Substitution;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Query {
     public List<Answer> preprocessingAnswers;
@@ -65,5 +68,13 @@ public class Query {
             o.accumulate("answers", a.toJSONObject(this.queriedAtoms));
         }
         return o;
+    }
+
+    public void update(Program dataSliceProgram, int time) {
+        Set<Answer> answerSet = new HashSet<>();
+        for(Answer a: this.supportedAnswers){
+            answerSet.addAll(a.update(dataSliceProgram, time));
+        }
+        this.supportedAnswers = new ArrayList<>(answerSet);
     }
 }

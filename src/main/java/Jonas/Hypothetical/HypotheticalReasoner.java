@@ -2,6 +2,7 @@ package Jonas.Hypothetical;
 
 import Jonas.Logic.Atom;
 import Jonas.Logic.AtomList;
+import Jonas.Logic.Program;
 import Jonas.Logic.ProgramBuilder;
 import Jonas.SLD.ModifiedSLDResolution;
 
@@ -48,6 +49,15 @@ public class HypotheticalReasoner {
         }
 
         /**
+         * Constructs a reasoner with a program specified by the file given.
+         * @param programPath filepath of a string version of the program.
+         */
+        public HypotheticalReasoner(String programPath, String queriesPath){
+                this(programPath);
+                queryFromFile(queriesPath);
+        }
+
+        /**
          * Adds a clause to the program.
          * @param representation string representation of clause.
          */
@@ -56,6 +66,24 @@ public class HypotheticalReasoner {
                 this.queries = new ArrayList<>();
                 this.time = -1;
         }
+
+        /**
+         * Queries the program and creates hypothetical answers.
+         * @param filename name of the file containing queries in text format.
+         */
+        public void queryFromFile(String filename){
+                try {
+                        Scanner input = new Scanner(new File(filename));
+                        while(input.hasNextLine()){
+                                query(input.nextLine());
+                        }
+                        input.close();
+
+                } catch (FileNotFoundException e) {
+                        throw new IllegalArgumentException("Filepath is not a valid path");
+                }
+        }
+
 
         /**
          * Queries the program and creates hypothetical answers.
@@ -90,12 +118,10 @@ public class HypotheticalReasoner {
                         if(a.temporal.tConstant != this.time) throw new IllegalArgumentException("Time constant of "+a.toString()+" is not equal to current time: "+this.time);
                 }
 
+                Program dataSliceProgram = dataSlice.toProgram();
                 for(Query q: queries){
-                        Set<Answer> answerSet = new HashSet<>();
-                        for(Answer a: q.supportedAnswers){
-                                answerSet.addAll(a.update(dataSlice.toProgram(), this.time));
-                        }
-                        q.supportedAnswers = new ArrayList<>(answerSet);
+                        q.update(dataSliceProgram, this.time);
+
                 }
                 this.time = this.time + 1;
         }
