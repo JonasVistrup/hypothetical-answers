@@ -12,19 +12,48 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Representation of an (incomplete) answer.
+ */
 public class Answer implements Comparable<Answer>{
 
+    /**
+     *
+     */
+    public final AtomList resultingQueriedAtoms;
+    /**
+     * Substitutions applied on the atoms in evidence and premise.
+     */
     public final Substitution substitution;
+    /**
+     * List of atoms which is evidence for this answer.
+     */
     public final AtomList evidence;
+    /**
+     * List of atoms which has not yet been seen, and need to occur for this answer to be correct.
+     */
     public final AtomList premise;
 
-    public Answer(Substitution substitution, AtomList evidence, AtomList premise){
+    /**
+     * Constructs an answer with substitution, evidence and premise.
+     * @param substitution This answers substitution.
+     * @param evidence This answers evidence.
+     * @param premise This answers premise.
+     */
+    public Answer(AtomList resultingQueriedAtoms, Substitution substitution, AtomList evidence, AtomList premise){
+        this.resultingQueriedAtoms = resultingQueriedAtoms;
         this.substitution = substitution;
         this.evidence = evidence;
         this.premise = premise;
     }
 
 
+    /**
+     * Updates the premises of this answer to get all possible new answers.
+     * @param dataSlice a program consisting only of facts. Every atom in the data slice at the current time is added as a single fact.
+     * @param time time of the dataSlice.
+     * @return The set of all possible answers derived from the dataSlice and this Answer's premise.
+     */
     public Set<Answer> update(Program dataSlice, int time){
         //Constant part.
         Set<Answer> result = new HashSet<>();
@@ -34,11 +63,12 @@ public class Answer implements Comparable<Answer>{
             List<Substitution> answers = SLDResolution.findSubstitutions(dataSlice, constants);
 
             for(Substitution answer: answers){
+                AtomList queriedAtoms = this.resultingQueriedAtoms.applySub(answer);
                 Substitution sub = this.substitution.add(answer);
                 AtomList newEvidence = this.evidence.plus(constants).applySub(answer);
                 AtomList newPremise = this.premise.without(constants).applySub(answer);
 
-                result.add(new Answer(sub, newEvidence, newPremise));
+                result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
             }
         }else{
             result.add(this);
@@ -52,11 +82,12 @@ public class Answer implements Comparable<Answer>{
             List<Substitution> answers = SLDResolution.findSubstitutions(dataSlice, smallestPremise); //TODO can be optimized. The constants do not need to be solved twice.
 
             for(Substitution answer: answers){
+                AtomList queriedAtoms = this.resultingQueriedAtoms.applySub(answer);
                 Substitution sub = this.substitution.add(answer);
                 AtomList newEvidence = this.evidence.plus(smallestPremise).applySub(answer);
                 AtomList newPremise = this.premise.without(smallestPremise).applySub(answer);
 
-                result.add(new Answer(sub, newEvidence, newPremise));
+                result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
             }
         }
 
@@ -64,13 +95,18 @@ public class Answer implements Comparable<Answer>{
     }
 
 
+    /**
+     * An equals function. If the queriedAtoms, evidence and premise for this and obj are equal then they are the same Answer.
+     * @param obj other object.
+     * @return returns whether this answer is equal to obj.
+     */
     @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof Answer)){
             return false;
         }
         Answer other = (Answer) obj;
-        return this.evidence.equals(other.evidence) && this.premise.equals(other.premise);
+        return this.resultingQueriedAtoms.equals(other.resultingQueriedAtoms) && this.evidence.equals(other.evidence) && this.premise.equals(other.premise);
     }
 
 
@@ -136,11 +172,19 @@ public class Answer implements Comparable<Answer>{
         return "[" + substitution.toString()+","+evidenceString()+","+premiseString()+"]";
     }
 
+    /**
+     * Compares to answers, creating a complete ordering of all answer.
+     * @param o the object to be compared.
+     * @return -1 if this is less than o, o if they are lexicographically equal, 1 if this is greater than o.
+     */
     @Override
     public int compareTo(Answer o) {
         return this.toString().compareTo(o.toString());
     }
 
+    /**
+     * @return a JSONObject of this.
+     */
     public JSONObject toJSONObject() {
         JSONObject o = new JSONObject();
         o.put("substitutions", this.substitution.toJSONArray());
@@ -150,6 +194,10 @@ public class Answer implements Comparable<Answer>{
         return o;
     }
 
+    /**
+     * @param relevantQuery list of relevant atoms.
+     * @return a JSONObject of this, but only includes substitutions that effects atoms in for relevantQuery.
+     */
     public JSONObject toJSONObject(AtomList relevantQuery) {
         JSONObject o = new JSONObject();
         o.put("substitutions", this.substitution.toJSONArray(relevantQuery));

@@ -33,6 +33,9 @@ public class Sub {
         return from.toString()+"/"+to.toString();
     }
 
+    /**
+     * @return JSON object representing this sub.
+     */
     public JSONObject toJSONObject(){
         JSONObject o = new JSONObject();
         o.put("from", from.toString());

@@ -112,7 +112,8 @@ public class Substitution {
         return builder.toString();
     }
 
-    /**Returns a string representation of the all substitutions relevant to an atom in a list of atoms.
+    /**
+     * Returns a string representation of the all substitutions relevant to an atom in a list of atoms.
      * @param relevantQuery list of atom for which the representation is relevant for.
      * @return string representation.
      */
@@ -151,6 +152,11 @@ public class Substitution {
         return false;
     }
 
+    /**
+     * Creates the composition of two substitutions.
+     * @param answer the other substitutions.
+     * @return the composition of this and answer.
+     */
     public Substitution add(Substitution answer) {
         return Substitution.composition(this, answer);
     }
@@ -172,6 +178,5 @@ public class Substitution {
         }
         return arr;
     }
-
 
 }

@@ -49,7 +49,8 @@ public class HypotheticalReasoner {
         }
 
         /**
-         * Constructs a reasoner with a program specified by the file given.
+         * Constructs a reasoner with a program specified by the file given, and a file of queries.
+         * @param programPath filepath of a string version of the program.
          * @param programPath filepath of a string version of the program.
          */
         public HypotheticalReasoner(String programPath, String queriesPath){
@@ -218,6 +219,9 @@ public class HypotheticalReasoner {
         }
 
 
+        /**
+         * @return JSON object of the current state of the Hypothetical Reasoner.
+         */
         public JSONObject toJSONObject(){
                 JSONObject o = new JSONObject();
                 for(Query q: queries){
@@ -225,6 +229,10 @@ public class HypotheticalReasoner {
                 }
                 return o;
         }
+
+        /**
+         * @return String representation of JSON object.
+         */
         public String toJSON(){
                 return toJSONObject().toString();
         }

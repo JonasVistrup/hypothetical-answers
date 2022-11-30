@@ -31,7 +31,7 @@ public class AtomList extends ArrayList<Atom>{
 
     /**
      * Constructs a list of atoms with atom as a single element in the list.
-     * @param atom the single atom added
+     * @param atom the single atom added.
      */
     public AtomList(Atom atom){
         super();
@@ -39,24 +39,46 @@ public class AtomList extends ArrayList<Atom>{
         organize();
     }
 
+    /**
+     * Adds an atom to this list.
+     * @param atom atom whose presence in this collection is to be ensured
+     * @return true iff this list is changed by this operation.
+     */
     @Override
     public boolean add(Atom atom) {
         organized = false;
         return super.add(atom);
     }
 
+    /**
+     * Adds a collection to this list.
+     * @param c collection containing elements to be added to this collection.
+     * @return true iff this list is changed by this operation.
+     */
     @Override
     public boolean addAll(Collection<? extends Atom> c) {
         organized = false;
         return super.addAll(c);
     }
 
+    /**
+     * Adds an atom at an index.
+     * @param index   index at which the specified atom is to be inserted.
+     * @param element atom to be inserted.
+     */
     @Override
     public void add(int index, Atom element) {
         organized = false;
         super.add(index, element);
     }
 
+    /**
+     * Adds a collections starting at a certain index.
+     * @param index index at which to insert the first element from the
+     *              specified collection.
+     * @param c     collection containing elements to be added to this list.
+     * @return true iff this list is changed by this operation.
+     */
     @Override
     public boolean addAll(int index, Collection<? extends Atom> c) {
         organized = false;
@@ -123,18 +145,27 @@ public class AtomList extends ArrayList<Atom>{
         return atomList;
     }
 
+    /**
+     * @return a sorted list of the atoms in this list with no temporal variable.
+     */
     public AtomList constantTime(){
         organize();
 
         return constantTime;
     }
 
+    /**
+     * @return a sorted list of the atoms in this list with no temporal variable and the smallest temporal constant.
+     */
     public AtomList smallestConstant(){
         organize();
 
         return smallestConstant;
     }
 
+    /**
+     * @return a sorted list of the atoms in this with a temporal variable and the smallest temporal constant.
+     */
     public AtomList smallestVariable(){
         organize();
 
@@ -142,6 +173,9 @@ public class AtomList extends ArrayList<Atom>{
     }
 
 
+    /**
+     * @return a sorted list of atoms in this list with a temporal variable.
+     */
     public AtomList variableTime(){
         organize();
 
@@ -200,6 +234,10 @@ public class AtomList extends ArrayList<Atom>{
         return atomList;
     }
 
+    /**
+     * @param o the object to be compared for equality with this list
+     * @return true iff the two list contains the same atoms.
+     */
     @Override
     public boolean equals(Object o) {
         if(!(o instanceof AtomList)){
@@ -223,6 +261,9 @@ public class AtomList extends ArrayList<Atom>{
         return true;
     }
 
+    /**
+     * @return JSONArray of the JSON representation of the atoms in this list.
+     */
     public JSONArray toJSONArray() {
         JSONArray arr = new JSONArray();
         for(Atom a: this){

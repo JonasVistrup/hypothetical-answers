@@ -146,6 +146,10 @@ public class Atom implements Comparable<Atom>{
         return 0;
     }
 
+    /**
+     * @param obj other object.
+     * @return true iff this and obj have the same predicate and same arguments.
+     */
     @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof Atom)){
