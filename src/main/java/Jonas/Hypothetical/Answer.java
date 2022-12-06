@@ -36,9 +36,10 @@ public class Answer implements Comparable<Answer>{
 
     /**
      * Constructs an answer with substitution, evidence and premise.
-     * @param substitution This answers substitution.
-     * @param evidence This answers evidence.
-     * @param premise This answers premise.
+     * @param resultingQueriedAtoms this list of queries resulting from applying the substitution to the original queries.
+     * @param substitution this answers substitution.
+     * @param evidence this answers evidence.
+     * @param premise this answers premise.
      */
     public Answer(AtomList resultingQueriedAtoms, Substitution substitution, AtomList evidence, AtomList premise){
         this.resultingQueriedAtoms = resultingQueriedAtoms;
