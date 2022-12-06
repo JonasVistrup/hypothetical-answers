@@ -51,7 +51,7 @@ public class HypotheticalReasoner {
         /**
          * Constructs a reasoner with a program specified by the file given, and a file of queries.
          * @param programPath filepath of a string version of the program.
-         * @param programPath filepath of a string version of the program.
+         * @param queriesPath filepath of a string version of the queries.
          */
         public HypotheticalReasoner(String programPath, String queriesPath){
                 this(programPath);
@@ -164,8 +164,8 @@ public class HypotheticalReasoner {
 
         /**
          * Returns the supported answers of the current time.
-         * @throws IllegalStateException if the reasoner has not been queried yet
-         * @return list of the current supported answers
+         * @throws IllegalStateException if the reasoner has not been queried yet.
+         * @return list of the current supported answers.
          */
         public List<Answer> supportedAnswers(){
                 if(this.queries.isEmpty()) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
@@ -173,6 +173,24 @@ public class HypotheticalReasoner {
                 List<Answer> res = new ArrayList<>();
                 for(Answer answer: query.supportedAnswers){
                         if(!answer.evidence.isEmpty()){
+                                res.add(answer);
+                        }
+                }
+                Collections.sort(res);
+                return res;
+        }
+
+        /**
+         * Returns the answers of the current time.
+         * @throws IllegalStateException if the reasoner has not been queried yet.
+         * @return list of the current answers.
+         */
+        public List<Answer> answers(){
+                if(this.queries.isEmpty()) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
+                Query query = queries.get(0);
+                List<Answer> res = new ArrayList<>();
+                for(Answer answer: query.supportedAnswers){
+                        if(answer.premise.isEmpty()){
                                 res.add(answer);
                         }
                 }
@@ -220,6 +238,7 @@ public class HypotheticalReasoner {
 
 
         /**
+         * Creates a JSON object of the current state.
          * @return JSON object of the current state of the Hypothetical Reasoner.
          */
         public JSONObject toJSONObject(){
@@ -231,6 +250,7 @@ public class HypotheticalReasoner {
         }
 
         /**
+         * Creates a JSON object of the current state.
          * @return String representation of JSON object.
          */
         public String toJSON(){
