@@ -1,12 +1,12 @@
 package Jonas;
 
 import Jonas.Logic.Constant;
-import Jonas.Logic.FunctionPredicate;
+import Jonas.Logic.UserDefinedPredicate;
 import Jonas.Logic.Term;
 
 import java.util.List;
 
-public class LargerThan implements FunctionPredicate {
+public class LargerThan implements UserDefinedPredicate {
     @Override
     public int nArgs() {
         return 2;

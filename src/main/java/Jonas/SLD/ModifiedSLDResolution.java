@@ -58,13 +58,13 @@ public class ModifiedSLDResolution {
     }
 
     public static boolean removeAndCheckFunctionAtoms(AtomList new_goal, AtomList evidence) {
-        List<FunctionAtom> functionAtoms = new_goal.groundFAtoms();
-        for(FunctionAtom fa: functionAtoms){
+        List<SpecialAtom> specialAtoms = new_goal.groundFAtoms();
+        for(SpecialAtom fa: specialAtoms){
             if(!fa.run()) return false;
         }
 
-        new_goal.removeAll(functionAtoms);
-        evidence.addAll(functionAtoms);
+        new_goal.removeAll(specialAtoms);
+        evidence.addAll(specialAtoms);
 
         return true;
     }

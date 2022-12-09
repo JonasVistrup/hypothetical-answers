@@ -24,7 +24,7 @@ public class ProgramBuilder {
         try{
             Scanner input = new Scanner(new File("FunctionPredicates"));
             while(input.hasNextLine()){
-                addFunctionPredicate(input.nextLine());
+                addUDPredicate(input.nextLine());
             }
             input.close();
         }catch (FileNotFoundException e) {
@@ -37,14 +37,14 @@ public class ProgramBuilder {
     }
 
 
-    private void addFunctionPredicate(String functionClassString) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void addUDPredicate(String functionClassString) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Class functionClass = Class.forName(functionClassString);
-        if(FunctionPredicate.class.isAssignableFrom(functionClass)){
+        if(UserDefinedPredicate.class.isAssignableFrom(functionClass)){
             Constructor ct = functionClass.getConstructor(new Class[0]);
-            FunctionPredicate fp = (FunctionPredicate) ct.newInstance(new Object[0]);
+            UserDefinedPredicate fp = (UserDefinedPredicate) ct.newInstance(new Object[0]);
             this.predicates.put(fp.toString(),fp);
         }else{
-            throw new IllegalArgumentException("Class "+functionClass.getName() + " does not implement FunctionPredicate.");
+            throw new IllegalArgumentException("Class "+functionClass.getName() + " does not implement UserDefinedPredicate.");
         }
     }
 
@@ -64,8 +64,6 @@ public class ProgramBuilder {
         return clauses.size();
     }
 
-
-    public void addFunctionPredicate(FunctionalInterface fPredicate){}
 
     /**
      * Adds a clause to the Logic.ProgramBuilder based upon the string representation of the clause given in the format HEAD{@literal <}-BODY.
@@ -103,8 +101,8 @@ public class ProgramBuilder {
         for (String s : strBody) {
             body.add(parseAtom(s));
         }
-        if(head.predicate instanceof FunctionPredicate){
-            throw new IllegalArgumentException("FunctionPredicates can not be defined by clauses.");
+        if(head.predicate instanceof UserDefinedPredicate){
+            throw new IllegalArgumentException("UserDefinedPredicates can not be defined by clauses.");
         }
 
         ((Predicate)head.predicate).IDB = true;
@@ -154,7 +152,7 @@ public class ProgramBuilder {
 
         }else{
             arguments.add(getTerm(strArguments[numberOfArgs]));
-            return new FunctionAtom(p,arguments, null);
+            return new SpecialAtom(p,arguments, null);
         }
 
     }
@@ -233,7 +231,7 @@ public class ProgramBuilder {
         PredicateInterface res;
         if (predicates.containsKey(name)) {
             res = (PredicateInterface) predicates.get(name);
-            if ((res instanceof Predicate && res.nArgs() != numberOfArgs) || (res instanceof FunctionPredicate && res.nArgs() != numberOfArgs + 1)) {
+            if ((res instanceof Predicate && res.nArgs() != numberOfArgs) || (res instanceof UserDefinedPredicate && res.nArgs() != numberOfArgs + 1)) {
                 throw new IllegalArgumentException("Logic.Predicate " + name + " contains an inconsistent of arguments");
             }
         } else {

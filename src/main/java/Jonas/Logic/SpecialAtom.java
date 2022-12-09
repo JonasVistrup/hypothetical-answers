@@ -6,19 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class FunctionAtom extends Atom{
+public class SpecialAtom extends Atom{
 
-    private final Map<Integer, FunctionAtom> instances;
+    private final Map<Integer, SpecialAtom> instances;
 
-    FunctionAtom(PredicateInterface predicate, List<Term> args, Temporal temporal) {
+    SpecialAtom(PredicateInterface predicate, List<Term> args, Temporal temporal) {
         super(predicate, args, temporal);
 
-        if(!(predicate instanceof FunctionPredicate)) throw new IllegalArgumentException("Predicate for a FunctionAtom must be a FunctionPredicate");
+        if(!(predicate instanceof UserDefinedPredicate)) throw new IllegalArgumentException("Predicate for a FunctionAtom must be a FunctionPredicate");
 
         this.instances = new HashMap<>();
     }
 
-    FunctionAtom(FunctionAtom parent, int version){
+    SpecialAtom(SpecialAtom parent, int version){
         super(parent, version);
 
         this.instances = new HashMap<>();
@@ -30,7 +30,7 @@ public class FunctionAtom extends Atom{
         if(this.instances.containsKey(version)){
             return this.instances.get(version);
         }else{
-            FunctionAtom instance = new FunctionAtom(this, version);
+            SpecialAtom instance = new SpecialAtom(this, version);
             this.instances.put(version, instance);
             return instance;
         }
@@ -42,12 +42,12 @@ public class FunctionAtom extends Atom{
         for(Term t: args){
             new_terms.add(t.applySub(substitution));
         }
-        return new FunctionAtom(this.predicate, new_terms, this.temporal);
+        return new SpecialAtom(this.predicate, new_terms, this.temporal);
     }
 
     @Override
     public String toString() {
-        FunctionPredicate fPredicate = (FunctionPredicate) this.predicate;
+        UserDefinedPredicate fPredicate = (UserDefinedPredicate) this.predicate;
         return fPredicate.toString(this.args);
     }
 
@@ -61,9 +61,9 @@ public class FunctionAtom extends Atom{
     public boolean run(){
         assert isground();
 
-        FunctionPredicate fPredicate = (FunctionPredicate) this.predicate;
+        UserDefinedPredicate UDPredicate = (UserDefinedPredicate) this.predicate;
         List<Constant> constants = this.args.stream().map(x ->(Constant) x).collect(Collectors.toList());
-        return fPredicate.run(constants);
+        return UDPredicate.run(constants);
     }
 
 

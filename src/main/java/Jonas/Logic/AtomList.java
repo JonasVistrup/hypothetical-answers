@@ -16,7 +16,7 @@ public class AtomList extends ArrayList<Atom>{
     private AtomList variableTime = null;
     private AtomList smallestConstant = null;
     private AtomList smallestVariable = null;
-    private AtomList functionAtoms = null;
+    private AtomList userDefinedAtoms = null;
 
     private boolean organized = false;
 
@@ -121,10 +121,10 @@ public class AtomList extends ArrayList<Atom>{
 
         constantTime = new AtomList();
         variableTime = new AtomList();
-        functionAtoms = new AtomList();
+        userDefinedAtoms = new AtomList();
         for(Atom a: this){
-            if(a instanceof FunctionAtom) {
-                functionAtoms.add(a);
+            if(a instanceof SpecialAtom) {
+                userDefinedAtoms.add(a);
             }else {
                 if (a.temporal.tVar == null) constantTime.add(a);
                 else variableTime.add(a);
@@ -160,7 +160,7 @@ public class AtomList extends ArrayList<Atom>{
     public AtomList functionAtoms(){
         organize();
 
-        return this.functionAtoms;
+        return this.userDefinedAtoms;
     }
 
     /**
@@ -280,10 +280,10 @@ public class AtomList extends ArrayList<Atom>{
     }
 
 
-    public List<FunctionAtom> groundFAtoms(){
-        List<FunctionAtom> fpWithOnlyConstants = new ArrayList<>();
+    public List<SpecialAtom> groundFAtoms(){
+        List<SpecialAtom> fpWithOnlyConstants = new ArrayList<>();
         for(Atom a: this.functionAtoms()){
-            FunctionAtom fa = (FunctionAtom) a;
+            SpecialAtom fa = (SpecialAtom) a;
             if(fa.isground()) fpWithOnlyConstants.add(fa);
         }
         return fpWithOnlyConstants;
