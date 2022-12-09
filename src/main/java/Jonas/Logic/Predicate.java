@@ -31,6 +31,10 @@ public class Predicate implements PredicateInterface{
         this.IDB = false;
     }
 
+    public int nArgs(){
+        return nArgs;
+    }
+
     public boolean IDB(){
         return IDB;
     }

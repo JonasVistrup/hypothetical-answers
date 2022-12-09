@@ -9,4 +9,6 @@ public interface PredicateInterface {
     @Override
     public String toString();
     public boolean IDB();
+
+    public int nArgs();
 }

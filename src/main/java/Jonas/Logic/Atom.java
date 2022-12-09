@@ -14,7 +14,7 @@ public class Atom implements Comparable<Atom>{
     /**
      * Logic.Predicate of the atom.
      */
-    public final Predicate predicate;
+    public final PredicateInterface predicate;
     /**
      * Non-temporal arguments of the atom.
      */
@@ -34,8 +34,8 @@ public class Atom implements Comparable<Atom>{
      * @param args non-temporal arguments of atom.
      * @param temporal temporal argument of atom.
      */
-    Atom(Predicate predicate, List<Term> args, Temporal temporal){
-        if(predicate.nArgs != args.size()) throw new IllegalArgumentException("Number of arguments does not match predicate");
+    Atom(PredicateInterface predicate, List<Term> args, Temporal temporal){
+        if(predicate.nArgs() != args.size()) throw new IllegalArgumentException("Number of arguments does not match predicate");
         this.predicate = predicate;
         this.args = args;
         this.temporal = temporal;
@@ -53,7 +53,8 @@ public class Atom implements Comparable<Atom>{
         for(Term t: parent.args){
             this.args.add(t.getVariant(version));
         }
-        this.temporal = (Temporal) parent.temporal.getVariant(version);
+
+        this.temporal = parent.temporal == null? null : (Temporal) parent.temporal.getVariant(version);
         this.instances = new HashMap<>();
     }
 
@@ -100,6 +101,7 @@ public class Atom implements Comparable<Atom>{
             builder.append(t.toString());
             builder.append(',');
         }
+
         builder.append(temporal);
 
         builder.append(')');
@@ -113,12 +115,22 @@ public class Atom implements Comparable<Atom>{
      */
     @Override
     public int compareTo(Atom o) {
-        if(this.temporal.tVar == o.temporal.tVar) {
-            int res = this.temporal.compareTo(o.temporal);
-            if (res != 0) {
-                return res;
+        if (this.temporal != null || o.temporal != null) {
+            if(this.temporal == null){
+                return 1; //Predicate with temporal aspect are smaller than those without.
+            }
+            if(o.temporal == null){
+                return -1; //Predicate with temporal aspect are smaller than those without.
+            }
+            if(this.temporal.tVar == o.temporal.tVar) {
+                int res = this.temporal.compareTo(o.temporal);
+                if (res != 0) {
+                    return res;
+                }
             }
         }
+
+
 
         if(this.predicate != o.predicate){
             return this.predicate.toString().compareTo(o.predicate.toString());
@@ -152,6 +164,8 @@ public class Atom implements Comparable<Atom>{
      */
     @Override
     public boolean equals(Object obj) {
+        if(this == obj) return true;
+
         if(!(obj instanceof Atom)){
             return false;
         }

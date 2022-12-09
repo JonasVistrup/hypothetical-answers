@@ -1,9 +1,10 @@
 package Jonas.Logic;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * A class which builds programs using string versions of its clauses.
@@ -15,6 +16,37 @@ public class ProgramBuilder {
 
     private final ArrayList<Clause> clauses = new ArrayList<>();
 
+    public ProgramBuilder(){
+        addFunctionPredicates();
+    }
+
+    private void addFunctionPredicates(){
+        try{
+            Scanner input = new Scanner(new File("FunctionPredicates"));
+            while(input.hasNextLine()){
+                addFunctionPredicate(input.nextLine());
+            }
+            input.close();
+        }catch (FileNotFoundException e) {
+            throw new IllegalStateException("file FunctionPredicates can not be found.");
+        }catch (ClassNotFoundException e){
+            throw new IllegalArgumentException("Class not found.");
+        }catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e){
+            throw new IllegalArgumentException("Constructor not found.");
+        }
+    }
+
+
+    private void addFunctionPredicate(String functionClassString) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        Class functionClass = Class.forName(functionClassString);
+        if(FunctionPredicate.class.isAssignableFrom(functionClass)){
+            Constructor ct = functionClass.getConstructor(new Class[0]);
+            FunctionPredicate fp = (FunctionPredicate) ct.newInstance(new Object[0]);
+            this.predicates.put(fp.toString(),fp);
+        }else{
+            throw new IllegalArgumentException("Class "+functionClass.getName() + " does not implement FunctionPredicate.");
+        }
+    }
 
     /**
      * Returns a program consisting of the current clauses.
@@ -71,7 +103,11 @@ public class ProgramBuilder {
         for (String s : strBody) {
             body.add(parseAtom(s));
         }
-        head.predicate.IDB = true;
+        if(head.predicate instanceof FunctionPredicate){
+            throw new IllegalArgumentException("FunctionPredicates can not be defined by clauses.");
+        }
+
+        ((Predicate)head.predicate).IDB = true;
         clauses.add(new Clause(head, body));
     }
 
@@ -100,7 +136,7 @@ public class ProgramBuilder {
             throw new IllegalArgumentException("All predicates must contain a temporal argument");
         }
 
-        Predicate p = getPredicate(parts[0], numberOfArgs);
+        PredicateInterface p = getPredicate(parts[0], numberOfArgs);
 
 
         // Get terms arguments
@@ -109,9 +145,18 @@ public class ProgramBuilder {
             arguments.add(getTerm(strArguments[i]));
         }
 
-        // Get temporal argument
-        Temporal temporal = getTemporal(strArguments[numberOfArgs]);
-        return new Atom(p,arguments, temporal);
+
+        if(p instanceof Predicate) {
+
+            // Get temporal argument
+            Temporal temporal = getTemporal(strArguments[numberOfArgs]);
+            return new Atom(p,arguments, temporal);
+
+        }else{
+            arguments.add(getTerm(strArguments[numberOfArgs]));
+            return new FunctionAtom(p,arguments, null);
+        }
+
     }
 
     private Temporal getTemporal(String strTemporal) {
@@ -167,24 +212,28 @@ public class ProgramBuilder {
                 Constant constant = new Constant(name);
                 terms.put(name, constant);
                 return constant;
-            } else if(name.toUpperCase().equals(name)) {
+            } else if(name.substring(0,1).toUpperCase().equals(name.substring(0,1))) {
                 Variable var = new Variable(name);
                 terms.put(name, var);
                 return var;
-            } else {
+            } else if(isInteger(name)) {
+                Constant constant = new Constant(name);
+                terms.put(name, constant);
+                return constant;
+            }else{
                 throw new IllegalArgumentException("Terms must either be all uppercase for variables or all lowercase for constants");
             }
         }
     }
 
-    private Predicate getPredicate(String name, int numberOfArgs) {
+    private PredicateInterface getPredicate(String name, int numberOfArgs) {
         if (numberOfArgs < 0) {
             throw new IllegalArgumentException("Only a non-negative amount of arguments allowed");
         }
-        Predicate res;
+        PredicateInterface res;
         if (predicates.containsKey(name)) {
-            res = (Predicate) predicates.get(name);
-            if (res.nArgs != numberOfArgs) {
+            res = (PredicateInterface) predicates.get(name);
+            if ((res instanceof Predicate && res.nArgs() != numberOfArgs) || (res instanceof FunctionPredicate && res.nArgs() != numberOfArgs + 1)) {
                 throw new IllegalArgumentException("Logic.Predicate " + name + " contains an inconsistent of arguments");
             }
         } else {

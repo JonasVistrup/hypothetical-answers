@@ -1,9 +1,6 @@
 package Jonas.Hypothetical;
 
-import Jonas.Logic.Atom;
-import Jonas.Logic.AtomList;
-import Jonas.Logic.Program;
-import Jonas.Logic.ProgramBuilder;
+import Jonas.Logic.*;
 import Jonas.SLD.ModifiedSLDResolution;
 
 import java.io.File;
@@ -47,6 +44,8 @@ public class HypotheticalReasoner {
                 }
 
         }
+
+
 
         /**
          * Constructs a reasoner with a program specified by the file given, and a file of queries.
@@ -159,7 +158,9 @@ public class HypotheticalReasoner {
          */
         public List<Answer> preprocessingAnswers(){
                 if(this.queries.isEmpty()) throw new IllegalStateException("The Reasoner must be queried before hypothetical answers are generated.");
-                return queries.get(0).preprocessingAnswers;
+                List<Answer> list = queries.get(0).preprocessingAnswers;
+                Collections.sort(list);
+                return list;
         }
 
         /**

@@ -19,7 +19,7 @@ public class ModifiedSLDResolution {
      */
     public static List<Answer> preprocess(Program program, AtomList query){
         List<Answer> answers = new ArrayList<>();
-        inOrderTraversal(answers, query, new Substitution(), program, 1, query);
+        inOrderTraversal(answers, query, new Substitution(), program, 1, query, new AtomList());
 
         return answers;
     }
@@ -32,9 +32,9 @@ public class ModifiedSLDResolution {
      * @param program the program.
      * @param level the current level of the SLD-tree.
      */
-    private static void inOrderTraversal(List<Answer> answers, AtomList goal, Substitution sub, Program program, int level, AtomList original){
+    private static void inOrderTraversal(List<Answer> answers, AtomList goal, Substitution sub, Program program, int level, AtomList original, AtomList faEvidence){
         if(isFinished(goal)){
-            answers.add(new Answer(original.applySub(sub), sub,new AtomList(), goal));
+            answers.add(new Answer(original.applySub(sub), sub, faEvidence, goal));
             return;
         }
 
@@ -50,10 +50,23 @@ public class ModifiedSLDResolution {
                 new_goal.addAll(clauseInstance.body.applySub(unifier));
 
                 Substitution new_sub = Substitution.composition(sub, unifier);
-
-                inOrderTraversal(answers, new_goal, new_sub, program, level+1, original);
+                if(removeAndCheckFunctionAtoms(new_goal, faEvidence)) {
+                    inOrderTraversal(answers, new_goal, new_sub, program, level + 1, original, faEvidence);
+                }
             }
         }
+    }
+
+    public static boolean removeAndCheckFunctionAtoms(AtomList new_goal, AtomList evidence) {
+        List<FunctionAtom> functionAtoms = new_goal.groundFAtoms();
+        for(FunctionAtom fa: functionAtoms){
+            if(!fa.run()) return false;
+        }
+
+        new_goal.removeAll(functionAtoms);
+        evidence.addAll(functionAtoms);
+
+        return true;
     }
 
     /**
@@ -64,12 +77,12 @@ public class ModifiedSLDResolution {
      */
     private static Atom selectAtom(AtomList goal, Program program) {
         for(int i = goal.size()-1; i>0; i--){
-            if(goal.get(i).predicate.IDB){
+            if(goal.get(i).predicate.IDB()){
                 return goal.get(i);
             }
         }
 
-        assert goal.get(0).predicate.IDB;
+        assert goal.get(0).predicate.IDB();
         return goal.get(0);
     }
 
@@ -80,7 +93,7 @@ public class ModifiedSLDResolution {
      */
     private static boolean isFinished(AtomList goal) {
         for(Atom a: goal){
-            if(a.predicate.IDB){
+            if(a.predicate.IDB()){
                 return false;
             }
         }

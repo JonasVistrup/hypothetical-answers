@@ -100,4 +100,17 @@ class HypotheticalReasonerTest {
 
 
     }
+
+    @Test
+    void sofiaProgram(){
+        HypotheticalReasoner h = new HypotheticalReasoner("SofiaProgram");
+        h.query("Trending(Topic,Region,T)");
+        h.nextTime("GTD(christmas, capital, 10, 0),Tweets(christmas, capital, 60, 0)");
+        h.nextTime("GTD(christmas, capital, 6, 1),Tweets(christmas, capital, 40, 1)");
+        h.nextTime("GTD(christmas, capital, 10, 2),Tweets(christmas, capital, 51, 2)");
+        h.nextTime("GTD(christmas, capital, 15, 3),Tweets(christmas, capital, 60, 3)");
+        h.nextTime("GTD(christmas, capital, 25, 4),Tweets(christmas, capital, 70, 4)");
+
+
+    }
 }

@@ -16,6 +16,7 @@ public class AtomList extends ArrayList<Atom>{
     private AtomList variableTime = null;
     private AtomList smallestConstant = null;
     private AtomList smallestVariable = null;
+    private AtomList functionAtoms = null;
 
     private boolean organized = false;
 
@@ -59,6 +60,12 @@ public class AtomList extends ArrayList<Atom>{
     public boolean addAll(Collection<? extends Atom> c) {
         organized = false;
         return super.addAll(c);
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        organized = false;
+        return super.removeAll(c);
     }
 
     /**
@@ -114,9 +121,14 @@ public class AtomList extends ArrayList<Atom>{
 
         constantTime = new AtomList();
         variableTime = new AtomList();
+        functionAtoms = new AtomList();
         for(Atom a: this){
-            if(a.temporal.tVar == null) constantTime.add(a);
-            else variableTime.add(a);
+            if(a instanceof FunctionAtom) {
+                functionAtoms.add(a);
+            }else {
+                if (a.temporal.tVar == null) constantTime.add(a);
+                else variableTime.add(a);
+            }
         }
 
         smallestConstant = constantTime.getMin();
@@ -143,6 +155,12 @@ public class AtomList extends ArrayList<Atom>{
             atomList.add(a.applySub(substitution));
         }
         return atomList;
+    }
+
+    public AtomList functionAtoms(){
+        organize();
+
+        return this.functionAtoms;
     }
 
     /**
@@ -260,6 +278,18 @@ public class AtomList extends ArrayList<Atom>{
         }
         return true;
     }
+
+
+    public List<FunctionAtom> groundFAtoms(){
+        List<FunctionAtom> fpWithOnlyConstants = new ArrayList<>();
+        for(Atom a: this.functionAtoms()){
+            FunctionAtom fa = (FunctionAtom) a;
+            if(fa.isground()) fpWithOnlyConstants.add(fa);
+        }
+        return fpWithOnlyConstants;
+    }
+
+
 
     /**
      * @return JSONArray of the JSON representation of the atoms in this list.

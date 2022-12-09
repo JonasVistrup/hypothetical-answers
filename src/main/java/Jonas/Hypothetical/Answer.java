@@ -4,6 +4,7 @@ import Jonas.Logic.Atom;
 import Jonas.Logic.AtomList;
 import Jonas.Logic.Program;
 import Jonas.Logic.Substitution;
+import Jonas.SLD.ModifiedSLDResolution;
 import Jonas.SLD.SLDResolution;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -69,7 +70,10 @@ public class Answer implements Comparable<Answer>{
                 AtomList newEvidence = this.evidence.plus(constants).applySub(answer);
                 AtomList newPremise = this.premise.without(constants).applySub(answer);
 
-                result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
+
+                if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
+                }
             }
         }else{
             result.add(this);
@@ -88,7 +92,9 @@ public class Answer implements Comparable<Answer>{
                 AtomList newEvidence = this.evidence.plus(smallestPremise).applySub(answer);
                 AtomList newPremise = this.premise.without(smallestPremise).applySub(answer);
 
-                result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
+                if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
+                }
             }
         }
 
@@ -141,6 +147,10 @@ public class Answer implements Comparable<Answer>{
             builder.append(a.toString());
             builder.append(",");
         }
+        for(Atom a: this.evidence.functionAtoms()) {
+            builder.append(a.toString());
+            builder.append(",");
+        }
         if(!this.evidence.isEmpty()){
             builder.deleteCharAt(builder.length()-1);
         }
@@ -155,6 +165,10 @@ public class Answer implements Comparable<Answer>{
             builder.append(",");
         }
         for(Atom a: this.premise.variableTime()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.premise.functionAtoms()){
             builder.append(a.toString());
             builder.append(",");
         }

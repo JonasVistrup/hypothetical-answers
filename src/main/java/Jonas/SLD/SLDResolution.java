@@ -51,8 +51,7 @@ public class SLDResolution {
                 new_goal.addAll(clauseInstance.body.applySub(unifier));
 
                 Substitution new_sub = Substitution.composition(sub, unifier);
-
-                inOrderTraversal(answers, new_goal, new_sub, program, level+1);
+                inOrderTraversal(answers, new_goal, new_sub, program, level + 1);
             }
         }
     }
