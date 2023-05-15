@@ -1,0 +1,4 @@
+DailyTrend(Topic, Region, T), Popularity(Topic, Region, pop0, T), Popularity(Topic, Region, pop1, T+1), Popularity(Topic, Region, pop2, T+2), Less(pop0,pop1), Less(pop1,pop2) -> Lead(Topic, Region, T)
+DailyTrend(Topic, Region0, T), DailyTrend(Topic, Region1, T+1), DailyTrend(Topic, Region2, T+2), DailyTrend(Topic, Region3, T+3), AllDiff(Region0,Region1,Region2,Region3) -> GlobalTrend(Topic, T+1)
+GlobalTrend(Topic, T), GlobalTrend(Topic, T+1), GlobalTrend(Topic, T+2) -> Lead(Topic, Region, T)
+Lead(Topic1, Region, T), Lead(Topic2, Region, T), RelatedTopic(Topic1, Topic), RelatedTopic(Topic2, Topic) -> Lead(Topic, Region, T)

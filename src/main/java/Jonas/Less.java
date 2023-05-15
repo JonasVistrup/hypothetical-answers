@@ -6,7 +6,7 @@ import Jonas.Logic.Term;
 
 import java.util.List;
 
-public class LargerThan implements UserDefinedPredicate {
+public class Less implements UserDefinedPredicate {
     @Override
     public int nArgs() {
         return 2;
@@ -29,7 +29,7 @@ public class LargerThan implements UserDefinedPredicate {
     @Override
     public String toString(List<Term> terms) {
         assert terms.size() == nArgs();
-        return terms.get(0).toString() + ">" + terms.get(1).toString();
+        return terms.get(0).toString() + "<" + terms.get(1).toString();
     }
 
 
@@ -40,6 +40,6 @@ public class LargerThan implements UserDefinedPredicate {
 
     @Override
     public String toString(){
-        return ">";
+        return "Less";
     }
 }
