@@ -185,7 +185,9 @@ public class ProgramBuilder {
         if(temporalVariables.containsKey(tempVar)){
             return temporalVariables.get(tempVar);
         }else{
-            if(!tempVar.toUpperCase().equals(tempVar)) throw new IllegalArgumentException("Logic.Temporal variables must be uppercase");
+             if(!tempVar.toUpperCase().equals(tempVar)){
+                throw new IllegalArgumentException("Logic.Temporal variables must be uppercase");
+            }
 
             Variable v = new Variable(tempVar);
             temporalVariables.put(tempVar, v);

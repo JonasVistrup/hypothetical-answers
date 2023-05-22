@@ -11,29 +11,46 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        testRuleLength(1000,100);
+        testDataLength(10000,10);
     }
 
     private static void testDataLength(int maxLength, int numberOfIterations) {
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = 1; i<=maxLength; i++){
+        for(int i = 0; i<=maxLength; i+= 100){
+            System.out.println("Length="+i);
             HypotheticalReasoner h = new HypotheticalReasoner("LeadProgram");
             h.query("Lead(Topic,Region,T)");
             Long sumOfExecutionTimes = 0L;
             for(int j=0; j<numberOfIterations; j++){
+                String data = generateLongData(i,j);
                 long startTime = System.nanoTime();
-                h.nextTime(generateLongData(i));
+                h.nextTime(data);
                 long endTime = System.nanoTime();
 
                 sumOfExecutionTimes += (endTime-startTime);
             }
-            executionTimes.add((sumOfExecutionTimes/numberOfIterations));
+            long time = sumOfExecutionTimes/numberOfIterations;
+            System.out.println(time);
+            executionTimes.add(time);
         }
         System.out.println(executionTimes);
     }
 
-    private static String generateLongData(int i) {
-        StringBuilder builder = new StringBuilder("")
+    private static String generateLongData(int amount, int time) {
+        if(amount == 0) return "";
+        StringBuilder builder = new StringBuilder(generateTrendingTopic("topic0",time)).append(",").append(generatePopularity("topic0",time,time));
+        for(int i = 1; i<amount; i++){
+            builder.append(",").append(generateTrendingTopic("topic"+i,time)).append(",");
+            builder.append(generatePopularity("topic"+i,time,time));
+        }
+        return builder.toString();
+    }
+
+    private static String generateTrendingTopic(String topic, int time){
+        return "DailyTrend("+topic+",DK,"+time+")";
+    }
+    private static String generatePopularity(String topic, int pop, int time){
+        return "Popularity("+topic+",DK,"+pop+","+time+")";
     }
 
     private static void testRuleLength(int maxLength, int numberOfIterations) throws IOException {
