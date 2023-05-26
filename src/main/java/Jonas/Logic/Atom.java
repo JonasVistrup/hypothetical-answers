@@ -95,7 +95,7 @@ public class Atom implements Comparable<Atom>{
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(predicate.toString());
+        builder.append(predicate.id());
         builder.append('(');
         for(Term t: args){
             builder.append(t.toString());
@@ -133,7 +133,7 @@ public class Atom implements Comparable<Atom>{
 
 
         if(this.predicate != o.predicate){
-            return this.predicate.toString().compareTo(o.predicate.toString());
+            return this.predicate.id().compareTo(o.predicate.id());
         }
 
         for(int i = 0; i<this.args.size(); i++){

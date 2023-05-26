@@ -32,7 +32,7 @@ public class AllDiff implements UserDefinedPredicate {
     }
 
     @Override
-    public String toString(){
+    public String id(){
         return "AllDiff";
     }
 }

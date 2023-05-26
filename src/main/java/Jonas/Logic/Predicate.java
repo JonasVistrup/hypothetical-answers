@@ -44,7 +44,7 @@ public class Predicate implements PredicateInterface{
      * @return id
      */
     @Override
-    public String toString() {
+    public String id() {
         return id;
     }
 

@@ -39,7 +39,7 @@ public class Less implements UserDefinedPredicate {
     }
 
     @Override
-    public String toString(){
+    public String id(){
         return "Less";
     }
 }

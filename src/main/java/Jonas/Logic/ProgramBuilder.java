@@ -42,7 +42,7 @@ public class ProgramBuilder {
         if(UserDefinedPredicate.class.isAssignableFrom(functionClass)){
             Constructor ct = functionClass.getConstructor(new Class[0]);
             UserDefinedPredicate fp = (UserDefinedPredicate) ct.newInstance(new Object[0]);
-            this.predicates.put(fp.toString(),fp);
+            this.predicates.put(fp.id(),fp);
         }else{
             throw new IllegalArgumentException("Class "+functionClass.getName() + " does not implement UserDefinedPredicate.");
         }
