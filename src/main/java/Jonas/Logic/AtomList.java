@@ -2,10 +2,8 @@ package Jonas.Logic;
 
 import org.json.JSONArray;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A list of atom
@@ -223,10 +221,48 @@ public class AtomList extends ArrayList<Atom>{
      */
     public Program toProgram() {
         List<Clause> clauses = new ArrayList<>();
+        boolean allGround = true;
         for(Atom a: this){
+            if(!a.isGround()) allGround = false;
             clauses.add(new Clause(a, new AtomList()));
         }
-        return new Program(clauses);
+        HashMap<PredicateInterface, HashMap<Term, List<Clause>>> h = new HashMap<>();
+
+        if(!allGround || this.size() == 0){
+            return new Program(clauses);
+        }
+
+        for(Clause clause: clauses){
+            if(!h.containsKey(clause.head.predicate)){
+                HashMap<Term, List<Clause>> hh = new HashMap<>();
+                hh.put(null, new ArrayList<>());
+                h.put(clause.head.predicate, new HashMap<>());
+            }
+
+            HashMap<Term, List<Clause>> innerMap = h.get(clause.head.predicate);
+            if(clause.head.args.size() == 0){
+                innerMap.get(null).add(clause);
+            }else {
+                if(!innerMap.containsKey(clause.head.args.get(0))){
+                    innerMap.put(clause.head.args.get(0), new ArrayList<>());
+                }
+                innerMap.get(clause.head.args.get(0)).add(clause);
+            }
+        }
+        return new Program(clauses, new Selector() {
+            HashMap<PredicateInterface, HashMap<Term, List<Clause>>> map = h;
+            @Override
+            public List<Clause> getClausesFor(Atom a) {
+                if(!h.containsKey(a.predicate)) return new ArrayList<>();
+                HashMap<Term, List<Clause>> innerMap = h.get(a.predicate);
+
+                if(a.args.size() == 0) return innerMap.get(null);
+                if(a.args.get(0) instanceof Variable){
+                    return innerMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
+                }
+                return innerMap.get(a.args.get(0));
+            }
+        });
     }
 
     /**

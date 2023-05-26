@@ -39,7 +39,8 @@ public class SLDResolution {
         }
 
         Atom selected = selectAtom(goal, program);
-        for(Clause clause: program.clauses){
+        List<Clause> clauses =  program.getClausesFor(selected);
+        for(Clause clause:clauses){
             Clause clauseInstance = clause.getInstance(level);
             Substitution unifier = Unify.findMGU(selected, clauseInstance.head);
             if(unifier != null){

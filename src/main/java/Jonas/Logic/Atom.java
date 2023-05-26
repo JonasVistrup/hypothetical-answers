@@ -178,4 +178,11 @@ public class Atom implements Comparable<Atom>{
         o.put("atom",this.toString());
         return o;
     }
+
+    public boolean isGround(){
+        for(Term t: args){
+            if(t instanceof Variable) return false;
+        }
+        return true;
+    }
 }

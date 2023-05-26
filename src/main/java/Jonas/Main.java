@@ -11,12 +11,12 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        testDataLength(10000,10);
+        testDataLength(100000,10);
     }
 
     private static void testDataLength(int maxLength, int numberOfIterations) {
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = 0; i<=maxLength; i+= 100){
+        for(int i = 0; i<=maxLength; i+= 1000){
             System.out.println("Length="+i);
             HypotheticalReasoner h = new HypotheticalReasoner("LeadProgram");
             h.query("Lead(Topic,Region,T)");
@@ -47,10 +47,10 @@ public class Main {
     }
 
     private static String generateTrendingTopic(String topic, int time){
-        return "DailyTrend("+topic+",DK,"+time+")";
+        return "DailyTrend("+topic+",dk,"+time+")";
     }
     private static String generatePopularity(String topic, int pop, int time){
-        return "Popularity("+topic+",DK,"+pop+","+time+")";
+        return "Popularity("+topic+",dk,"+pop+","+time+")";
     }
 
     private static void testRuleLength(int maxLength, int numberOfIterations) throws IOException {
