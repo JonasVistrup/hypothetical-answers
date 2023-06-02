@@ -6,8 +6,7 @@ public interface PredicateInterface {
      * Returns the String representation of this predicate.
      * @return id
      */
-    public String id();
-    public boolean IDB();
+    public abstract String id();
 
-    public int nArgs();
+    public abstract int nArgs();
 }

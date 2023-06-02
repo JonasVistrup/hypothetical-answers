@@ -25,12 +25,6 @@ public class AllDiff implements UserDefinedPredicate {
         return "AllDiff("+terms.get(0).toString() + ", " +terms.get(1).toString() + ", "+terms.get(2).toString() + ", " + terms.get(3).toString() + ")";
     }
 
-
-    @Override
-    public boolean IDB() {
-        return false;
-    }
-
     @Override
     public String id(){
         return "AllDiff";

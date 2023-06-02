@@ -3,7 +3,7 @@ package Jonas.Logic;
 /**
  * A logical predicate.
  */
-public class Predicate implements PredicateInterface{
+public class Predicate implements PredicateInterface {
 
 
     /**

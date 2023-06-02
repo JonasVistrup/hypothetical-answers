@@ -32,12 +32,6 @@ public class Less implements UserDefinedPredicate {
         return terms.get(0).toString() + "<" + terms.get(1).toString();
     }
 
-
-    @Override
-    public boolean IDB() {
-        return false;
-    }
-
     @Override
     public String id(){
         return "Less";

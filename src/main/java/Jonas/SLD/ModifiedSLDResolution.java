@@ -76,14 +76,13 @@ public class ModifiedSLDResolution {
      * @return the last IDB atom in goal.
      */
     private static Atom selectAtom(AtomList goal, Program program) {
-        for(int i = goal.size()-1; i>0; i--){
-            if(goal.get(i).predicate.IDB()){
+        for(int i = goal.size()-1; i>=0; i--){
+            Atom nextAtom = goal.get(i);
+            if(nextAtom.predicate instanceof Predicate && ((Predicate) goal.get(i).predicate).IDB()){
                 return goal.get(i);
             }
         }
-
-        assert goal.get(0).predicate.IDB();
-        return goal.get(0);
+        throw new IllegalStateException("UDP "+ goal.get(0) +" is not safe");
     }
 
     /**
@@ -93,7 +92,7 @@ public class ModifiedSLDResolution {
      */
     private static boolean isFinished(AtomList goal) {
         for(Atom a: goal){
-            if(a.predicate.IDB()){
+            if(a.predicate instanceof Predicate && ((Predicate)a.predicate).IDB()){
                 return false;
             }
         }
