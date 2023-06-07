@@ -27,13 +27,15 @@ public class Query {
      */
     public List<Answer> answers; // TODO fill this as supportedAnswers are proven.
     public AtomList queriedAtoms;
+    public int index;
 
     /**
      * Constructs a new query given the preprocessed answers.
      * @param queriedAtoms Atoms to query.
      * @param preprocessingAnswers Preprocessed answers found by the modified SLD-resolution.
      */
-    public Query(AtomList queriedAtoms, List<Answer> preprocessingAnswers){
+    public Query(AtomList queriedAtoms, List<Answer> preprocessingAnswers, int index){
+        this.index = index;
         this.queriedAtoms = queriedAtoms;
         this.supportedAnswers = preprocessingAnswers;
         this.preprocessingAnswers = preprocessingAnswers;
@@ -68,7 +70,7 @@ public class Query {
      * @return a copy of this query.
      */
     public Query copy(){
-        return new Query(queriedAtoms, new ArrayList<>(supportedAnswers));
+        return new Query(queriedAtoms, new ArrayList<>(supportedAnswers), this.index);
     }
 
     /**

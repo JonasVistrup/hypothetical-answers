@@ -16,6 +16,7 @@ public class HypotheticalReasoner {
         private final ProgramBuilder pBuilder;
         private List<Query> queries;
         private int time;
+        private
 
         /**
          * Constructs a reasoner with an empty program.
@@ -99,7 +100,7 @@ public class HypotheticalReasoner {
                 }
 
                 List<Answer> preprocessingAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), query);
-                this.queries.add(new Query(query, preprocessingAnswers));
+                this.queries.add(new Query(query, preprocessingAnswers,this.queries.size()));
         }
 
         /**

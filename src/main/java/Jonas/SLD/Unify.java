@@ -6,6 +6,19 @@ import Jonas.Logic.*;
  * A class for unified two atoms.
  */
 public class Unify {
+
+    public static Substitution findMGUAtomList(AtomList list1, AtomList list2) {
+        if(list1.size() != list2.size()) return null;
+        Substitution result = new Substitution();
+        for(int i = 0; i<list1.size(); i++){
+            result.add(findMGU(list1.get(i),list2.get(i)));
+            list1 = list1.applySub(result);
+            list2 = list2.applySub(result);
+        }
+        return result;
+    }
+
+
     /**
      * Finds a most general unifier between selectedAtom and head if one exist, otherwise returns 0.
      * @param selectedAtom atom which variables are only substituted if absolutely necessary.
@@ -71,4 +84,6 @@ public class Unify {
             }
         }
     }
+
+
 }

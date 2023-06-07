@@ -110,6 +110,16 @@ public class ProgramBuilder {
     }
 
 
+    public AtomList parseAtomList(String atomListRep){
+        atomListRep = atomListRep.replaceAll("\\),", ")<-");
+        String[] strList = atomListRep.split("<-");
+
+        AtomList result = new AtomList();
+        for (String s : strList) {
+            result.add(parseAtom(s));
+        }
+        return result;
+    }
 
     /**
      * Returns an atom based upon the string representation given.

@@ -8,32 +8,66 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        testDataLength(100000,10);
+        connect();
     }
 
     private static void testDataLength(int maxLength, int numberOfIterations) {
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = 0; i<=maxLength; i+= 1000){
-            System.out.println("Length="+i);
-            HypotheticalReasoner h = new HypotheticalReasoner("LeadProgram");
-            h.query("Lead(Topic,Region,T)");
-            Long sumOfExecutionTimes = 0L;
-            for(int j=0; j<numberOfIterations; j++){
-                String data = generateLongData(i,j);
-                long startTime = System.nanoTime();
-                h.nextTime(data);
-                long endTime = System.nanoTime();
-
-                sumOfExecutionTimes += (endTime-startTime);
-            }
-            long time = sumOfExecutionTimes/numberOfIterations;
-            System.out.println(time);
-            executionTimes.add(time);
+        for(int i = 500000; i<=maxLength; i+= 1000){
+           executionTimes.add(testDataInner(i, numberOfIterations));
         }
         System.out.println(executionTimes);
+    }
+
+    public static void connect() {
+        Connection conn = null;
+        try {
+            // db parameters
+            String url = "jdbc:sqlite:C:/Users/vistrup/Desktop/db/mydb.db";
+            // create a connection to the database
+            conn = DriverManager.getConnection(url);
+            System.out.println("Connection to SQLite has been established.");
+            conn.prepareStatement("")
+            conn.prepareStatement("INSERT INTO queries VALUES (2,\"Lead(Topic,Region,T)\");").execute();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+    }
+
+    private static long testDataInner(int dataLength, int numberOfIterations){
+        System.out.println("Length="+dataLength);
+        HypotheticalReasoner h = new HypotheticalReasoner("LeadProgram");
+        h.query("Lead(Topic,Region,T)");
+        long sumOfExecutionTimes = 0L;
+        for(int j=0; j<numberOfIterations; j++){
+            sumOfExecutionTimes += testDataInnerst(h, dataLength, j);
+        }
+        long time = sumOfExecutionTimes/numberOfIterations;
+        System.out.println(time);
+        return time;
+    }
+
+    private static long testDataInnerst(HypotheticalReasoner h, int dataLength, int time){
+        String data = generateLongData(dataLength,time);
+        long startTime = System.nanoTime();
+        h.nextTime(data);
+        long endTime = System.nanoTime();
+        return (endTime-startTime);
     }
 
     private static String generateLongData(int amount, int time) {
@@ -56,8 +90,9 @@ public class Main {
     private static void testRuleLength(int maxLength, int numberOfIterations) throws IOException {
 
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = 1; i<=maxLength; i++){
-            Long sumOfExecutionTimes = 0L;
+        for(int i = 0; i<=maxLength; i+=1000){
+            System.out.println("Length="+i);
+            long sumOfExecutionTimes = 0L;
             FileWriter fileWriter = new FileWriter(new File("LengthyProgram"), false);
             String rule = generateLongRule(i);
             fileWriter.write(rule);
