@@ -19,7 +19,7 @@ public class ModifiedSLDResolution {
      */
     public static List<Answer> preprocess(Program program, AtomList query){
         List<Answer> answers = new ArrayList<>();
-        inOrderTraversal(answers, query, new Substitution(), program, 1, query, new AtomList());
+        inOrderTraversal(answers, query, new Substitution(), program, 1, query, new AtomList(), new ArrayList<>());
 
         return answers;
     }
@@ -32,9 +32,13 @@ public class ModifiedSLDResolution {
      * @param program the program.
      * @param level the current level of the SLD-tree.
      */
-    private static void inOrderTraversal(List<Answer> answers, AtomList goal, Substitution sub, Program program, int level, AtomList original, AtomList faEvidence){
+    private static void inOrderTraversal(List<Answer> answers, AtomList goal, Substitution sub, Program program, int level, AtomList original, AtomList faEvidence, ArrayList<Clause> clausesUsed){
         if(isFinished(goal)){
-            answers.add(new Answer(original.applySub(sub), sub, faEvidence, goal));
+            ArrayList<Clause> clausesInstantiated = new ArrayList<>();
+            for(Clause c: clausesUsed){
+                clausesInstantiated.add(c.applySub(sub));
+            }
+            answers.add(new Answer(original.applySub(sub), sub, faEvidence, goal, clausesInstantiated));
             return;
         }
 
@@ -51,13 +55,15 @@ public class ModifiedSLDResolution {
 
                 Substitution new_sub = Substitution.composition(sub, unifier);
                 if(removeAndCheckFunctionAtoms(new_goal, faEvidence)) {
-                    inOrderTraversal(answers, new_goal, new_sub, program, level + 1, original, faEvidence);
+                    ArrayList<Clause> clausesUsedNext = (ArrayList<Clause>) clausesUsed.clone();
+                    clausesUsedNext.add(clauseInstance);
+                    inOrderTraversal(answers, new_goal, new_sub, program, level + 1, original, faEvidence, clausesUsedNext);
                 }
             }
         }
     }
 
-    public static boolean removeAndCheckFunctionAtoms(AtomList new_goal, AtomList evidence) {
+    public static boolean removeAndCheckFunctionAtoms(AtomList new_goal, AtomList evidence) { //Functions atoms are self-explanatory
         List<SpecialAtom> specialAtoms = new_goal.groundFAtoms();
         for(SpecialAtom fa: specialAtoms){
             if(!fa.run()) return false;

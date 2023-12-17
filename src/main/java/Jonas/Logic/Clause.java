@@ -1,5 +1,7 @@
 package Jonas.Logic;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,6 +62,10 @@ public class Clause {
         }
     }
 
+    public Clause applySub(Substitution substitution){
+        return new Clause(this.head.applySub(substitution), this.body.applySub(substitution));
+    }
+
 
     /** Returns a string representation of this clause in the form of HEAD{@literal <}-BODY.
      * @return string representation of clause
@@ -78,5 +84,11 @@ public class Clause {
         }
         builder.deleteCharAt(builder.length() - 1);
         return builder.toString();
+    }
+
+    public JSONObject toJSONObject() {
+        JSONObject o = new JSONObject();
+        o.put("clause",this.toString());
+        return o;
     }
 }

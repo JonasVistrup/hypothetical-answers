@@ -1,9 +1,6 @@
 package Jonas.Hypothetical;
 
-import Jonas.Logic.Atom;
-import Jonas.Logic.AtomList;
-import Jonas.Logic.Program;
-import Jonas.Logic.Substitution;
+import Jonas.Logic.*;
 import Jonas.SLD.ModifiedSLDResolution;
 import Jonas.SLD.SLDResolution;
 import org.json.JSONArray;
@@ -35,6 +32,8 @@ public class Answer implements Comparable<Answer>{
      */
     public final AtomList premise;
 
+    public final List<Clause> clausesUsed;
+
     /**
      * Constructs an answer with substitution, evidence and premise.
      * @param resultingQueriedAtoms this list of queries resulting from applying the substitution to the original queries.
@@ -42,11 +41,12 @@ public class Answer implements Comparable<Answer>{
      * @param evidence this answers evidence.
      * @param premise this answers premise.
      */
-    public Answer(AtomList resultingQueriedAtoms, Substitution substitution, AtomList evidence, AtomList premise){
+    public Answer(AtomList resultingQueriedAtoms, Substitution substitution, AtomList evidence, AtomList premise, List<Clause> clausesUsed){
         this.resultingQueriedAtoms = resultingQueriedAtoms;
         this.substitution = substitution;
         this.evidence = evidence;
         this.premise = premise;
+        this.clausesUsed = clausesUsed;
     }
 
 
@@ -72,7 +72,7 @@ public class Answer implements Comparable<Answer>{
 
 
                 if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
-                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise, clausesUsed));
                 }
             }
         }else{
@@ -93,7 +93,7 @@ public class Answer implements Comparable<Answer>{
                 AtomList newPremise = this.premise.without(smallestPremise).applySub(answer);
 
                 if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
-                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise, clausesUsed));
                 }
             }
         }
@@ -218,6 +218,11 @@ public class Answer implements Comparable<Answer>{
         o.put("substitutions", this.substitution.toJSONArray(relevantQuery));
         o.put("evidence",this.evidence.toJSONArray());
         o.put("premise",this.premise.toJSONArray());
+        JSONArray reasoningArr = new JSONArray();
+        for(Clause c: this.clausesUsed){
+            reasoningArr.put(c.toJSONObject());
+        }
+        o.put("reasoning",reasoningArr);
 
         return o;
     }
