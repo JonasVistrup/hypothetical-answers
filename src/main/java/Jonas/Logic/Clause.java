@@ -27,7 +27,7 @@ public class Clause {
      * @param head head of the clause
      * @param body body of the clause
      */
-    Clause(Atom head, AtomList body){
+    public Clause(Atom head, AtomList body){
         this.head = head;
         this.body = body;
 

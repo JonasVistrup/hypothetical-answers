@@ -16,7 +16,8 @@ public class HypotheticalReasoner {
         private final ProgramBuilder pBuilder;
         private List<Query> queries;
         private int time;
-        private
+
+        private final DBConnection db;
 
         /**
          * Constructs a reasoner with an empty program.
@@ -25,6 +26,7 @@ public class HypotheticalReasoner {
                 this.pBuilder = new ProgramBuilder();
                 this.queries = new ArrayList<>();
                 this.time = -1;
+                this.db = new DBConnection("mydb.db",pBuilder);
         }
 
         /**
@@ -43,7 +45,6 @@ public class HypotheticalReasoner {
                 } catch (FileNotFoundException e) {
                         throw new IllegalArgumentException("Filepath is not a valid path");
                 }
-
         }
 
 

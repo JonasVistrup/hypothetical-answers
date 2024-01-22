@@ -15,7 +15,7 @@ import static java.lang.String.format;
 public class DBConnection {
     private Connection conn;
     private ProgramBuilder pb;
-    private String c = "C:/Users/vistrup/Desktop/db/mydb.db";
+    private String c = "C:/Users/vistrup/Desktop/mydb.db";
     private int nextQuery;
 
     public DBConnection(String connectionURL, ProgramBuilder pb){
@@ -29,7 +29,7 @@ public class DBConnection {
             System.out.println("Connection to SQLite has been established.");
             conn.prepareStatement("DELETE FROM queries WHERE true;").execute();
             conn.prepareStatement("DELETE FROM answers WHERE true;").execute();
-            conn.prepareStatement("DELETE FROM hypotheticalanswers WHERE true;").execute();
+            conn.prepareStatement("DELETE FROM hypanswers WHERE true;").execute();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -47,7 +47,7 @@ public class DBConnection {
     public void addAnswer(Answer answer, Query query){
         assert answer.premise.isEmpty();
         try {
-            conn.prepareStatement(format("INSERT INTO answers VALUES (%d, %s, %s);", query.index, answer.resultingQueriedAtoms.toString(), answer.evidence.toString())).execute();
+            conn.prepareStatement(format("INSERT INTO answers VALUES (%d, %s, %s, %s);", query.index, answer.resultingQueriedAtoms.toString(), answer.evidence.toString(), answer.clausesUsed.toString())).execute();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -56,7 +56,7 @@ public class DBConnection {
     public void addHypotheticalAnswer(Answer hypoAnswer, Query query){
         assert !hypoAnswer.premise.isEmpty();
         try {
-            conn.prepareStatement(format("INSERT INTO answers VALUES (%d, %s, %s, %s);", query.index, hypoAnswer.resultingQueriedAtoms.toString(), hypoAnswer.premise.toString(), hypoAnswer.evidence.toString())).execute();
+            conn.prepareStatement(format("INSERT INTO hypanswers VALUES (%d, %s, %s, %s, %s);", query.index, hypoAnswer.resultingQueriedAtoms.toString(), hypoAnswer.premise.toString(), hypoAnswer.evidence.toString(), hypoAnswer.clausesUsed.toString())).execute();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -70,9 +70,11 @@ public class DBConnection {
             while(resultSet.next()){
                 AtomList resultingQuery = pb.parseAtomList(resultSet.getString(2));
                 AtomList evidence       = pb.parseAtomList(resultSet.getString(3));
+                ExplanationList list    = new ExplanationList(resultSet.getString(4), pb);
                 Substitution sub        = Unify.findMGUAtomList(query.queriedAtoms, resultingQuery);
-                result.add(new Answer(resultingQuery, sub, evidence, new AtomList()));
+                result.add(new Answer(resultingQuery, sub, evidence, new AtomList(), list));
             }
+            return result;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -101,7 +103,8 @@ public class DBConnection {
                          AtomList premise        = pb.parseAtomList(resultSet.getString(3));
                          AtomList evidence       = pb.parseAtomList(resultSet.getString(4));
                          Substitution sub        = Unify.findMGUAtomList(query.queriedAtoms, resultingQuery);
-                         return new Answer(resultingQuery, sub, evidence, premise);
+                         ExplanationList list    = new ExplanationList(resultSet.getString(5), pb);
+                         return new Answer(resultingQuery, sub, evidence, premise, list);
                      } catch (SQLException e) {
                          throw new RuntimeException(e);
                      }
