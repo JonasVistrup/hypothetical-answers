@@ -117,11 +117,20 @@ public class DBConnection {
 
     private Answer resultSetToAnswer(ResultSet resultSet, Query query){
         try {
+            String resultingQueryStr = resultSet.getString(2);
+            String premiseStr        = resultSet.getString(3);
+            String evidenceStr       = resultSet.getString(4);
+            String listStr    = resultSet.getString(5);
+
+
+
             AtomList resultingQuery = pb.parseAtomList(resultSet.getString(2));
             AtomList premise        = pb.parseAtomList(resultSet.getString(3));
             AtomList evidence       = pb.parseAtomList(resultSet.getString(4));
             Substitution sub        = Unify.findMGUAtomList(query.queriedAtoms, resultingQuery);
             ExplanationList list    = new ExplanationList(resultSet.getString(5), pb);
+
+
             return new Answer(resultingQuery, sub, evidence, premise, list);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -132,7 +141,19 @@ public class DBConnection {
          try {
              Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(format("SELECT * FROM hypanswers WHERE queryid=%d;",query.index));
+             if(resultSet.getString(2) == null){
+                 return new Iterator<Answer>() {
+                     @Override
+                     public boolean hasNext() {
+                         return false;
+                     }
 
+                     @Override
+                     public Answer next() {
+                         return null;
+                     }
+                 };
+             }
              return new Iterator<Answer>() { //TODO use ResultSet.deleteRow() and Iterator.remove()
                  @Override
                  public boolean hasNext() {
