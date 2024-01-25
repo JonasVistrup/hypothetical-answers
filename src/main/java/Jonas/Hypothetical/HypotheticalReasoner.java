@@ -26,7 +26,7 @@ public class HypotheticalReasoner {
                 this.pBuilder = new ProgramBuilder();
                 this.queries = new ArrayList<>();
                 this.time = -1;
-                this.db = new DBConnection("mydb.db",pBuilder);
+                this.db = new DBConnection(null,pBuilder);
         }
 
         /**
@@ -101,7 +101,12 @@ public class HypotheticalReasoner {
                 }
 
                 List<Answer> preprocessingAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), query);
-                this.queries.add(new Query(query, preprocessingAnswers,this.queries.size()));
+                Query q = new Query(query, this.db);
+                for(Answer a: preprocessingAnswers){
+                        db.addAnswer(a,q);
+                }
+                this.queries.add(q);
+
         }
 
         /**
@@ -160,7 +165,11 @@ public class HypotheticalReasoner {
          */
         public List<Answer> preprocessingAnswers(){
                 if(this.queries.isEmpty()) throw new IllegalStateException("The Reasoner must be queried before hypothetical answers are generated.");
-                List<Answer> list = queries.get(0).preprocessingAnswers;
+                List<Answer> list = new ArrayList<>();
+                for (Iterator<Answer> it = queries.get(0).db.getHypotheticalAnswers(queries.get(0)); it.hasNext(); ) {
+                        Answer a = it.next();
+                        list.add(a);
+                }
                 Collections.sort(list);
                 return list;
         }
@@ -173,12 +182,8 @@ public class HypotheticalReasoner {
         public List<Answer> supportedAnswers(){
                 if(this.queries.isEmpty()) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
                 Query query = queries.get(0);
-                List<Answer> res = new ArrayList<>();
-                for(Answer answer: query.supportedAnswers){
-                        if(!answer.evidence.isEmpty()){
-                                res.add(answer);
-                        }
-                }
+                List<Answer> res = new ArrayList<>(db.getSupportedAnswers(query));
+
                 Collections.sort(res);
                 return res;
         }
@@ -191,12 +196,7 @@ public class HypotheticalReasoner {
         public List<Answer> answers(){
                 if(this.queries.isEmpty()) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
                 Query query = queries.get(0);
-                List<Answer> res = new ArrayList<>();
-                for(Answer answer: query.supportedAnswers){
-                        if(answer.premise.isEmpty()){
-                                res.add(answer);
-                        }
-                }
+                List<Answer> res = new ArrayList<>(db.getAnswers(query));
                 Collections.sort(res);
                 return res;
         }

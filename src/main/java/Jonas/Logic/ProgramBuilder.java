@@ -111,6 +111,7 @@ public class ProgramBuilder {
 
 
     public AtomList parseAtomList(String atomListRep){
+        if(atomListRep.equals("")) return new AtomList();
         atomListRep = atomListRep.replaceAll("\\),", ")<-");
         String[] strList = atomListRep.split("<-");
 

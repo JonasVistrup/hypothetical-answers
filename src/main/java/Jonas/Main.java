@@ -15,8 +15,10 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        connect();
-    }
+        for(int i = 10; i<1000; i+=10)
+            System.out.println(testDataInner(i,10));
+        //connect();
+      }
 
     private static void testDataLength(int maxLength, int numberOfIterations) {
         ArrayList<Long> executionTimes = new ArrayList<>();
@@ -34,8 +36,10 @@ public class Main {
             // create a connection to the database
             conn = DriverManager.getConnection(url);
             System.out.println("Connection to SQLite has been established.");
-            conn.prepareStatement("");
-            conn.prepareStatement("INSERT INTO queries VALUES (2,\"Lead(Topic,Region,T)\");").execute();
+            //conn.prepareStatement("CREATE TABLE queries(ID int PRIMARY KEY, varchar(255));")
+            conn.prepareStatement("CREATE TABLE answers(queryid int, query varchar(65535), evidence varchar(65535), clauses varchar(65535));").execute();
+            conn.prepareStatement("CREATE TABLE hypanswers(queryid int, query varchar(65535), premise varchar(65535), evidence varchar(65535), clauses varchar(65535));").execute();
+            conn.prepareStatement("INSERT INTO answers VALUES (2,\"Lead(Topic,Region,T)\", \"wee\", \"Lee\");").execute();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {

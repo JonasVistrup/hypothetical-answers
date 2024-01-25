@@ -5,40 +5,31 @@ import Jonas.Logic.Program;
 import Jonas.Logic.Substitution;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Representation of a query.
  */
 public class Query {
-    /**
-     * Answers that resulted from the preprocessing.
-     */
-    public List<Answer> preprocessingAnswers;
-    /**
-     * Answers that have been updated up to the current time.
-     */
-    public List<Answer> supportedAnswers;
-    /**
-     * Complete answers for the query. I.e. answers with no premise.
-     */
-    public List<Answer> answers; // TODO fill this as supportedAnswers are proven.
     public AtomList queriedAtoms;
     public int index;
+    public DBConnection db;
+    private static int numberOfQueries = 0;
 
     /**
      * Constructs a new query given the preprocessed answers.
      * @param queriedAtoms Atoms to query.
-     * @param preprocessingAnswers Preprocessed answers found by the modified SLD-resolution.
      */
-    public Query(AtomList queriedAtoms, List<Answer> preprocessingAnswers, int index){
+    public Query(AtomList queriedAtoms, DBConnection db){
+        this.index = numberOfQueries++;
+        this.queriedAtoms = queriedAtoms;
+        this.db = db;
+    }
+
+    public Query(AtomList queriedAtoms, int index, DBConnection db){
         this.index = index;
         this.queriedAtoms = queriedAtoms;
-        this.supportedAnswers = preprocessingAnswers;
-        this.preprocessingAnswers = preprocessingAnswers;
+        this.db = db;
     }
 
     /**
@@ -58,11 +49,7 @@ public class Query {
      * @return list of all complete answers. I.e. answers without a premise.
      */
     public List<Answer> getProvedAnswers(){
-        List<Answer> result = new ArrayList<>();
-        for(Answer a: supportedAnswers){
-            if(a.premise.isEmpty()) result.add(a);
-        }
-        return result;
+        return new ArrayList<>(this.db.getAnswers(this));
     }
 
 
@@ -70,7 +57,7 @@ public class Query {
      * @return a copy of this query.
      */
     public Query copy(){
-        return new Query(queriedAtoms, new ArrayList<>(supportedAnswers), this.index);
+        return new Query(queriedAtoms, this.index, this.db);
     }
 
     /**
@@ -80,17 +67,28 @@ public class Query {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(queriedAtoms.toString()).append(":");
-        if(supportedAnswers.isEmpty()){
+        List<Answer> answers = getAllAnswers();
+
+        if(answers.isEmpty()){
             builder.append(" NO ANSWERS");
         }else{
             builder.append("\n");
         }
-        for(Answer a: supportedAnswers){
+
+        for(Answer a: answers){
             builder.append("\t");
             builder.append(a.toString(queriedAtoms));
             builder.append("\n");
         }
         return builder.toString();
+    }
+
+    private List<Answer> getAllAnswers(){
+        List<Answer> answers = new ArrayList<>(db.getAnswers(this));
+        for (Iterator<Answer> it = db.getHypotheticalAnswers(this); it.hasNext();) {
+            answers.add(it.next());
+        }
+        return answers;
     }
 
     /**
@@ -99,7 +97,7 @@ public class Query {
     public JSONObject toJSONObject() {
         JSONObject o = new JSONObject();
         o.put("query", this.queriedAtoms.toString());
-        for(Answer a: this.supportedAnswers){
+        for(Answer a: getAllAnswers()){
             o.accumulate("answers", a.toJSONObject(this.queriedAtoms));
         }
         return o;
@@ -111,10 +109,13 @@ public class Query {
      * @param time current time.
      */
     public void update(Program dataSliceProgram, int time) {
-        Set<Answer> answerSet = new HashSet<>();
-        for(Answer a: this.supportedAnswers){
-            answerSet.addAll(a.update(dataSliceProgram, time));
+        Iterator<Answer> iterator = db.getHypotheticalAnswers(this);
+        for (Iterator<Answer> it = iterator; it.hasNext(); ) {
+            Answer a = it.next();
+            for(Answer aa: a.update(dataSliceProgram, time)){
+                db.addAnswer(aa,this);
+            }
+            db.deleteHypanswer(a,this);
         }
-        this.supportedAnswers = new ArrayList<>(answerSet);
     }
 }
