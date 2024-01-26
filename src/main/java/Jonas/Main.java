@@ -15,14 +15,12 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        for(int i = 10; i<1000; i+=10)
-            System.out.println(testDataInner(i,10));
-        //connect();
+        testDataLength(1000,10);
       }
 
     private static void testDataLength(int maxLength, int numberOfIterations) {
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = 500000; i<=maxLength; i+= 1000){
+        for(int i = 100; i<=maxLength; i+= 100){
            executionTimes.add(testDataInner(i, numberOfIterations));
         }
         System.out.println(executionTimes);

@@ -26,7 +26,7 @@ public class DBConnection {
             String url = "jdbc:sqlite:"+connectionURL;
             // create a connection to the database
             conn = DriverManager.getConnection(url);
-            System.out.println("Connection to SQLite has been established.");
+            //System.out.println("Connection to SQLite has been established.");
             conn.prepareStatement("CREATE TABLE answers(" +
                     "queryid int, query varchar(65535), " +
                     "evidence varchar(65535), " +
@@ -45,7 +45,7 @@ public class DBConnection {
 
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
             try {
                 conn.prepareStatement("DELETE FROM answers WHERE true;").execute();
                 conn.prepareStatement("DELETE FROM hypanswers WHERE true;").execute();
@@ -159,6 +159,15 @@ public class DBConnection {
                  public boolean hasNext() {
                      try {
                          return !resultSet.isAfterLast();
+                     } catch (SQLException e) {
+                         throw new RuntimeException(e);
+                     }
+                 }
+
+                 @Override
+                 public void remove() {
+                     try {
+                         resultSet.deleteRow();
                      } catch (SQLException e) {
                          throw new RuntimeException(e);
                      }
