@@ -17,6 +17,8 @@ public class DBConnection {
     private ProgramBuilder pb;
     private String c = "C:/Users/vistrup/Desktop/mydb.db";
 
+    private boolean first = true;
+
 
     public DBConnection(String connectionURL, ProgramBuilder pb){
         if(connectionURL == null) connectionURL = c;
@@ -27,6 +29,7 @@ public class DBConnection {
             // create a connection to the database
             conn = DriverManager.getConnection(url);
             //System.out.println("Connection to SQLite has been established.");
+
             conn.prepareStatement("CREATE TABLE answers(" +
                     "queryid int, query varchar(65535), " +
                     "evidence varchar(65535), " +
@@ -39,16 +42,24 @@ public class DBConnection {
                     "evidence varchar(65535), " +
                     "clauses varchar(65535)" +
                     ");").execute();
+            conn.prepareStatement("CREATE TABLE hyp2answers(" +
+                    "queryid int, " +
+                    "query varchar(65535), " +
+                    "premise varchar(65535), " +
+                    "evidence varchar(65535), " +
+                    "clauses varchar(65535)" +
+                    ");").execute();
             //conn.prepareStatement("DELETE FROM queries WHERE true;").execute();
             conn.prepareStatement("DELETE FROM answers WHERE true;").execute();
             conn.prepareStatement("DELETE FROM hypanswers WHERE true;").execute();
-
+            conn.prepareStatement("DELETE FROM hyp2answers WHERE true;").execute();
 
         } catch (SQLException e) {
             //System.out.println(e.getMessage());
             try {
                 conn.prepareStatement("DELETE FROM answers WHERE true;").execute();
                 conn.prepareStatement("DELETE FROM hypanswers WHERE true;").execute();
+                conn.prepareStatement("DELETE FROM hyp2answers WHERE true;").execute();
             }catch (SQLException e2) {
                 System.out.println(e2.getMessage());
             }
@@ -87,10 +98,11 @@ public class DBConnection {
 
     private void addHypotheticalAnswer(Answer hypoAnswer, Query query){
         assert !hypoAnswer.premise.isEmpty();
-        String command = format("INSERT INTO hypanswers VALUES (%d, '%s', '%s', '%s', '%s');", query.index, hypoAnswer.resultingQueriedAtoms.toString(), hypoAnswer.premise.toString(), hypoAnswer.evidence.toString(), hypoAnswer.clausesUsed.toString());
+        String table = first? "hypanswers":"hyp2answers";
+        String command = format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s');", table, query.index, hypoAnswer.resultingQueriedAtoms.toString(), hypoAnswer.premise.toString(), hypoAnswer.evidence.toString(), hypoAnswer.clausesUsed.toString());
 
         try {
-            conn.prepareStatement(command).execute();
+            conn.createStatement().execute(command);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -117,19 +129,11 @@ public class DBConnection {
 
     private Answer resultSetToAnswer(ResultSet resultSet, Query query){
         try {
-            String resultingQueryStr = resultSet.getString(2);
-            String premiseStr        = resultSet.getString(3);
-            String evidenceStr       = resultSet.getString(4);
-            String listStr    = resultSet.getString(5);
-
-
-
             AtomList resultingQuery = pb.parseAtomList(resultSet.getString(2));
             AtomList premise        = pb.parseAtomList(resultSet.getString(3));
             AtomList evidence       = pb.parseAtomList(resultSet.getString(4));
             Substitution sub        = Unify.findMGUAtomList(query.queriedAtoms, resultingQuery);
             ExplanationList list    = new ExplanationList(resultSet.getString(5), pb);
-
 
             return new Answer(resultingQuery, sub, evidence, premise, list);
         } catch (SQLException e) {
@@ -140,7 +144,9 @@ public class DBConnection {
      public Iterator<Answer> getHypotheticalAnswers(Query query){
          try {
              Statement statement = conn.createStatement();
-             ResultSet resultSet = statement.executeQuery(format("SELECT * FROM hypanswers WHERE queryid=%d;",query.index));
+             String table = first? "hyp2answers":"hypanswers";
+             ResultSet resultSet = statement.executeQuery(format("SELECT * FROM %s WHERE queryid=%d;",table, query.index));
+
              if(resultSet.getString(2) == null){
                  return new Iterator<Answer>() {
                      @Override
@@ -154,7 +160,10 @@ public class DBConnection {
                      }
                  };
              }
-             return new Iterator<Answer>() { //TODO use ResultSet.deleteRow() and Iterator.remove()
+             Answer first = resultSetToAnswer(resultSet,query);
+             resultSet.next();
+             return new Iterator<Answer>() {
+                 Answer next = first;
                  @Override
                  public boolean hasNext() {
                      try {
@@ -165,19 +174,13 @@ public class DBConnection {
                  }
 
                  @Override
-                 public void remove() {
-                     try {
-                         resultSet.deleteRow();
-                     } catch (SQLException e) {
-                         throw new RuntimeException(e);
-                     }
-                 }
-
-                 @Override
                  public Answer next() {
                      try {
-                         Answer answer = resultSetToAnswer(resultSet,query);
+                         Answer answer = next;
                          resultSet.next();
+                         if(resultSet.getString(2) != null) {
+                             next = resultSetToAnswer(resultSet, query);
+                         }
                          return answer;
                      } catch (SQLException e) {
                          throw new RuntimeException(e);
@@ -190,11 +193,26 @@ public class DBConnection {
          return null;
      }
 
+     public void wipeHyp(){
+         String table = first? "hyp2answers":"hypanswers";
+         try {
+             conn.prepareStatement(format("DELETE FROM %s WHERE true;",table)).execute();
+             switchHyp();
+         } catch (SQLException e) {
+             throw new RuntimeException(e);
+         }
+     }
+
+     public void switchHyp(){
+        first = !first;
+     }
+
     public List<Answer> getNonSupportedAnswers(Query query){
         List<Answer> result = new ArrayList<>();
         try {
             Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(format("SELECT * FROM hypanswers WHERE queryid=%d AND WHERE evidence='';",query.index));
+            String table = first? "hyp2answers":"hypanswers";
+            ResultSet resultSet = statement.executeQuery(format("SELECT * FROM %s WHERE queryid=%d AND WHERE evidence='';",table,query.index));
             while(resultSet.next()){
                 AtomList resultingQuery = pb.parseAtomList(resultSet.getString(2));
                 AtomList premise        = pb.parseAtomList(resultSet.getString(3));
@@ -214,7 +232,8 @@ public class DBConnection {
         List<Answer> result = new ArrayList<>();
         try {
             Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(format("SELECT * FROM hypanswers WHERE queryid=%d AND WHERE evidence!='';",query.index));
+            String table = first? "hyp2answers":"hypanswers";
+            ResultSet resultSet = statement.executeQuery(format("SELECT * FROM %s WHERE queryid=%d AND WHERE evidence!='';",table,query.index));
             while(resultSet.next()){
                 AtomList resultingQuery = pb.parseAtomList(resultSet.getString(2));
                 AtomList premise        = pb.parseAtomList(resultSet.getString(3));

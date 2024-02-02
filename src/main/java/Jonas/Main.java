@@ -1,5 +1,6 @@
 package Jonas;
 
+import Jonas.Hypothetical.Answer;
 import Jonas.Hypothetical.HypotheticalReasoner;
 
 import java.io.File;
@@ -7,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,12 +17,12 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        testDataLength(1000,10);
+        testDataLength(100,5);
       }
 
     private static void testDataLength(int maxLength, int numberOfIterations) {
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = 100; i<=maxLength; i+= 100){
+        for(int i = 10; i<=maxLength; i+= 10){
            executionTimes.add(testDataInner(i, numberOfIterations));
         }
         System.out.println(executionTimes);
@@ -53,7 +55,7 @@ public class Main {
 
     private static long testDataInner(int dataLength, int numberOfIterations){
         System.out.println("Length="+dataLength);
-        HypotheticalReasoner h = new HypotheticalReasoner("LeadProgram");
+        HypotheticalReasoner h = new HypotheticalReasoner("LeadProgramSmall");
         h.query("Lead(Topic,Region,T)");
         long sumOfExecutionTimes = 0L;
         for(int j=0; j<numberOfIterations; j++){
@@ -61,6 +63,8 @@ public class Main {
         }
         long time = sumOfExecutionTimes/numberOfIterations;
         System.out.println(time);
+        //List<Answer> answerList = h.answers();
+        //System.out.println(h.answers());
         return time;
     }
 

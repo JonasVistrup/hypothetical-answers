@@ -11,6 +11,10 @@ import java.util.*;
  * Representation of a query.
  */
 public class Query {
+
+    public List<Answer> answers;
+    public List<Answer> hypAnswers;
+
     public AtomList queriedAtoms;
     public int index;
     public DBConnection db;
@@ -112,10 +116,11 @@ public class Query {
         Iterator<Answer> iterator = db.getHypotheticalAnswers(this);
         for (Iterator<Answer> it = iterator; it.hasNext(); ) {
             Answer a = it.next();
+            //System.out.println(a);
             for(Answer aa: a.update(dataSliceProgram, time)){
                 db.addAnswer(aa,this);
             }
-            db.deleteHypanswer(a,this);
         }
+        //System.out.println();
     }
 }

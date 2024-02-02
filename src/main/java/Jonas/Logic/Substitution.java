@@ -82,7 +82,9 @@ public class Substitution {
             builder.append(")");
             builder.append(",");
         }
-        builder.deleteCharAt(builder.length()-1);
+        if(builder.length()>1) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
         builder.append("}");
         return builder.toString();
     }

@@ -1,4 +1,4 @@
-DailyTrend(Topic, Region, T), Popularity(Topic, Region, pop0, T), Popularity(Topic, Region, pop1, T+1), Popularity(Topic, Region, pop2, T+2), Less(pop0,pop1), Less(pop1,pop2) -> PopularityLead(Topic, Region, T)
+DailyTrend(Topic, Region, T), Popularity(Topic, Region, Pop0, T), Popularity(Topic, Region, Pop1, T+1), Popularity(Topic, Region, Pop2, T+2), Less(Pop0,Pop1), Less(Pop1,Pop2) -> PopularityLead(Topic, Region, T)
 PopularityLead(Topic, Region, T) -> CertainLead(Topic, Region, T)
 DailyTrend(Topic, Region0, T), DailyTrend(Topic, Region1, T+1), DailyTrend(Topic, Region2, T+2), DailyTrend(Topic, Region3, T+3), AllDiff(Region0,Region1,Region2,Region3) -> GlobalTrend(Topic, T+1)
 GlobalTrend(Topic, T), GlobalTrend(Topic, T+1), GlobalTrend(Topic, T+2) -> GlobalLead(Topic, T)

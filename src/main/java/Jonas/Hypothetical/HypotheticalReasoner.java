@@ -106,6 +106,7 @@ public class HypotheticalReasoner {
                         db.addAnswer(a,q);
                 }
                 this.queries.add(q);
+                this.db.switchHyp();
 
         }
 
@@ -130,6 +131,7 @@ public class HypotheticalReasoner {
                         q.update(dataSliceProgram, this.time);
 
                 }
+                db.wipeHyp();
                 this.time = this.time + 1;
         }
 

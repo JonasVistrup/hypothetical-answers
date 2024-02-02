@@ -11,7 +11,7 @@ public class Unify {
         if(list1.size() != list2.size()) return null;
         Substitution result = new Substitution();
         for(int i = 0; i<list1.size(); i++){
-            result.add(findMGU(list1.get(i),list2.get(i)));
+            result = result.add(findMGU(list1.get(i),list2.get(i)));
             list1 = list1.applySub(result);
             list2 = list2.applySub(result);
         }
