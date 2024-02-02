@@ -12,8 +12,10 @@ import java.util.*;
  */
 public class Query {
 
-    public List<Answer> answers;
-    public List<Answer> hypAnswers;
+    public ArrayList<Answer> answers = new ArrayList<>();
+    public ArrayList<Answer> hypAnswers;
+
+    private static int MAX_ANSWER_SIZE = 1000000;
 
     public AtomList queriedAtoms;
     public int index;
@@ -24,16 +26,19 @@ public class Query {
      * Constructs a new query given the preprocessed answers.
      * @param queriedAtoms Atoms to query.
      */
-    public Query(AtomList queriedAtoms, DBConnection db){
+    public Query(AtomList queriedAtoms, DBConnection db, ArrayList<Answer> hypAnswers){
         this.index = numberOfQueries++;
         this.queriedAtoms = queriedAtoms;
         this.db = db;
+        this.hypAnswers = hypAnswers; //TODO check if hypanswers has no premise and should be answers
     }
 
-    public Query(AtomList queriedAtoms, int index, DBConnection db){
+    public Query(AtomList queriedAtoms, int index, DBConnection db, ArrayList<Answer> hypAnswers, ArrayList<Answer> answers){
         this.index = index;
         this.queriedAtoms = queriedAtoms;
         this.db = db;
+
+        this.hypAnswers = hypAnswers;
     }
 
     /**
@@ -61,7 +66,7 @@ public class Query {
      * @return a copy of this query.
      */
     public Query copy(){
-        return new Query(queriedAtoms, this.index, this.db);
+        return new Query(queriedAtoms, this.index, this.db, (ArrayList<Answer>) this.hypAnswers.clone(), (ArrayList<Answer>) this.answers.clone());
     }
 
     /**
@@ -87,7 +92,7 @@ public class Query {
         return builder.toString();
     }
 
-    private List<Answer> getAllAnswers(){
+    private List<Answer> getAllAnswers(){ //TODO make it return all answers
         List<Answer> answers = new ArrayList<>(db.getAnswers(this));
         for (Iterator<Answer> it = db.getHypotheticalAnswers(this); it.hasNext();) {
             answers.add(it.next());
@@ -113,14 +118,27 @@ public class Query {
      * @param time current time.
      */
     public void update(Program dataSliceProgram, int time) {
-        Iterator<Answer> iterator = db.getHypotheticalAnswers(this);
+        ArrayList<Answer> nextHypAnswers = new ArrayList<>();
+        for(Answer a: this.hypAnswers){
+            for(Answer aa: a.update(dataSliceProgram,time)){
+                if(aa.premise.isEmpty()) this.answers.add(aa);
+                else nextHypAnswers.add(aa);
+            }
+        }
+        this.hypAnswers = nextHypAnswers;
+        if(answers.size() > MAX_ANSWER_SIZE){
+            db.uploadAnswers(this.answers,this);
+            this.answers = new ArrayList<>();
+        }
+
+        /*Iterator<Answer> iterator = db.getHypotheticalAnswers(this);
         for (Iterator<Answer> it = iterator; it.hasNext(); ) {
             Answer a = it.next();
             //System.out.println(a);
             for(Answer aa: a.update(dataSliceProgram, time)){
                 db.addAnswer(aa,this);
             }
-        }
+        }*/
         //System.out.println();
     }
 }

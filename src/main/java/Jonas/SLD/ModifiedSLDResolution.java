@@ -17,8 +17,8 @@ public class ModifiedSLDResolution {
      * @param query the query.
      * @return hypothetical answers.
      */
-    public static List<Answer> preprocess(Program program, AtomList query){
-        List<Answer> answers = new ArrayList<>();
+    public static ArrayList<Answer> preprocess(Program program, AtomList query){
+        ArrayList<Answer> answers = new ArrayList<>();
         inOrderTraversal(answers, query, new Substitution(), program, 1, query, new AtomList(), new ArrayList<>());
 
         return answers;

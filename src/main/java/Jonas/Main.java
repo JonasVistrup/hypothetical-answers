@@ -17,12 +17,12 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        testDataLength(100,5);
+        testDataLength(1000000,100);
       }
 
     private static void testDataLength(int maxLength, int numberOfIterations) {
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = 10; i<=maxLength; i+= 10){
+        for(int i = 100000; i<=maxLength; i+= 100000){
            executionTimes.add(testDataInner(i, numberOfIterations));
         }
         System.out.println(executionTimes);

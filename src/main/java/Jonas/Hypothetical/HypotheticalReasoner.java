@@ -100,13 +100,13 @@ public class HypotheticalReasoner {
                         query.add(pBuilder.parseAtom(atom));
                 }
 
-                List<Answer> preprocessingAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), query);
-                Query q = new Query(query, this.db);
-                for(Answer a: preprocessingAnswers){
+                ArrayList<Answer> preprocessingAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), query);
+                Query q = new Query(query, this.db, preprocessingAnswers);
+                /*for(Answer a: preprocessingAnswers){
                         db.addAnswer(a,q);
-                }
+                }*/
                 this.queries.add(q);
-                this.db.switchHyp();
+                //this.db.switchHyp();
 
         }
 

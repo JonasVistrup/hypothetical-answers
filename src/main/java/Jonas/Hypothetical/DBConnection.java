@@ -249,4 +249,48 @@ public class DBConnection {
         return new ArrayList<>();
     }
 
+    public void uploadAnswers(ArrayList<Answer> answers, Query query) {
+        if(answers.isEmpty()) return;
+        for(int i=0; i<answers.size(); i+=1000){
+            uploadPartly(answers,query,i,i+1000);
+            //System.out.println("i="+i);
+        }
+
+        /*try {
+            Statement uploadStatement = conn.createStatement();
+
+            StringBuilder statement = new StringBuilder("INSERT INTO answers VALUES");
+            for(Answer a: answers){
+                statement.append(format(" (%d, '%s', '%s', '%s'),", query.index, a.resultingQueriedAtoms.toString(), a.evidence.toString(), a.clausesUsed.toString()));
+            }
+            statement.deleteCharAt(statement.length()-1);
+            statement.append(";");
+            uploadStatement.executeLargeUpdate(statement.toString());
+        } catch (SQLException e) {
+            for(Answer a: answers){
+                addDoneAnswer(a,query);
+            }
+
+        }*/
+    }
+
+    public void uploadPartly(ArrayList<Answer> answers, Query query, int from, int to){
+        try {
+            Statement uploadStatement = conn.createStatement();
+
+            StringBuilder statement = new StringBuilder("INSERT INTO answers VALUES");
+            for(int i=from; i<to && i<answers.size(); i++){
+                Answer a = answers.get(i);
+                statement.append(format(" (%d, '%s', '%s', '%s'),", query.index, a.resultingQueriedAtoms.toString(), a.evidence.toString(), a.clausesUsed.toString()));
+            }
+            statement.deleteCharAt(statement.length()-1);
+            statement.append(";");
+            uploadStatement.executeLargeUpdate(statement.toString());
+        } catch (SQLException e) {
+            for(Answer a: answers){
+                addDoneAnswer(a,query);
+            }
+
+        }
+    }
 }
