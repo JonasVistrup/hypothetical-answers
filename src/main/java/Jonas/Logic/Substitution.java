@@ -81,6 +81,7 @@ public class Substitution {
             builder.append(s.toString());
             builder.append(")");
             builder.append(",");
+
         }
         if(builder.length()>1) {
             builder.deleteCharAt(builder.length() - 1);

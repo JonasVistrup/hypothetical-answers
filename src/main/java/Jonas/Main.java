@@ -17,15 +17,65 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        testDataLength(1000000,100);
+        testDataLengthDB(500000,10, 10000);
+        testDataLength(500000,10, 10000);
       }
 
-    private static void testDataLength(int maxLength, int numberOfIterations) {
+    private static void testDataLength(int maxLength, int numberOfIterations, int increment) {
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = 100000; i<=maxLength; i+= 100000){
+        for(int i = increment; i<=maxLength; i+= increment){
            executionTimes.add(testDataInner(i, numberOfIterations));
         }
         System.out.println(executionTimes);
+    }
+
+    private static void testDataLengthDB(int maxLength, int numberOfIterations, int increment) {
+        ArrayList<Long> executionTimes = new ArrayList<>();
+        for(int i = increment; i<=maxLength; i+= increment){
+            executionTimes.add(testDataInnerDB(i, numberOfIterations));
+        }
+        System.out.println(executionTimes);
+    }
+
+    private static long testDataInnerDB(int dataLength, int numberOfIterations){
+        System.out.println("Length="+dataLength);
+        HypotheticalReasoner h = new HypotheticalReasoner("LeadProgramSmall");
+        h.query("Lead(Topic,Region,T)");
+        long sumOfExecutionTimes = 0L;
+        for(int j=0; j<numberOfIterations; j++){
+            sumOfExecutionTimes += testDataInnerstDB(h, dataLength, j);
+        }
+        long time = sumOfExecutionTimes/numberOfIterations;
+        System.out.println(time);
+        //List<Answer> answerList = h.answers();
+        //System.out.println(h.answers());
+        return time;
+    }
+
+    private static long testDataInnerstDB(HypotheticalReasoner h, int dataLength, int time){
+        generateLongDataDB2(dataLength,time, h);
+        System.out.println("\t t="+time);
+        long startTime = System.nanoTime();
+        h.nextTimeLarge();
+        long endTime = System.nanoTime();
+        h.clearDB();
+        return (endTime-startTime);
+    }
+
+    private static void generateLongDataDB(int amount, int time, HypotheticalReasoner h) {
+        for(int i = 0; i<amount; i++){
+            h.addData(generateTrendingTopic("topic"+i,time));
+            h.addData(generatePopularity("topic"+i,time,time));
+        }
+    }
+
+    private static void generateLongDataDB2(int amount, int time, HypotheticalReasoner h){
+        ArrayList<String> data = new ArrayList<>();
+        for(int i = 0; i<amount; i++){
+            data.add(generateTrendingTopic("topic"+i,time));
+            data.add(generatePopularity("topic"+i,time,time));
+        }
+        h.db.uploadData(data,time);
     }
 
     public static void connect() {

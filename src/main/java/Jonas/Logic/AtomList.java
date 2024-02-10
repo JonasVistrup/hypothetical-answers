@@ -236,7 +236,7 @@ public class AtomList extends ArrayList<Atom>{
             if(!h.containsKey(clause.head.predicate)){
                 HashMap<Term, List<Clause>> hh = new HashMap<>();
                 hh.put(null, new ArrayList<>());
-                h.put(clause.head.predicate, new HashMap<>());
+                h.put(clause.head.predicate, hh);
             }
 
             HashMap<Term, List<Clause>> innerMap = h.get(clause.head.predicate);
@@ -260,7 +260,11 @@ public class AtomList extends ArrayList<Atom>{
                 if(a.args.get(0) instanceof Variable){
                     return innerMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
                 }
-                return innerMap.get(a.args.get(0));
+                if(innerMap.containsKey(a.args.get(0))){
+                    return innerMap.get(a.args.get(0));
+                }else{
+                    return new ArrayList<>();
+                }
             }
         });
     }

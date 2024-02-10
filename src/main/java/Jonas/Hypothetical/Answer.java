@@ -110,6 +110,50 @@ public class Answer implements Comparable<Answer>{
         return result;
     }
 
+    public Set<Answer> partialUpdate(Program dataSlice, int time){
+        //Constant part.
+        Set<Answer> result = new HashSet<>();
+
+        if(!this.premise.smallestConstant().isEmpty() && this.premise.smallestConstant().get(0).temporal.tConstant == time){
+            AtomList constants = this.premise.smallestConstant();
+            List<Substitution> answers = SLDResolution.findSubstitutions(dataSlice, constants);
+
+            for(Substitution answer: answers){
+                AtomList queriedAtoms = this.resultingQueriedAtoms.applySub(answer);
+                Substitution sub = this.substitution.add(answer);
+                AtomList newEvidence = this.evidence.plus(constants).applySub(answer);
+                AtomList newPremise = this.premise.without(constants).applySub(answer);
+                ExplanationList list = this.clausesUsed.applySub(answer);
+
+                if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise, list));
+                }
+            }
+        }
+
+        //Constant and Temporal part.
+        if(!this.premise.smallestVariable().isEmpty()){
+            AtomList smallestPremise = this.premise.smallestConstant().isEmpty() || this.premise.smallestConstant().get(0).temporal.tConstant!= time?
+                    this.premise.smallestVariable() : this.premise.smallestConstant().plus(this.premise.smallestVariable());
+
+            List<Substitution> answers = SLDResolution.findSubstitutions(dataSlice, smallestPremise); //TODO can be optimized. The constants do not need to be solved twice.
+
+            for(Substitution answer: answers){
+                AtomList queriedAtoms = this.resultingQueriedAtoms.applySub(answer);
+                Substitution sub = this.substitution.add(answer);
+                AtomList newEvidence = this.evidence.plus(smallestPremise).applySub(answer);
+                AtomList newPremise = this.premise.without(smallestPremise).applySub(answer);
+                ExplanationList list = this.clausesUsed.applySub(answer);
+
+                if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise, list));
+                }
+            }
+        }
+
+        return result;
+    }
+
 
     /**
      * An equals function. If the queriedAtoms, evidence and premise for this and obj are equal then they are the same Answer.

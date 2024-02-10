@@ -5,6 +5,7 @@ import Jonas.Logic.Program;
 import Jonas.Logic.Substitution;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -15,7 +16,7 @@ public class Query {
     public ArrayList<Answer> answers = new ArrayList<>();
     public ArrayList<Answer> hypAnswers;
 
-    private static int MAX_ANSWER_SIZE = 1000000;
+    private static int MAX_ANSWER_SIZE = 100000;
 
     public AtomList queriedAtoms;
     public int index;
@@ -120,6 +121,7 @@ public class Query {
     public void update(Program dataSliceProgram, int time) {
         ArrayList<Answer> nextHypAnswers = new ArrayList<>();
         for(Answer a: this.hypAnswers){
+            //System.out.println(a.toString(this.queriedAtoms));
             for(Answer aa: a.update(dataSliceProgram,time)){
                 if(aa.premise.isEmpty()) this.answers.add(aa);
                 else nextHypAnswers.add(aa);
@@ -140,5 +142,64 @@ public class Query {
             }
         }*/
         //System.out.println();
+    }
+
+    public void update2(DataIterator data, int time) {
+
+        //Step 2: Fetch Datachunk
+        //Step 3: Update TBK and rest, add results to rest
+        //Step 4: Go back to step 2 until all datachunk have been used
+        //Step 5: Remove TBK, and set rest as the new hypanswers
+
+        //Step 1: Split to TBK and rest
+        ArrayList<Answer> toBeKilled = new ArrayList<>();
+        ArrayList<Answer> iterHypAnswers = new ArrayList<>();
+        ArrayList<Answer> nextHypAnswers = new ArrayList<>();
+        for(Answer a: this.hypAnswers){
+            //System.out.println(a.toString(this.queriedAtoms));
+            if(!a.premise.smallestConstant().isEmpty() && a.premise.smallestConstant().get(0).temporal.tConstant == time){
+                toBeKilled.add(a);
+            }else if(a.premise.smallestVariable().isEmpty() && a.premise.smallestConstant().get(0).temporal.tConstant>time) {
+                nextHypAnswers.add(a);
+            }else{
+                iterHypAnswers.add(a);
+            }
+        }
+
+        for(Program p: data){
+            ArrayList<Answer> temp = new ArrayList<>();
+            for(Answer a: iterHypAnswers){
+                for(Answer aa: a.partialUpdate(p,time)){
+                    if(aa.premise.isEmpty()) this.answers.add(aa);
+                    else if (aa.premise.smallestVariable().isEmpty() && aa.premise.smallestConstant().get(0).temporal.tConstant>time){
+                        nextHypAnswers.add(aa);
+                    }else{
+                        temp.add(aa);
+                    }
+                }
+            }
+            iterHypAnswers.addAll(temp);
+
+            for(Answer a: toBeKilled){
+                for(Answer aa: a.partialUpdate(p,time)){
+                    if(aa.premise.isEmpty()) this.answers.add(aa);
+                    else if (aa.premise.smallestVariable().isEmpty() && aa.premise.smallestConstant().get(0).temporal.tConstant>time){
+                        nextHypAnswers.add(aa);
+                    }else{
+                        iterHypAnswers.add(aa);
+                    }
+                }
+            }
+        }
+
+        this.hypAnswers = nextHypAnswers;
+        this.hypAnswers.addAll(iterHypAnswers);
+        if(answers.size() > MAX_ANSWER_SIZE){
+            db.uploadAnswers(this.answers,this);
+            this.answers = new ArrayList<>();
+        }
+
+        //System.out.println();
+
     }
 }

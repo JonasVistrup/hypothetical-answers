@@ -19,6 +19,7 @@ public class DBConnection {
 
     private boolean first = true;
 
+    private PreparedStatement dataInserter;
 
     public DBConnection(String connectionURL, ProgramBuilder pb){
         if(connectionURL == null) connectionURL = c;
@@ -30,6 +31,9 @@ public class DBConnection {
             conn = DriverManager.getConnection(url);
             //System.out.println("Connection to SQLite has been established.");
 
+            conn.prepareStatement("CREATE TABLE data(" +
+                    "time int, data varchar(65535)" +
+                    ");").execute();
             conn.prepareStatement("CREATE TABLE answers(" +
                     "queryid int, query varchar(65535), " +
                     "evidence varchar(65535), " +
@@ -49,7 +53,6 @@ public class DBConnection {
                     "evidence varchar(65535), " +
                     "clauses varchar(65535)" +
                     ");").execute();
-            //conn.prepareStatement("DELETE FROM queries WHERE true;").execute();
             conn.prepareStatement("DELETE FROM answers WHERE true;").execute();
             conn.prepareStatement("DELETE FROM hypanswers WHERE true;").execute();
             conn.prepareStatement("DELETE FROM hyp2answers WHERE true;").execute();
@@ -57,12 +60,18 @@ public class DBConnection {
         } catch (SQLException e) {
             //System.out.println(e.getMessage());
             try {
+                conn.prepareStatement("DELETE FROM data WHERE true;").execute();
                 conn.prepareStatement("DELETE FROM answers WHERE true;").execute();
                 conn.prepareStatement("DELETE FROM hypanswers WHERE true;").execute();
                 conn.prepareStatement("DELETE FROM hyp2answers WHERE true;").execute();
             }catch (SQLException e2) {
                 System.out.println(e2.getMessage());
             }
+        }
+        try {
+            dataInserter = conn.prepareStatement("INSERT INTO data VALUES (?,?);");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -72,6 +81,103 @@ public class DBConnection {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+
+    public void insertData(int time, String data){ //TODO use upload partly to increase speed
+        try {
+            dataInserter.setInt(1,time);
+            dataInserter.setString(2,data);
+            dataInserter.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void uploadData(ArrayList<String> data, int time) {
+        if (data.isEmpty()) return;
+        for (int i = 0; i < data.size(); i += 1000) {
+            insertDataPartial(data, i, i + 1000, time);
+            //System.out.println("i="+i);
+        }
+    }
+    public void insertDataPartial(ArrayList<String> data, int from, int to, int time){
+        try {
+            Statement uploadStatement = conn.createStatement();
+
+            StringBuilder statement = new StringBuilder("INSERT INTO data VALUES");
+            for(int i=from; i<to && i<data.size(); i++){
+                statement.append(format(" (%d, '%s'),", time, data.get(i)));
+            }
+            statement.deleteCharAt(statement.length()-1);
+            statement.append(";");
+            uploadStatement.executeLargeUpdate(statement.toString());
+        } catch (SQLException e) {
+            System.out.println("TOO MUCH DATA");
+            for(String a: data){
+                insertData(time,a);
+            }
+
+        }
+    }
+
+    public void wipeDB(){
+        try {
+            conn.prepareStatement("DELETE FROM data WHERE true;").execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Iterator<String> getData(int time){
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(format("SELECT data FROM data WHERE time=%d;",time));
+
+            if(resultSet.getString(1) == null){
+                return new Iterator<String>() {
+                    @Override
+                    public boolean hasNext() {
+                        return false;
+                    }
+
+                    @Override
+                    public String next() {
+                        return null;
+                    }
+                };
+            }
+            String first = resultSet.getString(1);
+            resultSet.next();
+            return new Iterator<String>() {
+                String next = first;
+                @Override
+                public boolean hasNext() {
+                    try {
+                        return !resultSet.isAfterLast();
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                @Override
+                public String next() {
+                    try {
+                        String answer = next;
+                        resultSet.next();
+                        if(resultSet.getString(1) != null) {
+                            next = resultSet.getString(1);
+                        }
+                        return answer;
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
     public void addQuery(Query query){
