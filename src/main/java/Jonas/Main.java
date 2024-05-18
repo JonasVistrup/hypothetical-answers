@@ -17,13 +17,13 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        testDataLengthDB(500000,10, 10000);
-        testDataLength(500000,10, 10000);
+        testDataLengthDB(1000,10, 1000);
+        testDataLength(1000,10, 1000);
       }
 
     private static void testDataLength(int maxLength, int numberOfIterations, int increment) {
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = increment; i<=maxLength; i+= increment){
+        for(int i = 0; i<=maxLength; i+= increment){
            executionTimes.add(testDataInner(i, numberOfIterations));
         }
         System.out.println(executionTimes);
@@ -31,7 +31,7 @@ public class Main {
 
     private static void testDataLengthDB(int maxLength, int numberOfIterations, int increment) {
         ArrayList<Long> executionTimes = new ArrayList<>();
-        for(int i = increment; i<=maxLength; i+= increment){
+        for(int i = 0; i<=maxLength; i+= increment){
             executionTimes.add(testDataInnerDB(i, numberOfIterations));
         }
         System.out.println(executionTimes);
@@ -54,7 +54,7 @@ public class Main {
 
     private static long testDataInnerstDB(HypotheticalReasoner h, int dataLength, int time){
         generateLongDataDB2(dataLength,time, h);
-        System.out.println("\t t="+time);
+        // System.out.println("\t t="+time);
         long startTime = System.nanoTime();
         h.nextTimeLarge();
         long endTime = System.nanoTime();

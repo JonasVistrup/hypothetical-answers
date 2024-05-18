@@ -24,6 +24,10 @@ public class ModifiedSLDResolution {
         return answers;
     }
 
+    public static ArrayList<Answer> preprocess(Program program, Atom query){
+        return preprocess(program, new AtomList(query));
+    }
+
     /**
      * Recursively performs depth first search of the SLD-tree, but stops whenever a goal which only contains atoms with EDB predicates.
      * @param answers the list of hypothetical answer found so far.
@@ -98,7 +102,7 @@ public class ModifiedSLDResolution {
      */
     private static boolean isFinished(AtomList goal) {
         for(Atom a: goal){
-            if(a.predicate instanceof Predicate && ((Predicate)a.predicate).IDB()){
+            if(!a.negated() && a.predicate instanceof Predicate && ((Predicate)a.predicate).IDB()){
                 return false;
             }
         }

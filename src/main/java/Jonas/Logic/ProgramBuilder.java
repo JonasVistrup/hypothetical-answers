@@ -20,6 +20,8 @@ public class ProgramBuilder {
         addFunctionPredicates();
     }
 
+
+
     private void addFunctionPredicates(){
         try{
             Scanner input = new Scanner(new File("FunctionPredicates"));
@@ -129,10 +131,18 @@ public class ProgramBuilder {
      */
     public Atom parseAtom(String atomRep) {
         atomRep = atomRep.replaceAll(" ", "");
+
         String[] strArguments;
         if (atomRep.length() == 0) {
             throw new IllegalArgumentException("Atom representation must not be empty");
         }
+
+        boolean negated = false;
+        if(atomRep.charAt(0) == '~'){
+            atomRep = atomRep.substring(1);
+            negated = true;
+        }
+
         String[] parts = atomRep.split("\\(");
         int numberOfArgs;
         if (parts.length >= 2) {
@@ -159,7 +169,11 @@ public class ProgramBuilder {
 
             // Get temporal argument
             Temporal temporal = getTemporal(strArguments[numberOfArgs]);
-            return new Atom(p,arguments, temporal);
+            if(negated){
+                return new NAtom(p,arguments,temporal,null);
+            }else {
+                return new Atom(p, arguments, temporal);
+            }
 
         }else{
             arguments.add(getTerm(strArguments[numberOfArgs]));
@@ -254,4 +268,20 @@ public class ProgramBuilder {
         return res;
     }
 
+
+    public AtomList stringToAtomList(String stringRep){
+        AtomList atomList = new AtomList();
+
+        stringRep = stringRep.replaceAll(" ", "");
+        if(stringRep.isEmpty()){
+            return atomList;
+        }
+        stringRep = stringRep.replaceAll("\\),", ") ");
+        String[] atomRepList = stringRep.split(" ");
+
+        for(String atomRep: atomRepList){
+            atomList.add(this.parseAtom(atomRep));
+        }
+        return atomList;
+    }
 }

@@ -154,6 +154,10 @@ public class Answer implements Comparable<Answer>{
         return result;
     }
 
+    public Answer applySub(Substitution sub){
+        return new Answer(this.resultingQueriedAtoms.applySub(sub),this.substitution.add(sub), this.evidence.applySub(sub), this.premise.applySub(sub), this.clausesUsed.applySub(sub));
+    }
+
 
     /**
      * An equals function. If the queriedAtoms, evidence and premise for this and obj are equal then they are the same Answer.
@@ -204,6 +208,10 @@ public class Answer implements Comparable<Answer>{
             builder.append(a.toString());
             builder.append(",");
         }
+        for(Atom a: this.evidence.negated()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
         if(!this.evidence.isEmpty()){
             builder.deleteCharAt(builder.length()-1);
         }
@@ -222,6 +230,10 @@ public class Answer implements Comparable<Answer>{
             builder.append(",");
         }
         for(Atom a: this.premise.functionAtoms()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.premise.negated()){
             builder.append(a.toString());
             builder.append(",");
         }

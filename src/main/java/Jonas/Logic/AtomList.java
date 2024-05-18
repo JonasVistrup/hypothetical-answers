@@ -14,6 +14,8 @@ public class AtomList extends ArrayList<Atom>{
     private AtomList variableTime = null;
     private AtomList smallestConstant = null;
     private AtomList smallestVariable = null;
+
+    private AtomList negatedAtoms = null;
     private AtomList userDefinedAtoms = null;
 
     private boolean organized = false;
@@ -120,15 +122,20 @@ public class AtomList extends ArrayList<Atom>{
         constantTime = new AtomList();
         variableTime = new AtomList();
         userDefinedAtoms = new AtomList();
+        negatedAtoms = new AtomList();
         for(Atom a: this){
             if(a instanceof SpecialAtom) {
                 userDefinedAtoms.add(a);
             }else {
-                if (a.temporal.tVar == null) constantTime.add(a);
-                else variableTime.add(a);
+                if (a.negated()){
+                    negatedAtoms.add(a);
+                }else {
+                    if (a.temporal.tVar == null) constantTime.add(a);
+                    else variableTime.add(a);
+                }
             }
         }
-
+        Collections.sort(negatedAtoms);
         smallestConstant = constantTime.getMin();
         smallestVariable = variableTime.getMin();
 
@@ -177,6 +184,33 @@ public class AtomList extends ArrayList<Atom>{
         organize();
 
         return smallestConstant;
+    }
+
+    public AtomList negated(){
+        organize();
+
+        return negatedAtoms;
+    }
+
+    public AtomList M_minus(int time){
+        organize();
+        AtomList a = new AtomList();
+        for(int i = 0; i < negatedAtoms.size(); i++){
+            Atom current = negatedAtoms.get(i);
+            if(current.temporal.tConstant > time) break;
+            a.add(current);
+        }
+        return a;
+    }
+    public AtomList M_plus(int time){
+        AtomList smallest = smallestConstant();
+        if(!smallest.isEmpty()){
+            Atom a = smallest.get(0);
+            if(a.temporal.tVar != null) throw new IllegalArgumentException("M_plus is called on atoms with uninstated time variable");
+            if(a.temporal.tConstant < time) throw new IllegalArgumentException("M_plus is called with positive atoms before current time");
+            if(a.temporal.tConstant == time) return smallest;
+        }
+        return new AtomList();
     }
 
     /**
@@ -341,4 +375,5 @@ public class AtomList extends ArrayList<Atom>{
         }
         return arr;
     }
+
 }
