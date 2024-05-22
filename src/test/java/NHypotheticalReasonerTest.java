@@ -64,4 +64,54 @@ class NHypotheticalReasonerTest {
 
     }
 
+    @Test
+    @DisplayName("Simple Negation Test2")
+    void negationTestSimple2() {
+        h = new NegatedHypothetical();
+        h.addClause("P(T)<-Q(T+1),~R(T)");
+        h.addClause("R(T)<-~L(T+1)");
+        h.addClause("L(T)<-S(T-1)");
+        h.query("P(T)");
+        List<Answer> P = h.preprocessAnswers();
+        System.out.println(P);
+
+        h.nextTime("Q(0)");
+        List<Answer> S0 = h.supportedAnswers();
+        System.out.println(S0);
+
+        h.nextTime("S(1),Q(1)");
+        List<Answer> S1 = h.supportedAnswers();
+        System.out.println(S1);
+
+
+    }
+
+    @Test
+    @DisplayName("Simple Negation Test3")
+    void negationTestSimple3() {
+        h = new NegatedHypothetical();
+        h.addClause("P(T)<-Q(T+1),~R(X,T)");
+        h.addClause("R(a,T)<-S(T)");
+        h.addClause("R(b,T)<-S(T+1)");
+        h.query("P(T)");
+        List<Answer> P = h.preprocessAnswers();
+        System.out.println(P);
+
+        h.nextTime("Q(0)");
+        List<Answer> S0 = h.supportedAnswers();
+        System.out.println();
+        for(Long key: h.S.keySet()){
+            System.out.println("\t"+h.S.get(key));
+        }
+
+        h.nextTime("Q(1)");
+        List<Answer> S1 = h.supportedAnswers();
+        System.out.println();
+        for(Long key: h.S.keySet()){
+            System.out.println("\t"+h.S.get(key));
+        }
+
+
+    }
+
 }

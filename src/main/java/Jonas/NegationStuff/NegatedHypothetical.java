@@ -23,7 +23,7 @@ public class NegatedHypothetical {
     private int time;
 
     private HashMap<Long, Set<Answer>> P;
-    private HashMap<Long, Set<Answer>> S;
+    public HashMap<Long, Set<Answer>> S;
 
     public NegatedHypothetical(){
         this.pBuilder = new ProgramBuilder();
@@ -74,6 +74,7 @@ public class NegatedHypothetical {
     }
 
     public void preprocess(Atom query){
+        this.P = new HashMap<>();
         this.addQuery(query);
         Set<Answer> preprocessingAnswers = new HashSet<>(ModifiedSLDResolution.preprocess(pBuilder.getProgram(), query));
         for(Answer answer: preprocessingAnswers){
