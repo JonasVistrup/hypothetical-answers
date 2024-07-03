@@ -2,10 +2,8 @@ package Jonas.Logic;
 
 import org.json.JSONArray;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A list of atom
@@ -16,6 +14,8 @@ public class AtomList extends ArrayList<Atom>{
     private AtomList variableTime = null;
     private AtomList smallestConstant = null;
     private AtomList smallestVariable = null;
+
+    private AtomList negatedAtoms = null;
     private AtomList userDefinedAtoms = null;
 
     private boolean organized = false;
@@ -122,15 +122,20 @@ public class AtomList extends ArrayList<Atom>{
         constantTime = new AtomList();
         variableTime = new AtomList();
         userDefinedAtoms = new AtomList();
+        negatedAtoms = new AtomList();
         for(Atom a: this){
             if(a instanceof SpecialAtom) {
                 userDefinedAtoms.add(a);
             }else {
-                if (a.temporal.tVar == null) constantTime.add(a);
-                else variableTime.add(a);
+                if (a.negated()){
+                    negatedAtoms.add(a);
+                }else {
+                    if (a.temporal.tVar == null) constantTime.add(a);
+                    else variableTime.add(a);
+                }
             }
         }
-
+        Collections.sort(negatedAtoms);
         smallestConstant = constantTime.getMin();
         smallestVariable = variableTime.getMin();
 
@@ -181,6 +186,33 @@ public class AtomList extends ArrayList<Atom>{
         return smallestConstant;
     }
 
+    public AtomList negated(){
+        organize();
+
+        return negatedAtoms;
+    }
+
+    public AtomList M_minus(int time){
+        organize();
+        AtomList a = new AtomList();
+        for(int i = 0; i < negatedAtoms.size(); i++){
+            Atom current = negatedAtoms.get(i);
+            if(current.temporal.tConstant > time) break;
+            a.add(current);
+        }
+        return a;
+    }
+    public AtomList M_plus(int time){
+        AtomList smallest = smallestConstant();
+        if(!smallest.isEmpty()){
+            Atom a = smallest.get(0);
+            if(a.temporal.tVar != null) throw new IllegalArgumentException("M_plus is called on atoms with uninstated time variable");
+            if(a.temporal.tConstant < time) throw new IllegalArgumentException("M_plus is called with positive atoms before current time");
+            if(a.temporal.tConstant == time) return smallest;
+        }
+        return new AtomList();
+    }
+
     /**
      * @return a sorted list of the atoms in this with a temporal variable and the smallest temporal constant.
      */
@@ -223,10 +255,52 @@ public class AtomList extends ArrayList<Atom>{
      */
     public Program toProgram() {
         List<Clause> clauses = new ArrayList<>();
+        boolean allGround = true;
         for(Atom a: this){
+            if(!a.isGround()) allGround = false;
             clauses.add(new Clause(a, new AtomList()));
         }
-        return new Program(clauses);
+        HashMap<PredicateInterface, HashMap<Term, List<Clause>>> h = new HashMap<>();
+
+        if(!allGround || this.size() == 0){
+            return new Program(clauses);
+        }
+
+        for(Clause clause: clauses){
+            if(!h.containsKey(clause.head.predicate)){
+                HashMap<Term, List<Clause>> hh = new HashMap<>();
+                hh.put(null, new ArrayList<>());
+                h.put(clause.head.predicate, hh);
+            }
+
+            HashMap<Term, List<Clause>> innerMap = h.get(clause.head.predicate);
+            if(clause.head.args.size() == 0){
+                innerMap.get(null).add(clause);
+            }else {
+                if(!innerMap.containsKey(clause.head.args.get(0))){
+                    innerMap.put(clause.head.args.get(0), new ArrayList<>());
+                }
+                innerMap.get(clause.head.args.get(0)).add(clause);
+            }
+        }
+        return new Program(clauses, new Selector() {
+            HashMap<PredicateInterface, HashMap<Term, List<Clause>>> map = h;
+            @Override
+            public List<Clause> getClausesFor(Atom a) {
+                if(!h.containsKey(a.predicate)) return new ArrayList<>();
+                HashMap<Term, List<Clause>> innerMap = h.get(a.predicate);
+
+                if(a.args.size() == 0) return innerMap.get(null);
+                if(a.args.get(0) instanceof Variable){
+                    return innerMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
+                }
+                if(innerMap.containsKey(a.args.get(0))){
+                    return innerMap.get(a.args.get(0));
+                }else{
+                    return new ArrayList<>();
+                }
+            }
+        });
     }
 
     /**
@@ -301,4 +375,5 @@ public class AtomList extends ArrayList<Atom>{
         }
         return arr;
     }
+
 }

@@ -1,9 +1,6 @@
 package Jonas.Hypothetical;
 
-import Jonas.Logic.Atom;
-import Jonas.Logic.AtomList;
-import Jonas.Logic.Program;
-import Jonas.Logic.Substitution;
+import Jonas.Logic.*;
 import Jonas.SLD.ModifiedSLDResolution;
 import Jonas.SLD.SLDResolution;
 import org.json.JSONArray;
@@ -35,6 +32,8 @@ public class Answer implements Comparable<Answer>{
      */
     public final AtomList premise;
 
+    public final ExplanationList clausesUsed;
+
     /**
      * Constructs an answer with substitution, evidence and premise.
      * @param resultingQueriedAtoms this list of queries resulting from applying the substitution to the original queries.
@@ -42,11 +41,20 @@ public class Answer implements Comparable<Answer>{
      * @param evidence this answers evidence.
      * @param premise this answers premise.
      */
-    public Answer(AtomList resultingQueriedAtoms, Substitution substitution, AtomList evidence, AtomList premise){
+    public Answer(AtomList resultingQueriedAtoms, Substitution substitution, AtomList evidence, AtomList premise, List<Clause> clausesUsed){
         this.resultingQueriedAtoms = resultingQueriedAtoms;
         this.substitution = substitution;
         this.evidence = evidence;
         this.premise = premise;
+        this.clausesUsed = new ExplanationList(clausesUsed);
+    }
+
+    public Answer(AtomList resultingQueriedAtoms, Substitution substitution, AtomList evidence, AtomList premise, ExplanationList clausesUsed){
+        this.resultingQueriedAtoms = resultingQueriedAtoms;
+        this.substitution = substitution;
+        this.evidence = evidence;
+        this.premise = premise;
+        this.clausesUsed = clausesUsed;
     }
 
 
@@ -69,10 +77,10 @@ public class Answer implements Comparable<Answer>{
                 Substitution sub = this.substitution.add(answer);
                 AtomList newEvidence = this.evidence.plus(constants).applySub(answer);
                 AtomList newPremise = this.premise.without(constants).applySub(answer);
-
+                ExplanationList list = this.clausesUsed.applySub(answer);
 
                 if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
-                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise, list));
                 }
             }
         }else{
@@ -91,14 +99,63 @@ public class Answer implements Comparable<Answer>{
                 Substitution sub = this.substitution.add(answer);
                 AtomList newEvidence = this.evidence.plus(smallestPremise).applySub(answer);
                 AtomList newPremise = this.premise.without(smallestPremise).applySub(answer);
+                ExplanationList list = this.clausesUsed.applySub(answer);
 
                 if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
-                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise));
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise, list));
                 }
             }
         }
 
         return result;
+    }
+
+    public Set<Answer> partialUpdate(Program dataSlice, int time){
+        //Constant part.
+        Set<Answer> result = new HashSet<>();
+
+        if(!this.premise.smallestConstant().isEmpty() && this.premise.smallestConstant().get(0).temporal.tConstant == time){
+            AtomList constants = this.premise.smallestConstant();
+            List<Substitution> answers = SLDResolution.findSubstitutions(dataSlice, constants);
+
+            for(Substitution answer: answers){
+                AtomList queriedAtoms = this.resultingQueriedAtoms.applySub(answer);
+                Substitution sub = this.substitution.add(answer);
+                AtomList newEvidence = this.evidence.plus(constants).applySub(answer);
+                AtomList newPremise = this.premise.without(constants).applySub(answer);
+                ExplanationList list = this.clausesUsed.applySub(answer);
+
+                if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise, list));
+                }
+            }
+        }
+
+        //Constant and Temporal part.
+        if(!this.premise.smallestVariable().isEmpty()){
+            AtomList smallestPremise = this.premise.smallestConstant().isEmpty() || this.premise.smallestConstant().get(0).temporal.tConstant!= time?
+                    this.premise.smallestVariable() : this.premise.smallestConstant().plus(this.premise.smallestVariable());
+
+            List<Substitution> answers = SLDResolution.findSubstitutions(dataSlice, smallestPremise); //TODO can be optimized. The constants do not need to be solved twice.
+
+            for(Substitution answer: answers){
+                AtomList queriedAtoms = this.resultingQueriedAtoms.applySub(answer);
+                Substitution sub = this.substitution.add(answer);
+                AtomList newEvidence = this.evidence.plus(smallestPremise).applySub(answer);
+                AtomList newPremise = this.premise.without(smallestPremise).applySub(answer);
+                ExplanationList list = this.clausesUsed.applySub(answer);
+
+                if(ModifiedSLDResolution.removeAndCheckFunctionAtoms(newPremise,newEvidence)) {
+                    result.add(new Answer(queriedAtoms, sub, newEvidence, newPremise, list));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public Answer applySub(Substitution sub){
+        return new Answer(this.resultingQueriedAtoms.applySub(sub),this.substitution.add(sub), this.evidence.applySub(sub), this.premise.applySub(sub), this.clausesUsed.applySub(sub));
     }
 
 
@@ -151,6 +208,10 @@ public class Answer implements Comparable<Answer>{
             builder.append(a.toString());
             builder.append(",");
         }
+        for(Atom a: this.evidence.negated()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
         if(!this.evidence.isEmpty()){
             builder.deleteCharAt(builder.length()-1);
         }
@@ -169,6 +230,10 @@ public class Answer implements Comparable<Answer>{
             builder.append(",");
         }
         for(Atom a: this.premise.functionAtoms()){
+            builder.append(a.toString());
+            builder.append(",");
+        }
+        for(Atom a: this.premise.negated()){
             builder.append(a.toString());
             builder.append(",");
         }
@@ -218,6 +283,11 @@ public class Answer implements Comparable<Answer>{
         o.put("substitutions", this.substitution.toJSONArray(relevantQuery));
         o.put("evidence",this.evidence.toJSONArray());
         o.put("premise",this.premise.toJSONArray());
+        JSONArray reasoningArr = new JSONArray();
+        for(Clause c: this.clausesUsed.clauseUsed){
+            reasoningArr.put(c.toJSONObject());
+        }
+        o.put("reasoning",reasoningArr);
 
         return o;
     }

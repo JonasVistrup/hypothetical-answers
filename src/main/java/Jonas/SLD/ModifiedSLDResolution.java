@@ -17,11 +17,15 @@ public class ModifiedSLDResolution {
      * @param query the query.
      * @return hypothetical answers.
      */
-    public static List<Answer> preprocess(Program program, AtomList query){
-        List<Answer> answers = new ArrayList<>();
-        inOrderTraversal(answers, query, new Substitution(), program, 1, query, new AtomList());
+    public static ArrayList<Answer> preprocess(Program program, AtomList query){
+        ArrayList<Answer> answers = new ArrayList<>();
+        inOrderTraversal(answers, query, new Substitution(), program, 1, query, new AtomList(), new ArrayList<>());
 
         return answers;
+    }
+
+    public static ArrayList<Answer> preprocess(Program program, Atom query){
+        return preprocess(program, new AtomList(query));
     }
 
     /**
@@ -32,9 +36,13 @@ public class ModifiedSLDResolution {
      * @param program the program.
      * @param level the current level of the SLD-tree.
      */
-    private static void inOrderTraversal(List<Answer> answers, AtomList goal, Substitution sub, Program program, int level, AtomList original, AtomList faEvidence){
+    private static void inOrderTraversal(List<Answer> answers, AtomList goal, Substitution sub, Program program, int level, AtomList original, AtomList faEvidence, ArrayList<Clause> clausesUsed){
         if(isFinished(goal)){
-            answers.add(new Answer(original.applySub(sub), sub, faEvidence, goal));
+            ArrayList<Clause> clausesInstantiated = new ArrayList<>();
+            for(Clause c: clausesUsed){
+                clausesInstantiated.add(c.applySub(sub));
+            }
+            answers.add(new Answer(original.applySub(sub), sub, faEvidence, goal, clausesInstantiated));
             return;
         }
 
@@ -51,13 +59,15 @@ public class ModifiedSLDResolution {
 
                 Substitution new_sub = Substitution.composition(sub, unifier);
                 if(removeAndCheckFunctionAtoms(new_goal, faEvidence)) {
-                    inOrderTraversal(answers, new_goal, new_sub, program, level + 1, original, faEvidence);
+                    ArrayList<Clause> clausesUsedNext = (ArrayList<Clause>) clausesUsed.clone();
+                    clausesUsedNext.add(clauseInstance);
+                    inOrderTraversal(answers, new_goal, new_sub, program, level + 1, original, faEvidence, clausesUsedNext);
                 }
             }
         }
     }
 
-    public static boolean removeAndCheckFunctionAtoms(AtomList new_goal, AtomList evidence) {
+    public static boolean removeAndCheckFunctionAtoms(AtomList new_goal, AtomList evidence) { //Functions atoms are self-explanatory
         List<SpecialAtom> specialAtoms = new_goal.groundFAtoms();
         for(SpecialAtom fa: specialAtoms){
             if(!fa.run()) return false;
@@ -76,14 +86,13 @@ public class ModifiedSLDResolution {
      * @return the last IDB atom in goal.
      */
     private static Atom selectAtom(AtomList goal, Program program) {
-        for(int i = goal.size()-1; i>0; i--){
-            if(goal.get(i).predicate.IDB()){
+        for(int i = goal.size()-1; i>=0; i--){
+            Atom nextAtom = goal.get(i);
+            if(nextAtom.predicate instanceof Predicate && ((Predicate) goal.get(i).predicate).IDB()){
                 return goal.get(i);
             }
         }
-
-        assert goal.get(0).predicate.IDB();
-        return goal.get(0);
+        throw new IllegalStateException("UDP "+ goal.get(0) +" is not safe");
     }
 
     /**
@@ -93,7 +102,7 @@ public class ModifiedSLDResolution {
      */
     private static boolean isFinished(AtomList goal) {
         for(Atom a: goal){
-            if(a.predicate.IDB()){
+            if(!a.negated() && a.predicate instanceof Predicate && ((Predicate)a.predicate).IDB()){
                 return false;
             }
         }

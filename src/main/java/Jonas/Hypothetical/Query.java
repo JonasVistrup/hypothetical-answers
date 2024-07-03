@@ -5,38 +5,41 @@ import Jonas.Logic.Program;
 import Jonas.Logic.Substitution;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * Representation of a query.
  */
 public class Query {
-    /**
-     * Answers that resulted from the preprocessing.
-     */
-    public List<Answer> preprocessingAnswers;
-    /**
-     * Answers that have been updated up to the current time.
-     */
-    public List<Answer> supportedAnswers;
-    /**
-     * Complete answers for the query. I.e. answers with no premise.
-     */
-    public List<Answer> answers; // TODO fill this as supportedAnswers are proven.
+
+    public ArrayList<Answer> answers = new ArrayList<>();
+    public ArrayList<Answer> hypAnswers;
+
+    private static int MAX_ANSWER_SIZE = 100000;
+
     public AtomList queriedAtoms;
+    public int index;
+    public DBConnection db;
+    private static int numberOfQueries = 0;
 
     /**
      * Constructs a new query given the preprocessed answers.
      * @param queriedAtoms Atoms to query.
-     * @param preprocessingAnswers Preprocessed answers found by the modified SLD-resolution.
      */
-    public Query(AtomList queriedAtoms, List<Answer> preprocessingAnswers){
+    public Query(AtomList queriedAtoms, DBConnection db, ArrayList<Answer> hypAnswers){
+        this.index = numberOfQueries++;
         this.queriedAtoms = queriedAtoms;
-        this.supportedAnswers = preprocessingAnswers;
-        this.preprocessingAnswers = preprocessingAnswers;
+        this.db = db;
+        this.hypAnswers = hypAnswers; //TODO check if hypanswers has no premise and should be answers
+    }
+
+    public Query(AtomList queriedAtoms, int index, DBConnection db, ArrayList<Answer> hypAnswers, ArrayList<Answer> answers){
+        this.index = index;
+        this.queriedAtoms = queriedAtoms;
+        this.db = db;
+
+        this.hypAnswers = hypAnswers;
     }
 
     /**
@@ -56,11 +59,7 @@ public class Query {
      * @return list of all complete answers. I.e. answers without a premise.
      */
     public List<Answer> getProvedAnswers(){
-        List<Answer> result = new ArrayList<>();
-        for(Answer a: supportedAnswers){
-            if(a.premise.isEmpty()) result.add(a);
-        }
-        return result;
+        return new ArrayList<>(this.db.getAnswers(this));
     }
 
 
@@ -68,7 +67,7 @@ public class Query {
      * @return a copy of this query.
      */
     public Query copy(){
-        return new Query(queriedAtoms, new ArrayList<>(supportedAnswers));
+        return new Query(queriedAtoms, this.index, this.db, (ArrayList<Answer>) this.hypAnswers.clone(), (ArrayList<Answer>) this.answers.clone());
     }
 
     /**
@@ -78,17 +77,28 @@ public class Query {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(queriedAtoms.toString()).append(":");
-        if(supportedAnswers.isEmpty()){
+        List<Answer> answers = getAllAnswers();
+
+        if(answers.isEmpty()){
             builder.append(" NO ANSWERS");
         }else{
             builder.append("\n");
         }
-        for(Answer a: supportedAnswers){
+
+        for(Answer a: answers){
             builder.append("\t");
             builder.append(a.toString(queriedAtoms));
             builder.append("\n");
         }
         return builder.toString();
+    }
+
+    private List<Answer> getAllAnswers(){ //TODO make it return all answers
+        List<Answer> answers = new ArrayList<>(db.getAnswers(this));
+        for (Iterator<Answer> it = db.getHypotheticalAnswers(this); it.hasNext();) {
+            answers.add(it.next());
+        }
+        return answers;
     }
 
     /**
@@ -97,7 +107,7 @@ public class Query {
     public JSONObject toJSONObject() {
         JSONObject o = new JSONObject();
         o.put("query", this.queriedAtoms.toString());
-        for(Answer a: this.supportedAnswers){
+        for(Answer a: getAllAnswers()){
             o.accumulate("answers", a.toJSONObject(this.queriedAtoms));
         }
         return o;
@@ -109,10 +119,87 @@ public class Query {
      * @param time current time.
      */
     public void update(Program dataSliceProgram, int time) {
-        Set<Answer> answerSet = new HashSet<>();
-        for(Answer a: this.supportedAnswers){
-            answerSet.addAll(a.update(dataSliceProgram, time));
+        ArrayList<Answer> nextHypAnswers = new ArrayList<>();
+        for(Answer a: this.hypAnswers){
+            //System.out.println(a.toString(this.queriedAtoms));
+            for(Answer aa: a.update(dataSliceProgram,time)){
+                if(aa.premise.isEmpty()) this.answers.add(aa);
+                else nextHypAnswers.add(aa);
+            }
         }
-        this.supportedAnswers = new ArrayList<>(answerSet);
+        this.hypAnswers = nextHypAnswers;
+        if(answers.size() > MAX_ANSWER_SIZE){
+            db.uploadAnswers(this.answers,this);
+            this.answers = new ArrayList<>();
+        }
+
+        /*Iterator<Answer> iterator = db.getHypotheticalAnswers(this);
+        for (Iterator<Answer> it = iterator; it.hasNext(); ) {
+            Answer a = it.next();
+            //System.out.println(a);
+            for(Answer aa: a.update(dataSliceProgram, time)){
+                db.addAnswer(aa,this);
+            }
+        }*/
+        //System.out.println();
+    }
+
+    public void update2(DataIterator data, int time) {
+
+        //Step 2: Fetch Datachunk
+                    //Step 3: Update TBK and rest, add results to rest
+                    //Step 4: Go back to step 2 until all datachunk have been used
+                    //Step 5: Remove TBK, and set rest as the new hypanswers
+
+                    //Step 1: Split to TBK and rest
+                    ArrayList<Answer> toBeKilled = new ArrayList<>();
+                    ArrayList<Answer> iterHypAnswers = new ArrayList<>();
+                    ArrayList<Answer> nextHypAnswers = new ArrayList<>();
+                    for(Answer a: this.hypAnswers){
+                        //System.out.println(a.toString(this.queriedAtoms));
+                        if(!a.premise.smallestConstant().isEmpty() && a.premise.smallestConstant().get(0).temporal.tConstant == time){
+                            toBeKilled.add(a);
+                        }else if(a.premise.smallestVariable().isEmpty() && a.premise.smallestConstant().get(0).temporal.tConstant>time) {
+                            nextHypAnswers.add(a);
+                        }else{
+                            iterHypAnswers.add(a);
+                        }
+                    }
+
+                    for(Program p: data){
+                        ArrayList<Answer> temp = new ArrayList<>();
+                        for(Answer a: iterHypAnswers){
+                            for(Answer aa: a.partialUpdate(p,time)){
+                                if(aa.premise.isEmpty()) this.answers.add(aa);
+                                else if (aa.premise.smallestVariable().isEmpty() && aa.premise.smallestConstant().get(0).temporal.tConstant>time){
+                        nextHypAnswers.add(aa);
+                    }else{
+                        temp.add(aa);
+                    }
+                }
+            }
+            iterHypAnswers.addAll(temp);
+
+            for(Answer a: toBeKilled){
+                for(Answer aa: a.partialUpdate(p,time)){
+                    if(aa.premise.isEmpty()) this.answers.add(aa);
+                    else if (aa.premise.smallestVariable().isEmpty() && aa.premise.smallestConstant().get(0).temporal.tConstant>time){
+                        nextHypAnswers.add(aa);
+                    }else{
+                        iterHypAnswers.add(aa);
+                    }
+                }
+            }
+        }
+
+        this.hypAnswers = nextHypAnswers;
+        this.hypAnswers.addAll(iterHypAnswers);
+        if(answers.size() > MAX_ANSWER_SIZE){
+            db.uploadAnswers(this.answers,this);
+            this.answers = new ArrayList<>();
+        }
+
+        //System.out.println();
+
     }
 }

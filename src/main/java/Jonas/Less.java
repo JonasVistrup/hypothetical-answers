@@ -20,7 +20,7 @@ public class Less implements UserDefinedPredicate {
             int one = Integer.parseInt(constantList.get(0).toString());
             int two = Integer.parseInt(constantList.get(1).toString());
 
-            return one > two;
+            return one < two;
         } catch (NumberFormatException e) {
             return false;
         }
@@ -29,13 +29,7 @@ public class Less implements UserDefinedPredicate {
     @Override
     public String toString(List<Term> terms) {
         assert terms.size() == nArgs();
-        return terms.get(0).toString() + "<" + terms.get(1).toString();
-    }
-
-
-    @Override
-    public boolean IDB() {
-        return false;
+        return "Less("+terms.get(0).toString() + "," + terms.get(1).toString() + ")";
     }
 
     @Override

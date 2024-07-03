@@ -17,6 +17,8 @@ public class HypotheticalReasoner {
         private List<Query> queries;
         private int time;
 
+        public final DBConnection db;
+
         /**
          * Constructs a reasoner with an empty program.
          */
@@ -24,6 +26,7 @@ public class HypotheticalReasoner {
                 this.pBuilder = new ProgramBuilder();
                 this.queries = new ArrayList<>();
                 this.time = -1;
+                this.db = new DBConnection(null,pBuilder);
         }
 
         /**
@@ -42,7 +45,6 @@ public class HypotheticalReasoner {
                 } catch (FileNotFoundException e) {
                         throw new IllegalArgumentException("Filepath is not a valid path");
                 }
-
         }
 
 
@@ -57,6 +59,10 @@ public class HypotheticalReasoner {
                 queryFromFile(queriesPath);
         }
 
+        public void clearDB(){
+                this.db.wipeDB();
+        }
+
         /**
          * Adds a clause to the program.
          * @param representation string representation of clause.
@@ -65,6 +71,11 @@ public class HypotheticalReasoner {
                 pBuilder.addClause(representation);
                 this.queries = new ArrayList<>();
                 this.time = -1;
+        }
+
+        public void addData(String data){
+                if(queries.isEmpty()) throw  new IllegalStateException("query must be called before time slices can be added");
+                this.db.insertData(this.time,data);
         }
 
         /**
@@ -90,6 +101,7 @@ public class HypotheticalReasoner {
          * @param atomsRep String representation of atoms to query.
          */
         public void query(String atomsRep){
+                this.time = 0;
                 atomsRep = atomsRep.replaceAll(" ", "");
                 atomsRep = atomsRep.replaceAll("\\),", " ");
                 String[] atomRepList = atomsRep.split(" ");
@@ -98,8 +110,14 @@ public class HypotheticalReasoner {
                         query.add(pBuilder.parseAtom(atom));
                 }
 
-                List<Answer> preprocessingAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), query);
-                this.queries.add(new Query(query, preprocessingAnswers));
+                ArrayList<Answer> preprocessingAnswers = ModifiedSLDResolution.preprocess(pBuilder.getProgram(), query);
+                Query q = new Query(query, this.db, preprocessingAnswers);
+                /*for(Answer a: preprocessingAnswers){
+                        db.addAnswer(a,q);
+                }*/
+                this.queries.add(q);
+                //this.db.switchHyp();
+
         }
 
         /**
@@ -123,10 +141,22 @@ public class HypotheticalReasoner {
                         q.update(dataSliceProgram, this.time);
 
                 }
+
                 this.time = this.time + 1;
         }
 
-        private AtomList stringToAtomList(String stringRep){
+        public void nextTimeLarge(){
+                if(queries.isEmpty()) throw  new IllegalStateException("query must be called before time slices can be added");
+
+                for(Query q: queries){
+                        q.update2(new DataIterator(time,this.db,this), this.time);
+
+                }
+                //db.wipeHyp();
+                this.time = this.time + 1;
+        }
+
+        public AtomList stringToAtomList(String stringRep){
                 AtomList atomList = new AtomList();
 
                 stringRep = stringRep.replaceAll(" ", "");
@@ -158,7 +188,11 @@ public class HypotheticalReasoner {
          */
         public List<Answer> preprocessingAnswers(){
                 if(this.queries.isEmpty()) throw new IllegalStateException("The Reasoner must be queried before hypothetical answers are generated.");
-                List<Answer> list = queries.get(0).preprocessingAnswers;
+                List<Answer> list = new ArrayList<>();
+                for (Iterator<Answer> it = queries.get(0).db.getHypotheticalAnswers(queries.get(0)); it.hasNext(); ) {
+                        Answer a = it.next();
+                        list.add(a);
+                }
                 Collections.sort(list);
                 return list;
         }
@@ -171,12 +205,8 @@ public class HypotheticalReasoner {
         public List<Answer> supportedAnswers(){
                 if(this.queries.isEmpty()) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
                 Query query = queries.get(0);
-                List<Answer> res = new ArrayList<>();
-                for(Answer answer: query.supportedAnswers){
-                        if(!answer.evidence.isEmpty()){
-                                res.add(answer);
-                        }
-                }
+                List<Answer> res = new ArrayList<>(db.getSupportedAnswers(query));
+
                 Collections.sort(res);
                 return res;
         }
@@ -189,12 +219,8 @@ public class HypotheticalReasoner {
         public List<Answer> answers(){
                 if(this.queries.isEmpty()) throw new IllegalStateException("The Reasoner must be queried before evidence answers are generated.");
                 Query query = queries.get(0);
-                List<Answer> res = new ArrayList<>();
-                for(Answer answer: query.supportedAnswers){
-                        if(answer.premise.isEmpty()){
-                                res.add(answer);
-                        }
-                }
+                List<Answer> res = new ArrayList<>(db.getAnswers(query));
+                res.addAll(query.answers);
                 Collections.sort(res);
                 return res;
         }

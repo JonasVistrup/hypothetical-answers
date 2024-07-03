@@ -26,8 +26,12 @@ public class Atom implements Comparable<Atom>{
     /**
      * Map of different variants of this atom.
      */
-    private final Map<Integer, Atom> instances;
+    protected final Map<Integer, Atom> instances;
 
+
+
+    private static long next_id = 0;
+    private final long id = next_id++;
     /**
      * Constructs an atom.
      * @param predicate predicate of atom.
@@ -58,6 +62,14 @@ public class Atom implements Comparable<Atom>{
         this.instances = new HashMap<>();
     }
 
+    public long id(){
+        return id;
+    }
+
+
+    public boolean negated(){ return false;}
+
+    public Atom getQuery(){ return null;}
 
     /**
      * Returns a variant of this atom.
@@ -177,5 +189,12 @@ public class Atom implements Comparable<Atom>{
         JSONObject o = new JSONObject();
         o.put("atom",this.toString());
         return o;
+    }
+
+    public boolean isGround(){
+        for(Term t: args){
+            if(t instanceof Variable) return false;
+        }
+        return true;
     }
 }
